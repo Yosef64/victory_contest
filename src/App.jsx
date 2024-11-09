@@ -1,6 +1,7 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
-import LeaderBoard from "./Components/leaderBoard/LeaderBoard";
+import LeaderBoard from "./components/leaderBoard/LeaderBoard";
+import NewButton from "./components/SHADCD/NewButton";
 
 function App() {
   const router = createBrowserRouter([
@@ -8,7 +9,7 @@ function App() {
       path: "/",
       element: (
         <div>
-          <h1>Hello World</h1>
+          <NewButton />
           <Link to="Leaderboard">Leaderboard Screen</Link>
         </div>
       ),

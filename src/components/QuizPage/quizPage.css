@@ -1,0 +1,54 @@
+.quiz-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #eff0f3;
+}
+.quiz-page .header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 28px 24px;
+  height: 5vh;
+}
+.header .back-button {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  position: absolute;
+  left: 5px;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+.header .back-button svg {
+  width: 28px;
+  height: 28px;
+}
+.quiz-page .questions {
+  padding: 0 28px;
+  flex: 1;
+}
+.question-wrapper {
+  height: 100%;
+  position: relative;
+}
+.question .slides {
+  height: 80%;
+}
+
+.change-buttons {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+.change-buttons span {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 38.45px;
+  color: #fff;
+}

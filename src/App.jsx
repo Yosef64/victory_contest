@@ -1,18 +1,13 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 import LeaderBoard from "./components/leaderBoard/LeaderBoard";
-import NewButton from "./components/SHADCD/NewButton";
+import QuizPage from "./components/QuizPage/QuizPage";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: (
-        <div>
-          <NewButton />
-          <Link to="Leaderboard">Leaderboard Screen</Link>
-        </div>
-      ),
+      element: <QuizPage />,
     },
     {
       path: "Leaderboard",

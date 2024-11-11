@@ -7,7 +7,7 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        custom: "20px",
+        custom: "16px !important",
       },
       colors: {
         background: "hsl(var(--background))",

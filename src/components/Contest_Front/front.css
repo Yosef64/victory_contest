@@ -1,0 +1,113 @@
+.container {
+     height: 100vh;
+     background-color: #3a6f75;
+     position: relative;
+     color: white;
+     overflow: hidden;
+   }
+   
+   .centercircle {
+     position: absolute;
+     top: 40%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: space-around;
+   }
+   
+   .circlebg {
+     background-color: white;
+     position: absolute;
+     top: -60px;
+     right: -100px;
+     opacity: 0.07;
+     border-radius: 50%;
+     width: 300px;
+     height: 300px;
+   }
+   
+   .circlebg1 {
+     background-color: white;
+     position: absolute;
+     top: 300px;
+     left: -390px;
+     opacity: 0.03;
+     border-radius: 50%;
+     width: 500px;
+     height: 500px;
+   }
+   
+   .circlebg2 {
+     background-color: white;
+     position: absolute;
+     bottom: -100px;
+     left: -190px;
+     opacity: 0.03;
+     border-radius: 50%;
+     width: 300px;
+     height: 300px;
+   }
+   
+   .circlebg3 {
+     background-color: white;
+     position: absolute;
+     top: 40px;
+     left: 10px;
+     opacity: 0.03;
+     border-radius: 50%;
+     width: 160px;
+     height: 160px;
+   }
+   
+   .circlebg4 {
+     background-color: white;
+     position: absolute;
+     bottom: 50px;
+     right: 10px;
+     opacity: 0.03;
+     border-radius: 50%;
+     width: 150px;
+     height: 150px;
+   }
+   
+   .circle {
+     background-color: white;
+     width: 200px;
+     height: 200px;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-direction: column;
+     color: #3a6f75;
+     margin-top: 160px;
+     margin-bottom: 100px;
+   }
+   
+   .title {
+     font-size: 44px;
+     font-weight: bold;
+     margin: 0;
+     padding: 0;
+   }
+   
+   .subtitle {
+     font-size: 26px;
+     margin-top: 80px;
+     color: #0F5385;
+     font-weight: bold;
+     padding: 0;
+     margin: 0 0 20px 70px;
+   }
+   
+   .statusText {
+     font-size: 18px;
+     margin-bottom: 10px;
+   }
+   
+   .timer {
+     font-size: 36px;
+   }
+   

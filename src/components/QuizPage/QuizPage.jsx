@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { createContext, useRef, useState } from "react";
 import "./quizPage.css";
 import {
   Carousel,
@@ -8,13 +8,17 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import QuestionCard from "../questionCard/QuestionCard";
 import { Button } from "../ui/button";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 import TimeCard from "./TimeCard";
+import SendScore from "../../lib/SendScore";
 
+export const AnswerContext = createContext();
 function QuizPage() {
+  const navigate = useNavigate();
+
   const [questions, setQuestions] = useState([
     {
       question_id: 1,
@@ -157,58 +161,74 @@ function QuizPage() {
       subject: "Football",
     },
   ]);
+
+  const answersRef = useRef(
+    questions.reduce((acc, question) => {
+      acc[question.question_id] = "notSelected";
+      return acc;
+    }, {})
+  );
+
   return (
-    <div className="quiz-page">
-      <div className="header">
-        <div className="back-button">
-          <Link to={"/"}>
-            <MdOutlineKeyboardArrowLeft />
-          </Link>
-          <span>Back</span>
+    <AnswerContext.Provider value={{ answersRef }}>
+      <div className="quiz-page">
+        <div className="header">
+          <div className="back-button">
+            <Link to={"/"}>
+              <MdOutlineKeyboardArrowLeft />
+            </Link>
+            <span>Back</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <AccessAlarmIcon />
+            <span className="text-lg">
+              <TimeCard questions={questions} />
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <AccessAlarmIcon />
-          <span className="text-lg">{/* <TimeCard /> */}</span>
+        <div className="questions">
+          <Carousel className="question-wrapper flex">
+            <div className="slides flex-1 w-full">
+              <CarouselContent>
+                {questions &&
+                  questions.map((question, index) => {
+                    return (
+                      <CarouselItem key={index}>
+                        <QuestionCard
+                          question={question}
+                          index={index}
+                          length={questions.length}
+                        />
+                      </CarouselItem>
+                    );
+                  })}
+              </CarouselContent>
+            </div>
+            <div className="change-buttons">
+              <div className="relative flex-1 ">
+                <CarouselPrevious className="static w-full rounded-custom" />
+              </div>
+              <div className="relative flex-1 ">
+                <CarouselNext className="static w-full rounded-custom" />
+              </div>
+              <div className="flex-1 ">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-14 w-full bg-customGreen static rounded-custom"
+                  onClick={() => {
+                    SendScore(answersRef, questions);
+                    navigate("/leaderboard");
+                  }}
+                >
+                  <span>Submit</span>
+                </Button>
+              </div>
+            </div>
+          </Carousel>
         </div>
       </div>
-      <div className="questions">
-        <Carousel className="question-wrapper flex">
-          <div className="slides flex-1 w-full">
-            <CarouselContent>
-              {questions &&
-                questions.map((question, index) => {
-                  return (
-                    <CarouselItem key={index}>
-                      <QuestionCard
-                        question={question}
-                        index={index}
-                        length={questions.length}
-                      />
-                    </CarouselItem>
-                  );
-                })}
-            </CarouselContent>
-          </div>
-          <div className="change-buttons">
-            <div className="relative flex-1 ">
-              <CarouselPrevious className="static w-full rounded-custom" />
-            </div>
-            <div className="relative flex-1 ">
-              <CarouselNext className="static w-full rounded-custom" />
-            </div>
-            <div className="flex-1 ">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-14 w-full bg-customGreen static rounded-custom"
-              >
-                <span>Submit</span>
-              </Button>
-            </div>
-          </div>
-        </Carousel>
-      </div>
-    </div>
+    </AnswerContext.Provider>
   );
 }
 

@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
+import { AnswerContext } from "@/components/QuizPage/QuizPage";
 import { useNavigate } from "react-router-dom";
+import sendScore from "@/lib/SendScore";
 
-function calculateTimeLeft(targetTime) {
-  const now = new Date();
-  const target = new Date(targetTime);
+function calculateTimeLeft(startTime, endTime) {
+  const now = new Date(startTime);
+  const target = new Date(endTime);
   const diff = target - now;
   return Math.max(diff, 0); // Ensure it doesn't go negative
 }
@@ -22,27 +24,32 @@ function formatTime(diff) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-function TimeCard() {
-  const [timeLeft, setTimeLeft] = useState(() =>
-    calculateTimeLeft("2024-11-11T21:00:00")
-  );
+function TimeCard({ questions }) {
   const navigate = useNavigate();
-  const targetTime = "2024-11-11T21:00:00"; // Define target time as a constant
+  const { answersRef } = useContext(AnswerContext);
+  const [timeLeft, setTimeLeft] = useState(-1);
+
+  const endTime = "2024-11-10T12:00:12";
+  const startTime = "2024-11-10T12:00:00";
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const remainingTime = calculateTimeLeft(targetTime);
-      setTimeLeft(remainingTime);
+    const remainingTime = calculateTimeLeft(startTime, endTime);
+    setTimeLeft(remainingTime);
 
-      if (remainingTime <= 0) {
-        clearInterval(interval);
-        // Optional: navigate or handle when countdown ends
-        navigate("/");
-      }
+    const interval = setInterval(() => {
+      setTimeLeft((prevTime) => Math.max(prevTime - 1000, 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [navigate, targetTime]);
+  }, []);
+
+  // Handle the navigation and score submission when timeLeft reaches 0
+  useEffect(() => {
+    if (timeLeft === 0) {
+      sendScore(answersRef, questions);
+      // navigate("/leaderboard");
+    }
+  }, [timeLeft, answersRef, questions, navigate]);
 
   const formattedTime = useMemo(() => formatTime(timeLeft), [timeLeft]);
 

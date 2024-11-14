@@ -56,12 +56,10 @@ function QuestionCard({ question, index, length }) {
           {multiple_choice.map((choice, index) => {
             return (
               <ChooseCard
+                question_id={question_id}
                 key={index}
                 flag={choice === selected}
-                index={index}
-                question="ui"
                 choice={choice}
-                className="shadow-lg   rounded-fulls flex"
                 setSelected={setSelected}
               />
             );

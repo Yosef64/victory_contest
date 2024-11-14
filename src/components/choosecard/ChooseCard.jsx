@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import "./chooseCard.css";
-import { Alert, Box } from "@mui/material";
+import { Alert } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-function ChooseCard({ choice, setSelected, flag }) {
+import { AnswerContext } from "../QuizPage/QuizPage";
+function ChooseCard({ choice, setSelected, flag, question_id }) {
+  const { answersRef } = useContext(AnswerContext);
+
   return (
     <Alert
-      onClick={(e) => setSelected(choice)}
-      // severity="suc
+      onClick={async (e) => {
+        setSelected(choice);
+        answersRef.current[question_id] = choice;
+      }}
       icon={false} // Hide default icon
       sx={{
         display: "flex",

@@ -36,6 +36,9 @@
 .question-wrapper {
   height: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 10px;
 }
 .question .slides {
   height: 100%;
@@ -43,7 +46,6 @@
 }
 
 .change-buttons {
-  position: fixed;
   bottom: 20px;
   width: 100%;
   display: flex;
@@ -51,11 +53,14 @@
   gap: 15px;
   align-items: center;
   justify-content: center;
-  padding: 0 28px;
+  padding: 0 4px;
 }
 .change-buttons span {
   font-size: 18px;
   font-weight: 600;
   line-height: 38.45px;
   color: #fff;
+}
+.overflow-hidden {
+  height: 100%;
 }

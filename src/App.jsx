@@ -19,7 +19,7 @@ function App() {
       document.body.style.backgroundColor = themeParams.bg_color || "#f3f3f3";
       // Set up event handlers if needed
       tg.onEvent("backButtonClicked", () => {
-        console.log("Back button clicked");
+        document.body.style.backgroundColor = "#000000";
         // Handle back button event
       });
 

@@ -34,9 +34,10 @@ function QuizPage() {
     },
     {
       question_id: 2,
-      question_text: "Who is known as the ‘King of Football’?",
+      question_text:
+        "Who is known as the ‘King of Football’?  Maradona Diego Maradona Diego",
       multiple_choice: [
-        "Diego Maradona",
+        " Maradona Diego Maradona Diego Maradona",
         "Pelé",
         "Lionel Messi",
         "Cristiano Ronaldo",
@@ -197,7 +198,7 @@ function QuizPage() {
           </div>
         </div>
         <div className="questions">
-          <Carousel className="question-wrapper flex">
+          <Carousel className="question-wrapper ">
             <div className="slides flex-1 w-full">
               <CarouselContent>
                 {questions &&

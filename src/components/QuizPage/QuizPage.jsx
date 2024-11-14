@@ -226,7 +226,7 @@ function QuizPage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-full bg-customGreen static rounded-custom"
+                  className="h-12 w-full bg-customGreen static rounded-custom"
                   onClick={() => {
                     SendScore(answersRef, questions);
                     // navigate("/leaderboard");

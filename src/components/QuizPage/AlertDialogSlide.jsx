@@ -11,7 +11,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function AlertDialogSlide({ handleClose }) {
+export default function AlertDialogSlide({ handleClose, navigatePage }) {
   return (
     <React.Fragment>
       <Dialog
@@ -28,7 +28,7 @@ export default function AlertDialogSlide({ handleClose }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Yes</Button>
+          <Button onClick={navigatePage}>Yes</Button>
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
       </Dialog>

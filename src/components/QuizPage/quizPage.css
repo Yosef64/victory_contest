@@ -30,7 +30,7 @@
   align-items: center;
 }
 .quiz-page .questions {
-  padding: 0 28px;
+  padding: 0 22px;
   flex: 1;
 }
 .question-wrapper {
@@ -54,6 +54,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 4px;
+  margin-top: 4px;
 }
 .change-buttons span {
   font-size: 18px;

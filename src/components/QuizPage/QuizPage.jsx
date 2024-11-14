@@ -178,12 +178,20 @@ function QuizPage() {
 
   const handleClose = () => {
     setOpen(false);
+    navigate("/register");
   };
-
+  const navigatePage = () => {
+    navigate("/leaderboard");
+  };
   return (
     <AnswerContext.Provider value={{ answersRef }}>
       <div className="quiz-page">
-        {open && <AlertDialogSlide handleClose={handleClose} />}
+        {open && (
+          <AlertDialogSlide
+            handleClose={handleClose}
+            navigatePage={navigatePage}
+          />
+        )}
         <div className="header">
           <div className="back-button">
             <button onClick={handleClickOpen}>

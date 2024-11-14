@@ -76,8 +76,8 @@ const Intro = () => {
         </div>
 
         <p className="statusText">
+          <span>{timeLeft > 0 && "Before Contest "}</span>
           <span>{formattedTime}</span>
-          <span>{timeLeft > 0 && "Before Contest Start"}</span>
         </p>
 
         <div className="timer">

@@ -13,7 +13,10 @@ function App() {
 
       // Expand the app to full screen
       tg.expand();
+      const themeParams = tg.themeParams;
 
+      // Set background color based on the Telegram theme's background color
+      document.body.style.backgroundColor = themeParams.bg_color || "#f3f3f3";
       // Set up event handlers if needed
       tg.onEvent("backButtonClicked", () => {
         console.log("Back button clicked");

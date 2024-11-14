@@ -39,7 +39,7 @@ const Intro = () => {
         );
         setTimeLeft(remainingTime);
       } catch (error) {
-        setError(true);
+        setError(false);
       }
     }
     fetchTime();

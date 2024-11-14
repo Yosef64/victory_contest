@@ -5,8 +5,6 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
-import Fade from "@mui/material/Fade";
-import Slide from "@mui/material/Slide";
 
 function formatTime(diff) {
   const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
@@ -21,29 +19,11 @@ function formatTime(diff) {
 
   return `${hours}:${minutes}:${seconds}`;
 }
-function SlideTransition(props) {
-  return <Slide {...props} direction="up" />;
-}
+
 const Intro = () => {
   const [timeLeft, setTimeLeft] = useState(-1);
-  const [state, setState] = useState({
-    open: false,
-    Transition: Fade,
-  });
+  const [error, setError] = useState(false);
 
-  const handleClick = (Transition) => () => {
-    setState({
-      open: true,
-      Transition,
-    });
-  };
-
-  const handleClose = () => {
-    setState({
-      ...state,
-      open: false,
-    });
-  };
   useEffect(() => {
     async function fetchTime() {
       try {
@@ -59,14 +39,18 @@ const Intro = () => {
         );
         setTimeLeft(remainingTime);
       } catch (error) {
-        handleClick(SlideTransition)();
+        setError(true);
       }
     }
     fetchTime();
 
     const interval = setInterval(() => {
       setTimeLeft((prevTime) => {
-        if (prevTime <= 0) {
+        if (prevTime < 0) {
+          clearInterval(interval);
+          return -1;
+        }
+        if (prevTime == 0) {
           clearInterval(interval);
           return 0;
         }
@@ -81,7 +65,7 @@ const Intro = () => {
 
   return (
     <div className="container">
-      {<TransitionsSnackbar state={state} handleClose={handleClose} />}
+      {<TransitionsSnackbar error={error} />}
       <div className="circlebg"></div>
       <div className="circlebg1"></div>
       <div className="circlebg2"></div>
@@ -100,7 +84,7 @@ const Intro = () => {
         </p>
 
         <div className="timer">
-          {timeLeft === 0 && (
+          {timeLeft === 0 && !error && (
             <Link
               to="/quizpage"
               style={{

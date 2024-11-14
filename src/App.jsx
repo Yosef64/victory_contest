@@ -1,24 +1,25 @@
-// import React from "react";
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LeaderBoard from "./components/leaderBoard/LeaderBoard";
 import QuizPage from "./components/QuizPage/QuizPage";
-import Front from "./components/Contest_Front/Front";
+import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
+      element: <Intro />,
+    },
+    {
+      path: "quizpage",
       element: <QuizPage />,
     },
     {
-      path: "Leaderboard",
+      path: "leaderboard",
       element: <LeaderBoard />,
     },
-    {
-      path: "intro",
-      element: <Front />,
-    },
+
     {
       path: "register",
       element: <Register />,

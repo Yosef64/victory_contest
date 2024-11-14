@@ -25,6 +25,10 @@
   width: 28px;
   height: 28px;
 }
+.header .back-button button {
+  display: flex;
+  align-items: center;
+}
 .quiz-page .questions {
   padding: 0 28px;
   flex: 1;

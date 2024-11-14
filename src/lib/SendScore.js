@@ -1,4 +1,5 @@
-function SendScore(answer, serverQuestions) {
+import axios from "axios";
+async function SendScore(answer, serverQuestions) {
   let wrongAnswer = [];
   let score = 0;
   serverQuestions.forEach((question) => {
@@ -11,8 +12,17 @@ function SendScore(answer, serverQuestions) {
       });
     }
   });
-  console.log("score", score);
-  console.log("wrongAnswer", wrongAnswer);
+  try {
+    await axios.post(
+      "http://localhost:5000/test",
+      { score: score, wrongAnswer: wrongAnswer },
+      {
+        withCredentials: true, // Enable sending cookies with the request
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export default SendScore;

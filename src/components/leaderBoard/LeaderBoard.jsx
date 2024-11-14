@@ -9,9 +9,9 @@ function LeaderBoard() {
       <div className="top-3">
         <div className="title">
           <div className="home-link">
-            <NavLink to={"/"}>
+            {/* <NavLink to={"/"}>
               <MdOutlineKeyboardArrowLeft />
-            </NavLink>
+            </NavLink> */}
           </div>
           <span>leaderboard</span>
         </div>

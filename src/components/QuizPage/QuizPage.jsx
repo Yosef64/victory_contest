@@ -8,12 +8,13 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import QuestionCard from "../questionCard/QuestionCard";
 import { Button } from "../ui/button";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 import TimeCard from "./TimeCard";
 import SendScore from "../../lib/SendScore";
+import AlertDialogSlide from "./AlertDialogSlide";
 
 export const AnswerContext = createContext();
 function QuizPage() {
@@ -168,16 +169,25 @@ function QuizPage() {
       return acc;
     }, {})
   );
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <AnswerContext.Provider value={{ answersRef }}>
       <div className="quiz-page">
+        {open && <AlertDialogSlide handleClose={handleClose} />}
         <div className="header">
           <div className="back-button">
-            <Link to={"/"}>
-              <MdOutlineKeyboardArrowLeft />
-            </Link>
-            <span>Back</span>
+            <button onClick={handleClickOpen}>
+              <MdOutlineKeyboardArrowLeft /> <span>Back</span>
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <AccessAlarmIcon />
@@ -218,7 +228,7 @@ function QuizPage() {
                   className="h-14 w-full bg-customGreen static rounded-custom"
                   onClick={() => {
                     SendScore(answersRef, questions);
-                    navigate("/leaderboard");
+                    // navigate("/leaderboard");
                   }}
                 >
                   <span>Submit</span>

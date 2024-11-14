@@ -2,13 +2,8 @@ import React, { useEffect, useState, useMemo, useContext } from "react";
 import { AnswerContext } from "@/components/QuizPage/QuizPage";
 import { useNavigate } from "react-router-dom";
 import sendScore from "@/lib/SendScore";
-
-function calculateTimeLeft(startTime, endTime) {
-  const now = new Date(startTime);
-  const target = new Date(endTime);
-  const diff = target - now;
-  return Math.max(diff, 0); // Ensure it doesn't go negative
-}
+import axios from "axios";
+import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 
 function formatTime(diff) {
   const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
@@ -29,17 +24,27 @@ function TimeCard({ questions }) {
   const { answersRef } = useContext(AnswerContext);
   const [timeLeft, setTimeLeft] = useState(-1);
 
-  const endTime = "2024-11-10T12:00:12";
-  const startTime = "2024-11-10T12:00:00";
-
   useEffect(() => {
-    const remainingTime = calculateTimeLeft(startTime, endTime);
-    setTimeLeft(remainingTime);
-
+    async function fetchTime() {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/contest_id",
+          {
+            withCredentials: true, // Enable sending cookies with the request
+          }
+        );
+        const remainingTime = Math.max(
+          calculateTimeLeft(response.data.startTime, response.data.endTime)
+        );
+        setTimeLeft(remainingTime);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchTime();
     const interval = setInterval(() => {
       setTimeLeft((prevTime) => Math.max(prevTime - 1000, 0));
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 

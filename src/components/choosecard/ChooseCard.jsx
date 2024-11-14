@@ -29,7 +29,7 @@ function ChooseCard({ choice, setSelected, flag, question_id }) {
         color: !flag ? "#000" : "#000",
         borderRadius: "8px",
         marginTop: "16px",
-        boxShadow: "0px 20px 50px -10px #00000026",
+        boxShadow: "0px 1px 1px 1px #00000026;",
       }}
     >
       <div className="text-sm">{choice}</div>
@@ -37,7 +37,16 @@ function ChooseCard({ choice, setSelected, flag, question_id }) {
         {flag ? (
           <CheckCircleIcon />
         ) : (
-          <input type="radio" style={{ width: "20px", height: "20px" }} />
+          <input
+            type="radio"
+            style={{
+              width: "20px",
+              height: "20px",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+            }}
+          />
         )}
       </div>
     </Alert>

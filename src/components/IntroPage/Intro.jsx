@@ -48,12 +48,9 @@ const Intro = () => {
       setTimeLeft((prevTime) => {
         if (prevTime < 0) {
           clearInterval(interval);
-          return -1;
-        }
-        if (prevTime == 0) {
-          clearInterval(interval);
           return 0;
         }
+
         return prevTime - 1000;
       });
     }, 1000);

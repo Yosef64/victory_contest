@@ -88,13 +88,11 @@ const Intro = () => {
                 backgroundColor: "#1A4D7C",
                 color: "white",
                 border: "none",
-                borderRadius: "20px",
-                padding: "10px 20px",
-                fontSize: 30,
+                borderRadius: "16px",
+                padding: "4px 24px",
+                fontSize: 24,
                 cursor: "pointer",
                 transition: "background-color 0.3s",
-                width: 262,
-                height: 59,
               }}
             >
               Start

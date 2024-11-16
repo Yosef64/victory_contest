@@ -87,14 +87,14 @@
 }
 
 .title {
-  font-size: 44px;
+  font-size: 2rem;
   font-weight: bold;
   margin: 0;
   padding: 0;
 }
 
 .subtitle {
-  font-size: 26px;
+  font-size: 1.5rem;
   margin-top: 80px;
   color: #0f5385;
   font-weight: bold;

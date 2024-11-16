@@ -1,17 +1,19 @@
 import React from "react";
 import "./rankCard.css";
-function RankCard() {
+function RankCard({ rank, name, score, total }) {
   return (
     <div className="rank-card">
       <div className="profile">
-        <span className="rank">4</span>
+        <span className="rank">{rank}</span>
         <span>
           <img src="./profile.jpg" alt="" />
         </span>
-        <p>smith carol</p>
+        <p>{name}</p>
       </div>
       <div>
-        <span className="mark">6/10</span>
+        <span className="mark">
+          {score}/{total}
+        </span>
       </div>
     </div>
   );

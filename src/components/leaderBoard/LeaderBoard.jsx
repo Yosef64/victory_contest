@@ -1,17 +1,72 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./leaderBoard.css";
 import RankCard from "../rankCard/RankCard";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 function LeaderBoard() {
+  const [userList, setUserList] = useState([
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+    { name: "carol", score: 7 },
+  ]);
+
+  useEffect(() => {}, []);
+
   return (
     <div className="leader-board">
       <div className="top-3">
         <div className="title">
           <div className="home-link">
-            {/* <NavLink to={"/"}>
+            <NavLink to={"/"}>
               <MdOutlineKeyboardArrowLeft />
-            </NavLink> */}
+            </NavLink>
           </div>
           <span>leaderboard</span>
         </div>
@@ -100,18 +155,16 @@ function LeaderBoard() {
 
       <div className="total-rank">
         <div className="wrapper">
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
-          <RankCard />
+          {userList.map((user, index) => {
+            return (
+              <RankCard
+                rank={index + 1}
+                total={userList.length}
+                name={user.name}
+                score={user.score}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

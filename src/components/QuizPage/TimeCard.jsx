@@ -27,14 +27,18 @@ function TimeCard({ questions }) {
   useEffect(() => {
     async function fetchTime() {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/contest_id",
-          {
-            withCredentials: true, // Enable sending cookies with the request
-          }
-        );
-        const remainingTime = Math.max(
-          calculateTimeLeft(response.data.startTime, response.data.endTime)
+        // const response = await axios.get(
+        //   "http://localhost:5000/api/contest_id",
+        //   {
+        //     withCredentials: true, // Enable sending cookies with the request
+        //   }
+        // );
+        // const remainingTime = Math.max(
+        //   calculateTimeLeft(response.data.startTime, response.data.endTime)
+        // );
+        const remainingTime = calculateTimeLeft(
+          "2024-11-10T12:00:00",
+          "2024-11-10T12:01:00"
         );
         setTimeLeft(remainingTime);
       } catch (error) {
@@ -52,7 +56,7 @@ function TimeCard({ questions }) {
   useEffect(() => {
     if (timeLeft === 0) {
       sendScore(answersRef, questions);
-      // navigate("/leaderboard");
+      navigate("/leaderboard");
     }
   }, [timeLeft, answersRef, questions, navigate]);
 

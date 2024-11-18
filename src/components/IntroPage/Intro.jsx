@@ -27,15 +27,19 @@ const Intro = () => {
   useEffect(() => {
     async function fetchTime() {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/contest_id",
-          {
-            withCredentials: true,
-          }
-        );
+        // const response = await axios.get(
+        //   "http://localhost:5000/api/contest_id",
+        //   {
+        //     withCredentials: true,
+        //   }
+        // );
+        // const remainingTime = calculateTimeLeft(
+        //   response.data.startTime,
+        //   response.data.endTime
+        // );
         const remainingTime = calculateTimeLeft(
-          response.data.startTime,
-          response.data.endTime
+          "2024-11-10T12:00:00",
+          "2024-11-10T12:00:20"
         );
         setTimeLeft(remainingTime);
       } catch (error) {
@@ -46,7 +50,7 @@ const Intro = () => {
 
     const interval = setInterval(() => {
       setTimeLeft((prevTime) => {
-        if (prevTime < 0) {
+        if (prevTime <= 0) {
           clearInterval(interval);
           return 0;
         }

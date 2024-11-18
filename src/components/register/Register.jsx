@@ -70,8 +70,6 @@ const Register = () => {
     <div className="form-container">
       <h1 className="gradient-text">Register</h1>
 
-
-
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -91,21 +89,21 @@ const Register = () => {
           required
         />
 
-
-
-<div className="custom-select">
-  <select 
-    name="sex"
-    value={formData.sex}
-    onChange={handleChange}
-    required
-    aria-label="Select gender"
-  >
-    <option value="" disabled>Select Gender</option>
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-  </select>
-</div>
+        <div className="custom-select">
+          <select
+            name="sex"
+            value={formData.sex}
+            onChange={handleChange}
+            required
+            aria-label="Select gender"
+          >
+            <option value="" disabled>
+              Select Gender
+            </option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
 
         <input
           type="number"
@@ -205,8 +203,9 @@ const Register = () => {
           </div>
         </div>
 
-        <button type="submit" className="styled-button">Register</button>
-
+        <button type="submit" className="styled-button">
+          Register
+        </button>
       </form>
     </div>
   );

@@ -4,6 +4,7 @@ import LeaderBoard from "./components/leaderBoard/LeaderBoard";
 import QuizPage from "./components/QuizPage/QuizPage";
 import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
+import AgetRegisterd from "./components/agetRegister/AgetRegister";
 
 function App() {
   useEffect(() => {
@@ -46,6 +47,10 @@ function App() {
     {
       path: "register",
       element: <Register />,
+    },
+    {
+      path: "agetregister",
+      element: <AgetRegisterd />,
     },
   ]);
   return <RouterProvider router={router} />;

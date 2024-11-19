@@ -1,10 +1,11 @@
 import { useState } from "react";
 import "./agentRegister.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Alert, Snackbar } from "@mui/material";
 const AgetRegisterd = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     bankaccount: "",
@@ -35,7 +36,7 @@ const AgetRegisterd = () => {
         withCredentials: true,
       });
       if (res.ok) {
-        navigator("/succesfull");
+        navigate("/successPage");
       } else {
         setError("Something went wrong! Pleas try again!");
       }
@@ -72,6 +73,7 @@ const AgetRegisterd = () => {
             type="text"
             name="name"
             className="mt-6"
+            style={{ fontFamily: "'Public Sans',sans-serif", fontSize: 18 }}
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
@@ -86,6 +88,7 @@ const AgetRegisterd = () => {
             value={formData.bankname}
             onChange={handleChange}
             required
+            style={{ fontFamily: "'Public Sans',sans-serif", fontSize: 18 }}
           />
           <input
             type="number"
@@ -94,6 +97,7 @@ const AgetRegisterd = () => {
             placeholder="Bank account"
             value={formData.bankaccount}
             onChange={handleChange}
+            style={{ fontFamily: "'Public Sans',sans-serif", fontSize: 18 }}
             required
           />
 
@@ -105,6 +109,7 @@ const AgetRegisterd = () => {
             value={formData.city}
             onChange={handleChange}
             required
+            style={{ fontFamily: "'Public Sans',sans-serif", fontSize: 18 }}
           />
 
           <div className="phone-input">

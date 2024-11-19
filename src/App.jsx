@@ -5,7 +5,7 @@ import QuizPage from "./components/QuizPage/QuizPage";
 import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
 import AgetRegisterd from "./components/agetRegister/AgetRegister";
-import Successfull from "./components/successfull/Successfull";
+import SuccessPage from "./components/successfull/SuccessPage";
 
 function App() {
   useEffect(() => {
@@ -46,12 +46,12 @@ function App() {
       element: <Register />,
     },
     {
-      path: "agetregister/:id",
+      path: "agentregister/:id",
       element: <AgetRegisterd />,
     },
     {
-      path: "sucessfull",
-      element: <Successfull />,
+      path: "successPage",
+      element: <SuccessPage />,
     },
   ]);
   return <RouterProvider router={router} />;

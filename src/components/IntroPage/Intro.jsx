@@ -63,13 +63,13 @@ const Intro = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const currentPath = window.location.pathname;
-    console.log("Original URL path:", currentPath);
+  // useEffect(() => {
+  //   const currentPath = window.location.pathname;
+  //   console.log("Original URL path:", currentPath);
 
-    // Navigate to the current path if needed
-    navigate(currentPath);
-  }, [navigate]);
+  //   // Navigate to the current path if needed
+  //   navigate(currentPath);
+  // }, [navigate]);
 
   const formattedTime = timeLeft > 0 ? formatTime(timeLeft) : "00:00:00";
 

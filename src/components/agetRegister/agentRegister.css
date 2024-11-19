@@ -19,7 +19,8 @@
 /* Styling for the heading */
 .agent .gradient-text {
   font-size: 2rem;
-  font-weight: bold;
+  font-weight: 600;
+  font-family: "Public Sans", sans-serif;
   background: linear-gradient(
     135deg,
     rgba(24, 23, 24, 0.973),

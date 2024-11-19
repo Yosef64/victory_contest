@@ -2,17 +2,18 @@ import { useState } from "react";
 import "./agentRegister.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Alert, Snackbar } from "@mui/material";
 const AgetRegisterd = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     bankaccount: "",
     bankname: "",
     city: "",
     phoneNumber: "",
     countryCode: "+1",
   });
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,16 +31,36 @@ const AgetRegisterd = () => {
     };
     const url = import.meta.env.VITE_REGISTER_API;
     try {
-      await axios.post(url, dataToSubmit, {
-        withCredentials: true, // Enable sending cookies with the request
+      const res = await axios.post(url, dataToSubmit, {
+        withCredentials: true,
       });
+      if (res.ok) {
+        navigator("/succesfull");
+      } else {
+        setError("Something went wrong! Pleas try again!");
+      }
     } catch (error) {
       console.error(error);
+      setError(error.message);
     }
+  };
+  const handleClose = () => {
+    setError(null);
   };
 
   return (
     <div className="form-container  agent">
+      <Snackbar
+        anchorOrigin={{ horizontal: "center", vertical: "top" }}
+        onClose={handleClose}
+        autoHideDuration={6000}
+        open={error !== null}
+        children={
+          <Alert variant="filled" severity="error">
+            {error}
+          </Alert>
+        }
+      />
       <form
         onSubmit={handleSubmit}
         className="flex flex-col justify-between  h-screen"
@@ -49,20 +70,10 @@ const AgetRegisterd = () => {
 
           <input
             type="text"
-            name="firstName"
-            placeholder="First Name"
+            name="name"
             className="mt-6"
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="text"
-            name="lastName"
-            className="mt-6"
-            placeholder="Last Name"
-            value={formData.lastName}
+            placeholder="Full Name"
+            value={formData.name}
             onChange={handleChange}
             required
           />

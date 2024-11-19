@@ -5,6 +5,7 @@ import QuizPage from "./components/QuizPage/QuizPage";
 import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
 import AgetRegisterd from "./components/agetRegister/AgetRegister";
+import Successfull from "./components/successfull/Successfull";
 
 function App() {
   useEffect(() => {
@@ -47,6 +48,10 @@ function App() {
     {
       path: "agetregister/:id",
       element: <AgetRegisterd />,
+    },
+    {
+      path: "sucessfull",
+      element: <Successfull />,
     },
   ]);
   return <RouterProvider router={router} />;

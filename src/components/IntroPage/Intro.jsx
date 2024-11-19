@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import "./front.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
@@ -23,6 +23,7 @@ function formatTime(diff) {
 const Intro = () => {
   const [timeLeft, setTimeLeft] = useState(-1);
   const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchTime() {
@@ -61,6 +62,14 @@ const Intro = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    console.log("Original URL path:", currentPath);
+
+    // Navigate to the current path if needed
+    navigate(currentPath);
+  }, [navigate]);
 
   const formattedTime = timeLeft > 0 ? formatTime(timeLeft) : "00:00:00";
 

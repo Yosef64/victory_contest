@@ -32,10 +32,8 @@ const AgetRegisterd = () => {
     };
     const url = import.meta.env.VITE_REGISTER_API;
     try {
-      const res = await axios.post(url, dataToSubmit, {
-        withCredentials: true,
-      });
-      if (res.ok) {
+      const res = await axios.post(url, dataToSubmit);
+      if (res.status === 200) {
         navigate("/successPage");
       } else {
         setError("Something went wrong! Pleas try again!");

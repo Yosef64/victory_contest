@@ -1,10 +1,6 @@
-.form-container {
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.agent.form-container {
+  padding: 0 20px;
+
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   background: linear-gradient(
     to top,
@@ -21,7 +17,7 @@
 }
 
 /* Styling for the heading */
-.gradient-text {
+.agent .gradient-text {
   font-size: 2rem;
   font-weight: bold;
   background: linear-gradient(
@@ -35,8 +31,7 @@
   color: transparent;
 }
 
-/* Optional: Container for centering content */
-.signup-container {
+.agent .signup-container {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
@@ -47,33 +42,24 @@ form {
   flex-direction: column;
 }
 
-.agent input,
-.agent select {
+.agent input {
   padding: 10px;
-  margin: 20px 0;
-
   border: 1px solid #ddd;
   border-radius: 10px;
   font-size: 20px;
 }
 
-.phone-input {
+.agent .phone-input {
   display: flex;
-  gap: 10px;
+  gap: 30px;
 }
 
-select,
-textarea,
-.phone-input select,
+.agent textarea,
 .phone-input input {
   width: 100%;
 }
 
-input[type="file"] {
-  padding: 5px;
-}
-
-.styled-button {
+.agent .styled-button {
   padding: 12px 20px;
   margin-top: 10px;
   border: none;
@@ -84,10 +70,9 @@ input[type="file"] {
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.styled-button:hover {
+.agent .styled-button:hover {
   background: linear-gradient(135deg, #0056b3, #003080);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
@@ -98,80 +83,19 @@ input[type="file"] {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* PhotoUploadForm.css */
-
-.photo-upload-form {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin: 20px;
-}
-
-.photo-label {
-  font-size: 16px;
-  color: #333;
-}
-
 .required {
   color: red;
 }
 
-.photo-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.photo-preview {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ddd;
-}
-
-.upload-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 250px;
-  height: 100px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-  text-align: center;
-  padding: 10px;
-}
-
-.upload-box:hover {
-  border-color: #007bff;
-}
-
-.file-input {
-  display: none;
-}
-
-.upload-instructions {
-  color: #666;
-  font-size: 14px;
-}
-
-.custom-select {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.custom-select select {
+.agent select {
   appearance: none;
-  width: 100%;
+  width: 50% !important;
   padding: 8px;
-  font-size: 16px;
+  font-size: 1p7x;
 }
 
 .custom-select::after {
-  content: "▼"; /* Replace this with your desired arrow symbol or icon */
+  content: "▼";
   position: absolute;
   top: 50%;
   right: 12px;

@@ -237,7 +237,7 @@ function QuizPage() {
                   className="h-12 w-full bg-customGreen static rounded-custom"
                   onClick={() => {
                     SendScore(answersRef, questions);
-                    // navigate("/leaderboard");
+                    navigate("/leaderboard");
                   }}
                 >
                   <span>Submit</span>

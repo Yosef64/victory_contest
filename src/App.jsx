@@ -49,7 +49,7 @@ function App() {
       element: <Register />,
     },
     {
-      path: "agetregister",
+      path: "agetregister/:id",
       element: <AgetRegisterd />,
     },
   ]);

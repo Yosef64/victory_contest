@@ -1,6 +1,9 @@
 import { useState } from "react";
 import "./agentRegister.css";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 const AgetRegisterd = () => {
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,28 +20,38 @@ const AgetRegisterd = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // If you want to include binary data, you can add it to formData
     const dataToSubmit = {
       ...formData,
+      tele_id: id,
     };
-
-    console.log("Form Data Submitted:", dataToSubmit);
-
-    // Additional submission logic can be added here (e.g., sending data to a server)
+    const url = import.meta.env.VITE_REGISTER_API;
+    try {
+      await axios.post(url, dataToSubmit, {
+        withCredentials: true, // Enable sending cookies with the request
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <div className="form-container  agent flex flex-col justify-between h-screen">
-      <div>
-        <h1 className="gradient-text mb-12">Register</h1>
-        <form onSubmit={handleSubmit}>
+    <div className="form-container  agent">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col justify-between  h-screen"
+      >
+        <div className="flex flex-col">
+          <h1 className="gradient-text mb-8">Register</h1>
+
           <input
             type="text"
             name="firstName"
             placeholder="First Name"
+            className="mt-6"
             value={formData.firstName}
             onChange={handleChange}
             required
@@ -47,6 +60,7 @@ const AgetRegisterd = () => {
           <input
             type="text"
             name="lastName"
+            className="mt-6"
             placeholder="Last Name"
             value={formData.lastName}
             onChange={handleChange}
@@ -56,6 +70,7 @@ const AgetRegisterd = () => {
           <input
             type="text"
             name="bankname"
+            className="mt-6"
             placeholder="Bank name"
             value={formData.bankname}
             onChange={handleChange}
@@ -64,6 +79,7 @@ const AgetRegisterd = () => {
           <input
             type="number"
             name="bankaccount"
+            className="mt-6"
             placeholder="Bank account"
             value={formData.bankaccount}
             onChange={handleChange}
@@ -72,6 +88,7 @@ const AgetRegisterd = () => {
 
           <input
             type="text"
+            className="mt-6"
             name="city"
             placeholder="City"
             value={formData.city}
@@ -82,6 +99,7 @@ const AgetRegisterd = () => {
           <div className="phone-input">
             <select
               name="countryCode"
+              className="mt-6"
               value={formData.countryCode}
               onChange={handleChange}
               required
@@ -89,24 +107,25 @@ const AgetRegisterd = () => {
               <option value="+1">+1 (USA)</option>
               <option value="+44">+44 (UK)</option>
               <option value="+91">+91 (India)</option>
-              <option value="+251">+251 (Ethiopia)</option>
+              <option value="+251">+251 (Eth)</option>
             </select>
             <input
-              type="tel"
+              type="number"
               name="phoneNumber"
+              className="mt-6"
               placeholder="Phone Number"
               value={formData.phoneNumber}
               onChange={handleChange}
               required
             />
           </div>
-        </form>
-      </div>
-      <div className="flex justify-center w-full">
-        <button type="submit" className="styled-button w-full">
-          Register
-        </button>
-      </div>
+        </div>
+        <div className="mb-5">
+          <button type="submit" className="styled-button w-full">
+            Register
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

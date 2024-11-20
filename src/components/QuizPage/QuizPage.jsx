@@ -178,7 +178,7 @@ function QuizPage() {
 
   const handleClose = () => {
     setOpen(false);
-    navigate("/register");
+    navigate("/successPage");
   };
   const navigatePage = () => {
     navigate("/leaderboard");

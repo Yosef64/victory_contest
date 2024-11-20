@@ -37,16 +37,17 @@ const AgentRegisterd = () => {
     };
     const url = import.meta.env.VITE_REGISTER_API;
     try {
-      const res = await axios.post(url, dataToSubmit, {
-        withCredentials: true,
-      });
-      if (res.status === 200) {
-        navigate("/successPage");
-        setLoading(false);
-      } else {
-        setError("Something went wrong! Pleas try again!");
-        setLoading(false);
-      }
+      // const res = await axios.post(url, dataToSubmit, {
+      //   withCredentials: true,
+      // });
+      // if (res.status === 200) {
+      //   setLoading(false);
+      // } else {
+      //   setError("Something went wrong! Pleas try again!");
+      //   setLoading(false);
+      // }
+      navigate("/successPage");
+
       console.log(dataToSubmit);
     } catch (error) {
       console.error(error);

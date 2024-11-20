@@ -37,7 +37,9 @@ const AgentRegisterd = () => {
     };
     const url = import.meta.env.VITE_REGISTER_API;
     try {
-      const res = await axios.post(url, dataToSubmit);
+      const res = await axios.post(url, dataToSubmit, {
+        withCredentials: true,
+      });
       if (res.status === 200) {
         navigate("/successPage");
         setLoading(false);

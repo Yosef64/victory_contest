@@ -3,9 +3,13 @@ import "./agentRegister.css";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Alert, Snackbar } from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+
 const AgentRegisterd = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     bankaccount: "",
@@ -24,7 +28,7 @@ const AgentRegisterd = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     // If you want to include binary data, you can add it to formData
     const dataToSubmit = {
       ...formData,
@@ -36,12 +40,15 @@ const AgentRegisterd = () => {
       const res = await axios.post(url, dataToSubmit);
       if (res.status === 200) {
         navigate("/successPage");
+        setLoading(false);
       } else {
         setError("Something went wrong! Pleas try again!");
+        setLoading(false);
       }
       console.log(dataToSubmit);
     } catch (error) {
       console.error(error);
+      setLoading(false);
       setError(error.message);
     }
   };
@@ -140,9 +147,20 @@ const AgentRegisterd = () => {
           </div>
         </div>
         <div className="mb-5">
-          <button type="submit" className="styled-button w-full">
-            Register
-          </button>
+          {loading ? (
+            <Button disabled className="w-full pb-6 pt-6">
+              <Loader2 className="animate-spin" />
+              Please wait
+            </Button>
+          ) : (
+            <Button
+              onclick={handleSubmit}
+              variant="outline"
+              className="w-full pb-6 pt-6 styled-button "
+            >
+              Button
+            </Button>
+          )}
         </div>
       </form>
     </div>

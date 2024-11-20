@@ -70,9 +70,7 @@ input[type="file"] {
   padding: 5px;
 }
 
-.styled-button {
-  padding: 12px 20px;
-  margin-top: 10px;
+.styled-button-2 {
   border: none;
   border-radius: 6px;
   background: linear-gradient(135deg, #0066cc, #003d99);
@@ -81,7 +79,6 @@ input[type="file"] {
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .styled-button:hover {

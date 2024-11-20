@@ -1,4 +1,4 @@
-import React, { createContext, useRef, useState } from "react";
+import { createContext, useRef, useState } from "react";
 import "./quizPage.css";
 import {
   Carousel,
@@ -170,7 +170,7 @@ function QuizPage() {
       return acc;
     }, {})
   );
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);

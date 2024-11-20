@@ -61,8 +61,6 @@ form {
 }
 
 .agent .styled-button {
-  padding: 12px 20px;
-  margin-top: 10px;
   border: none;
   border-radius: 6px;
   background: linear-gradient(135deg, #0066cc, #003d99);

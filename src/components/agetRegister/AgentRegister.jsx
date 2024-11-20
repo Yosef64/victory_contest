@@ -158,7 +158,7 @@ const AgentRegisterd = () => {
               variant="outline"
               className="w-full pb-6 pt-6 styled-button "
             >
-              Button
+              Send
             </Button>
           )}
         </div>

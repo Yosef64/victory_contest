@@ -4,7 +4,7 @@ import "./Register.css";
 const Register = () => {
   const [imagePreview, setImagePreview] = useState(null); // For displaying the image preview
   const [imageBinary, setImageBinary] = useState(null); // For storing the binary data
-
+  const [countryCode, setCountryCode] = useState("+251");
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -40,7 +40,6 @@ const Register = () => {
     city: "",
     region: "",
     phoneNumber: "",
-    countryCode: "+1",
     // Store image file, initially null
     contests: "",
   });
@@ -48,7 +47,10 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handleSubmit = (e) => {
@@ -57,6 +59,7 @@ const Register = () => {
     // If you want to include binary data, you can add it to formData
     const dataToSubmit = {
       ...formData,
+      phoneNumber: countryCode + formData.phoneNumber,
       imageBinary: imageBinary, // Attach binary data to the form submission
     };
 
@@ -153,8 +156,10 @@ const Register = () => {
         <div className="phone-input">
           <select
             name="countryCode"
-            value={formData.countryCode}
-            onChange={handleChange}
+            value={countryCode}
+            onChange={(e) => {
+              setCountryCode(e.target.value);
+            }}
             required
           >
             <option value="+1">+1 (USA)</option>
@@ -163,29 +168,28 @@ const Register = () => {
             <option value="+251">+251 (Ethiopia)</option>
           </select>
           <input
-            type="tel"
+            type="text"
             name="phoneNumber"
             placeholder="Phone Number"
             value={formData.phoneNumber}
             onChange={handleChange}
             required
+            pattern="\d{9,9}"
           />
         </div>
 
         <div className="photo-upload-form">
-          <label className="photo-label">
-            Your Photo <span className="required">*</span>
-          </label>
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Uploaded Preview"
+              className="photo-preview"
+            />
+          ) : (
+            <label className="photo-label">Your Photo</label>
+          )}
 
           <div className="photo-upload-container">
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Uploaded Preview"
-                className="photo-preview"
-              />
-            )}
-
             <label className="upload-box">
               <input
                 type="file"
@@ -195,7 +199,7 @@ const Register = () => {
               />
               <div className="upload-instructions">
                 <p>
-                  <strong>Click to upload</strong> or drag and drop
+                  <strong>Click to upload</strong>
                 </p>
                 <p>SVG, PNG, JPG or GIF (max 800x400px)</p>
               </div>

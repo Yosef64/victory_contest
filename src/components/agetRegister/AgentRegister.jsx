@@ -3,7 +3,7 @@ import "./agentRegister.css";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Alert, Snackbar } from "@mui/material";
-const AgetRegisterd = () => {
+const AgentRegisterd = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -12,8 +12,8 @@ const AgetRegisterd = () => {
     bankname: "",
     city: "",
     phoneNumber: "",
-    countryCode: "+1",
   });
+  const [countryCode, setCountryCode] = useState("+251");
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
@@ -28,7 +28,8 @@ const AgetRegisterd = () => {
     // If you want to include binary data, you can add it to formData
     const dataToSubmit = {
       ...formData,
-      tele_id: id,
+      phoneNumber: countryCode + formData.phoneNumber,
+      teleid: id,
     };
     const url = import.meta.env.VITE_REGISTER_API;
     try {
@@ -38,6 +39,7 @@ const AgetRegisterd = () => {
       } else {
         setError("Something went wrong! Pleas try again!");
       }
+      console.log(dataToSubmit);
     } catch (error) {
       console.error(error);
       setError(error.message);
@@ -114,8 +116,10 @@ const AgetRegisterd = () => {
             <select
               name="countryCode"
               className="mt-6"
-              value={formData.countryCode}
-              onChange={handleChange}
+              value={countryCode}
+              onChange={(e) => {
+                setCountryCode(e.target.value);
+              }}
               required
             >
               <option value="+1">+1 (USA)</option>
@@ -124,13 +128,14 @@ const AgetRegisterd = () => {
               <option value="+251">+251 (Eth)</option>
             </select>
             <input
-              type="number"
+              type="text"
               name="phoneNumber"
               className="mt-6"
               placeholder="Phone Number"
               value={formData.phoneNumber}
               onChange={handleChange}
               required
+              pattern="\d{9,9}"
             />
           </div>
         </div>
@@ -144,4 +149,4 @@ const AgetRegisterd = () => {
   );
 };
 
-export default AgetRegisterd;
+export default AgentRegisterd;

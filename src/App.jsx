@@ -4,7 +4,7 @@ import LeaderBoard from "./components/leaderBoard/LeaderBoard";
 import QuizPage from "./components/QuizPage/QuizPage";
 import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
-import AgetRegisterd from "./components/agetRegister/AgetRegister";
+import AgentRegisterd from "./components/agetRegister/AgentRegister";
 import SuccessPage from "./components/successfull/SuccessPage";
 
 function App() {
@@ -47,7 +47,7 @@ function App() {
     },
     {
       path: "agentregister/:id",
-      element: <AgetRegisterd />,
+      element: <AgentRegisterd />,
     },
     {
       path: "successPage",

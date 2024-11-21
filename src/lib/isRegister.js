@@ -13,9 +13,11 @@ export const isRegister = async (id) => {
       }
     );
     if (res.data.message == false) {
-      await axios.get(
-        `${url}/sendMessage?chat_id=${id},`,
-
+      await axios.post(
+        `${url}/sendMessage`,
+        {
+          chat_id: id,
+        },
         {
           withCredentials: true,
         }

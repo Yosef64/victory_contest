@@ -26,6 +26,7 @@ export const isRegister = async (id) => {
 
     return res.data.message == false;
   } catch (error) {
+    console.error("Error checking registration:", error);
     return false;
   }
 };

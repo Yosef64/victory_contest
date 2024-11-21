@@ -23,26 +23,30 @@ const AgentRegisterd = () => {
   useEffect(() => {
     const isRegister = async () => {
       const url = import.meta.env.VITE_TgBot;
-      const res = await axios.post(
-        "https://victory-tutorial-api.vercel.app/check_user",
-        {
-          teleid: id,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      await axios.post(
-        `https://api.telegram.org/bot${url}/sendMessage`,
-        {
-          chat_id: id,
-          text: "you are already registered",
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(res.data);
+      try {
+        const res = await axios.post(
+          "https://victory-tutorial-api.vercel.app/check_user",
+          {
+            teleid: id,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+
+        // await axios.post(
+        //   `https://api.telegram.org/bot${url}/sendMessage`,
+        //   {
+        //     chat_id: id,
+        //     text: "you are already registered",
+        //   },
+        //   {
+        //     withCredentials: true,
+        //   }
+        // );
+        console.log(res.data);
+      } catch (error) {}
+
       if (res.data.message === false && window.Telegram?.WebApp) {
         window.Telegram.WebApp.close();
       }

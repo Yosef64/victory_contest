@@ -45,11 +45,10 @@ const AgentRegisterd = () => {
         //   }
         // );
         console.log(res.data);
+        if (res.data.message === false && window.Telegram?.WebApp) {
+          window.Telegram.WebApp.close();
+        }
       } catch (error) {}
-
-      if (res.data.message === false && window.Telegram?.WebApp) {
-        window.Telegram.WebApp.close();
-      }
     };
     isRegister();
   }, []);

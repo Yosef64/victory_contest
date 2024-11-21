@@ -23,7 +23,7 @@ const AgentRegisterd = () => {
   useEffect(() => {
     const isRegister = async () => {
       const url = import.meta.env.VITE_TgBot;
-      await axios.post(
+      const res = await axios.post(
         "https://victory-tutorial-api.vercel.app/check_user",
         {
           teleid: id,
@@ -32,7 +32,6 @@ const AgentRegisterd = () => {
           withCredentials: true,
         }
       );
-      console.log(url);
       await axios.post(
         `https://api.telegram.org/bot${url}/sendMessage`,
         {
@@ -43,7 +42,7 @@ const AgentRegisterd = () => {
           withCredentials: true,
         }
       );
-      if (res.message === true && window.Telegram?.WebApp) {
+      if (res.message === false && window.Telegram?.WebApp) {
         window.Telegram.WebApp.close();
       }
     };

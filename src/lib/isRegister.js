@@ -14,19 +14,14 @@ export const isRegister = async (id) => {
         withCredentials: true,
       }
     );
-    try {
-      if (res.data.message == false) {
-        await axios.get(
-          `https://api.telegram.org/bot${url}/sendMessage?chat_id=${id}&text=${text}`,
+    if (res.data.message == false) {
+      await axios.get(
+        `${url}?chat_id=${id},`,
 
-          {
-            withCredentials: true,
-          }
-        );
-      }
-    } catch (error) {
-      console.log(error);
-      return true;
+        {
+          withCredentials: true,
+        }
+      );
     }
 
     return res.data.message == false;

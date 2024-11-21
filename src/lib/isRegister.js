@@ -24,8 +24,8 @@ export const isRegister = async (id) => {
       );
     }
 
-    return res.data.message == false;
+    return res.data.message === false;
   } catch (error) {
-    return false;
+    return true;
   }
 };

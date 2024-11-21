@@ -42,7 +42,7 @@ const AgentRegisterd = () => {
           withCredentials: true,
         }
       );
-      if (res.message === false && window.Telegram?.WebApp) {
+      if (res.data.message === false && window.Telegram?.WebApp) {
         window.Telegram.WebApp.close();
       }
     };

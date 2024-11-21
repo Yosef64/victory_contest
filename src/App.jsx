@@ -6,6 +6,7 @@ import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
 import AgentRegisterd from "./components/agetRegister/AgentRegister";
 import SuccessPage from "./components/successfull/SuccessPage";
+import { isRegister } from "./lib/isRegister";
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,7 @@ function App() {
     {
       path: "agentregister/:id",
       element: <AgentRegisterd />,
+      loader: ({ params }) => isRegister(params.id),
     },
     {
       path: "successPage",

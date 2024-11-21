@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./agentRegister.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Alert, Snackbar } from "@mui/material";
 import { Button } from "@/components/ui/button";
@@ -19,40 +19,10 @@ const AgentRegisterd = () => {
   });
   const [countryCode, setCountryCode] = useState("+251");
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const isRegister = async () => {
-      const url = import.meta.env.VITE_TgBot;
-      try {
-        const res = await axios.post(
-          "https://victory-tutorial-api.vercel.app/check_user",
-          {
-            teleid: id,
-          },
-          {
-            withCredentials: true,
-          }
-        );
-
-        // await axios.post(
-        //   `https://api.telegram.org/bot${url}/sendMessage`,
-        //   {
-        //     chat_id: id,
-        //     text: "you are already registered",
-        //   },
-        //   {
-        //     withCredentials: true,
-        //   }
-        // );
-        console.log(res.data);
-        if (res.data.message === false && window.Telegram?.WebApp) {
-          window.Telegram.WebApp.close();
-        }
-      } catch (error) {}
-    };
-    isRegister();
-  }, []);
-
+  const isAut = useLoaderData();
+  if (isAut && window.Telegram?.WebApp) {
+    window.Telegram.WebApp.close();
+  }
   const handleChange = (e) => {
     const { name, value } = e.target;
 

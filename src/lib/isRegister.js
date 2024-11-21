@@ -16,7 +16,7 @@ export const isRegister = async (id) => {
     );
     if (res.data.message == false) {
       await axios.get(
-        `https://api.telegram.org/bot${url}/sendMessage?chat_id=${id}&text=${text},`,
+        `https://api.telegram.org/bot${url}/sendMessage?chat_id=${id}&text=${text}`,
 
         {
           withCredentials: true,

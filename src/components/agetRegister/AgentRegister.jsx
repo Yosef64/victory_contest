@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./agentRegister.css";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -20,12 +20,41 @@ const AgentRegisterd = () => {
   const [countryCode, setCountryCode] = useState("+251");
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const isRegister = async () => {
+      const url = import.meta.env.VITE_TgBot;
+      await axios.post(
+        "https://victory-tutorial-api.vercel.app/check_user",
+        {
+          teleid: id,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(url);
+      await axios.post(
+        `https://api.telegram.org/bot${url}/sendMessage`,
+        {
+          chat_id: id,
+          text: "you are already registered",
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      if (res.message === true && window.Telegram?.WebApp) {
+        window.Telegram.WebApp.close();
+      }
+    };
+    isRegister();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     setFormData({ ...formData, [name]: value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -37,18 +66,16 @@ const AgentRegisterd = () => {
     };
     const url = import.meta.env.VITE_REGISTER_API;
     try {
-      // const res = await axios.post(url, dataToSubmit, {
-      //   withCredentials: true,
-      // });
-      // if (res.status === 200) {
-      //   setLoading(false);
-      // } else {
-      //   setError("Something went wrong! Pleas try again!");
-      //   setLoading(false);
-      // }
-      navigate("/successPage");
-
-      console.log(dataToSubmit);
+      const res = await axios.post(url, dataToSubmit, {
+        withCredentials: true,
+      });
+      if (res.status === 200) {
+        setLoading(false);
+        navigate("/successPage");
+      } else {
+        setError("Something went wrong! Pleas try again!");
+        setLoading(false);
+      }
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -157,7 +184,7 @@ const AgentRegisterd = () => {
             </Button>
           ) : (
             <Button
-              onclick={handleSubmit}
+              onClick={handleSubmit}
               variant="outline"
               className="w-full pb-6 pt-6 styled-button "
             >

@@ -42,6 +42,7 @@ const AgentRegisterd = () => {
           withCredentials: true,
         }
       );
+      console.log(res.data);
       if (res.data.message === false && window.Telegram?.WebApp) {
         window.Telegram.WebApp.close();
       }

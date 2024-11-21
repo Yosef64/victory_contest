@@ -37,18 +37,18 @@ const AgentRegisterd = () => {
       phoneNumber: countryCode + formData.phoneNumber,
       teleid: id,
     };
-    const url = import.meta.env.VITE_REGISTER_API;
+    const url = import.meta.env.VITE_BACKEND_API;
     try {
-      const res = await axios.post(url, dataToSubmit, {
-        withCredentials: true,
-      });
-      if (res.status === 200) {
-        setLoading(false);
-        navigate("/successPage");
-      } else {
-        setError("Something went wrong! Pleas try again!");
-        setLoading(false);
-      }
+      // const res = await axios.post(`${url}/register`, dataToSubmit, {
+      //   withCredentials: true,
+      // });
+      // if (res.status === 200) {
+      //   setLoading(false);
+      //   navigate("/successPage");
+      // } else {
+      //   setError("Something went wrong! Pleas try again!");
+      //   setLoading(false);
+      // }
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -157,7 +157,6 @@ const AgentRegisterd = () => {
             </Button>
           ) : (
             <Button
-              onClick={handleSubmit}
               variant="outline"
               className="w-full pb-6 pt-6 styled-button "
             >

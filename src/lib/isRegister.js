@@ -25,12 +25,12 @@ export const isRegister = async (id) => {
         );
       }
     } catch (error) {
+      console.log(error);
       return true;
     }
 
     return res.data.message == false;
   } catch (error) {
-    console.error("Error checking registration:", error);
     return false;
   }
 };

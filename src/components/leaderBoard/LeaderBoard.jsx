@@ -3,58 +3,19 @@ import "./leaderBoard.css";
 import RankCard from "../rankCard/RankCard";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import TopThree from "./TopThree";
 function LeaderBoard() {
   const [userList, setUserList] = useState([
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
-    { name: "carol", score: 7 },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
+    { name: "carol", score: 11, id: 339839, image: "./profile.jpg" },
   ]);
 
   useEffect(() => {}, []);
@@ -73,12 +34,16 @@ function LeaderBoard() {
 
         <div className="wrapper">
           <div className="number2">
-            <img src="./profile.jpg" className="pic2" alt="" />
-            <span>2</span>
-            <article>
-              <p>john daj</p>
-              <p>8/10</p>
-            </article>
+            {userList[1] && (
+              <TopThree
+                name={userList[1].name}
+                image={userList[1].image}
+                id={userList[1].id}
+                score={userList[1].score}
+                total={userList.length}
+                rank={2}
+              />
+            )}
           </div>
           <div className="number1">
             <svg
@@ -121,23 +86,31 @@ function LeaderBoard() {
                 fill="#231F20"
               />
             </svg>
-
-            <img src="./profile.jpg" className="pic1" alt="" />
-            <span className="winner">1</span>
-            <article>
-              <p>David james</p>
-              <p>10/10</p>
-            </article>
+            {userList[0] && (
+              <TopThree
+                name={userList[0].name}
+                image={userList[0].image}
+                id={userList[0].id}
+                score={userList[0].score}
+                total={userList.length}
+                rank={1}
+              />
+            )}
           </div>
           <div className="number3">
-            <img src="./profile.jpg" className="pic3" alt="" />
-            <span>3</span>
-            <article>
-              <p>michael</p>
-              <p>9/10</p>
-            </article>
+            {userList[2] && (
+              <TopThree
+                name={userList[2].name}
+                image={userList[2].image}
+                id={userList[2].id}
+                score={userList[2].score}
+                total={userList.length}
+                rank={3}
+              />
+            )}
           </div>
         </div>
+
         <div className="custom-shape-divider-bottom-1730791905">
           <svg
             data-name="Layer 1"
@@ -155,16 +128,21 @@ function LeaderBoard() {
 
       <div className="total-rank">
         <div className="wrapper">
-          {userList.map((user, index) => {
-            return (
-              <RankCard
-                rank={index + 1}
-                total={userList.length}
-                name={user.name}
-                score={user.score}
-              />
-            );
-          })}
+          {userList &&
+            userList.map((user, index) => {
+              if (index > 2) {
+                return (
+                  <RankCard
+                    rank={index + 1}
+                    total={userList.length}
+                    name={user.name}
+                    score={user.score}
+                  />
+                );
+              } else {
+                return <></>;
+              }
+            })}
         </div>
       </div>
     </div>

@@ -9,10 +9,14 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
         custom: "16px !important",
       },
+      flex: {
+        3: "3 3 0%",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         customGreen: "#004643",
+        fadeGreen: "#c5d3e8",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

@@ -1,12 +1,12 @@
 import axios from "axios";
 async function SendScore(answer, serverQuestions) {
-  let wrongAnswer = [];
+  let missedQuestion = [];
   let score = 0;
   serverQuestions.forEach((question) => {
     if (answer.current[question.question_id] === question.answer) {
       score++;
     } else {
-      wrongAnswer.push({
+      missedQuestion.push({
         question_id: question.question_id,
         wrongAnswer: answer.current[question.question_id],
       });
@@ -15,7 +15,7 @@ async function SendScore(answer, serverQuestions) {
   try {
     await axios.post(
       "http://localhost:5000/test",
-      { score: score, wrongAnswer: wrongAnswer },
+      { score: score, missedQuestion: missedQuestion },
       {
         withCredentials: true, // Enable sending cookies with the request
       }

@@ -7,6 +7,7 @@ import Register from "./components/register/Register";
 import AgentRegisterd from "./components/agetRegister/AgentRegister";
 import SuccessPage from "./components/successfull/SuccessPage";
 import { isRegister } from "./lib/isRegister";
+import Profile from "./components/profile/Profile";
 
 function App() {
   useEffect(() => {
@@ -30,6 +31,10 @@ function App() {
     {
       path: "leaderboard",
       element: <LeaderBoard />,
+    },
+    {
+      path: "profile",
+      element: <Profile />,
     },
 
     {

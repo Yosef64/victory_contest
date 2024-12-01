@@ -20,36 +20,18 @@ function App() {
     }
   }, []);
   const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Intro />,
-    },
-    {
-      path: "quizPage",
-      element: <QuizPage />,
-    },
-    {
-      path: "leaderboard",
-      element: <LeaderBoard />,
-    },
-    {
-      path: "profile",
-      element: <Profile />,
-    },
-
-    {
-      path: "register",
-      element: <Register />,
-    },
+    { path: "/", element: <Intro />, caseSensitive: false },
+    { path: "quizPage", element: <QuizPage />, caseSensitive: false },
+    { path: "leaderboard", element: <LeaderBoard />, caseSensitive: false },
+    { path: "profile", element: <Profile />, caseSensitive: false },
+    { path: "register", element: <Register />, caseSensitive: false },
     {
       path: "agentRegister/:id",
       element: <AgentRegistered />,
       loader: ({ params }) => isRegister(params.id),
+      caseSensitive: false,
     },
-    {
-      path: "successPage",
-      element: <SuccessPage />,
-    },
+    { path: "successPage", element: <SuccessPage />, caseSensitive: false },
   ]);
   return <RouterProvider router={router} />;
 }

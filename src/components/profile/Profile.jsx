@@ -16,7 +16,7 @@ function Profile() {
   };
   return (
     <div className="h-screen w-full flex flex-col">
-      <div className=" relative bg-fadeGreen flex-1">
+      <div className=" relative bg-fadeGreen flex-1 basis-1/4 flex-shrink-0">
         <div className="top-0 w-full absolute  flex justify-between items-center  p-4 pl-3">
           <NavLink to={"/leaderbord"} className="text-4xl">
             <MdOutlineKeyboardArrowLeft />
@@ -26,7 +26,7 @@ function Profile() {
           <div className="text-2xl"> Profile</div>
         </header>
         <div className="w-full flex bottom-0 mb-[-70px] justify-center absolute ">
-          <div className="rounded-[50%] overflow-hidden border border-[4px] border-[#004643]">
+          <div className="rounded-[50%] overflow-hidden  border-[4px] border-[#004643]">
             <img src="./profile.jpg" className="w-[140px] h-[140px]" alt="" />
           </div>
         </div>
@@ -38,6 +38,9 @@ function Profile() {
           </button>
         </div>
         <div className="flex w-full flex-col">
+          <GroupInput labelName={"Name"} placeholder={"abebe demsew"} />
+          <GroupInput labelName={"Name"} placeholder={"abebe demsew"} />
+          <GroupInput labelName={"Name"} placeholder={"abebe demsew"} />
           <GroupInput labelName={"Name"} placeholder={"abebe demsew"} />
           <GroupInput labelName={"Name"} placeholder={"abebe demsew"} />
           <GroupInput labelName={"Name"} placeholder={"abebe demsew"} />

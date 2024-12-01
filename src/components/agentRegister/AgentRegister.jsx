@@ -6,7 +6,7 @@ import { Alert, Snackbar } from "@mui/material";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-const AgentRegisterd = () => {
+const AgentRegistered = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -169,4 +169,4 @@ const AgentRegisterd = () => {
   );
 };
 
-export default AgentRegisterd;
+export default AgentRegistered;

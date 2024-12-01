@@ -4,8 +4,8 @@ import LeaderBoard from "./components/leaderBoard/LeaderBoard";
 import QuizPage from "./components/QuizPage/QuizPage";
 import Intro from "./components/IntroPage/Intro";
 import Register from "./components/register/Register";
-import AgentRegisterd from "./components/agetRegister/AgentRegister";
-import SuccessPage from "./components/successfull/SuccessPage";
+import AgentRegistered from "./components/agentRegister/AgentRegister";
+import SuccessPage from "./components/successful/SuccessPage";
 import { isRegister } from "./lib/isRegister";
 import Profile from "./components/profile/Profile";
 
@@ -25,7 +25,7 @@ function App() {
       element: <Intro />,
     },
     {
-      path: "quizpage",
+      path: "quizPage",
       element: <QuizPage />,
     },
     {
@@ -42,8 +42,8 @@ function App() {
       element: <Register />,
     },
     {
-      path: "agentregister/:id",
-      element: <AgentRegisterd />,
+      path: "agentRegister/:id",
+      element: <AgentRegistered />,
       loader: ({ params }) => isRegister(params.id),
     },
     {

@@ -43,7 +43,7 @@ const Intro = () => {
         // );
 
         const remainingTime = await calculateTimeLeft(
-          "2024-11-10T12:00:40",
+          "2024-11-10T12:00:30",
           "2024-11-10T12:00:40"
         );
         if (remainingTime <= 5000) {

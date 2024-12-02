@@ -23,7 +23,7 @@ function App() {
     { path: "/", element: <Intro />, caseSensitive: false },
     { path: "quizPage", element: <QuizPage />, caseSensitive: false },
     { path: "leaderboard", element: <LeaderBoard />, caseSensitive: false },
-    { path: "profile", element: <Profile />, caseSensitive: false },
+    { path: "profile/:id", element: <Profile />, caseSensitive: false },
     { path: "register", element: <Register />, caseSensitive: false },
     {
       path: "agentRegister/:id",

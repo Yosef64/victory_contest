@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
+import StartButton from "../startButton/StartButton";
 
 function formatTime(diff) {
   const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
@@ -29,7 +30,7 @@ const Intro = () => {
   useEffect(() => {
     async function fetchTime() {
       try {
-        //if event ended
+        //check if the event ended
 
         // const response = await axios.get(
         //   "http://localhost:5000/api/contest_id",
@@ -37,29 +38,29 @@ const Intro = () => {
         //     withCredentials: true,
         //   }
         // );
-        // const remainingTime = await calculateTimeLeft(
+        // const EventEndTime = await calculateTimeLeft(
         //   response.data.startTime,
         //   response.data.endTime
         // );
 
-        const remainingTime = await calculateTimeLeft(
-          "2024-11-10T12:00:30",
+        const EventEndTime = await calculateTimeLeft(
+          "2024-11-10T12:00:20",
           "2024-11-10T12:00:40"
         );
-        if (remainingTime <= 5000) {
+        if (EventEndTime <= 5000) {
           // Expand the app to full screen
           navigate("/eventended");
         } else {
           // if the event not ended
-          // const response = await axios.get(
+          // const response2 = await axios.get(
           //   "http://localhost:5000/api/contest_id",
           //   {
           //     withCredentials: true,
           //   }
           // );
           // const remainingTime = calculateTimeLeft(
-          //   response.data.startTime,
-          //   response.data.endTime
+          //   response2.data.startTime,
+          //   response2.data.endTime
           // );
         }
         setTimeLeft(remainingTime);
@@ -114,33 +115,7 @@ const Intro = () => {
         </p>
 
         <div className="timer">
-          {timeLeft === 0 && !error && (
-            <div
-              onClick={() => {
-                try {
-                  //send active states to
-
-                  // const response = await axios.post(
-                  //   "http://localhost:5000/api/contest_id",
-                  //  {id:456789}
-                  // );
-                  navigate("/quizpage");
-                } catch (error) {}
-              }}
-              style={{
-                backgroundColor: "#1A4D7C",
-                color: "white",
-                border: "none",
-                borderRadius: "16px",
-                padding: "4px 24px",
-                fontSize: 24,
-                cursor: "pointer",
-                transition: "background-color 0.3s",
-              }}
-            >
-              Start
-            </div>
-          )}
+          {timeLeft === 0 && !error && <StartButton />}
         </div>
       </div>
     </div>

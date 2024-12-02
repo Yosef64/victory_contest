@@ -8,7 +8,7 @@ import AgentRegistered from "./components/agentRegister/AgentRegister";
 import SuccessPage from "./components/successful/SuccessPage";
 import { isRegister } from "./lib/isRegister";
 import Profile from "./components/profile/Profile";
-import EventStarted from "./components/eventStarted/EventStarted";
+import EventEnded from "./components/eventEnded/EventEnded";
 
 function App() {
   useEffect(() => {
@@ -33,7 +33,7 @@ function App() {
       caseSensitive: false,
     },
     { path: "successPage", element: <SuccessPage />, caseSensitive: false },
-    { path: "eventstarted", element: <EventStarted />, caseSensitive: false },
+    { path: "eventended", element: <EventEnded />, caseSensitive: false },
   ]);
   return <RouterProvider router={router} />;
 }

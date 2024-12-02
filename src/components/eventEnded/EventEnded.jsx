@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import "./eventStarted.css";
+import "./eventEnded.css";
 
-const EventStarted = () => {
+const EventEnded = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (window.Telegram?.WebApp) {
@@ -15,11 +15,11 @@ const EventStarted = () => {
   return (
     <div className="event-container">
       <div className="event-message">
-        <h1>Event started</h1>
+        <h1>Event Ended</h1>
         <p>Try other time</p>
       </div>
     </div>
   );
 };
 
-export default EventStarted;
+export default EventEnded;

@@ -5,7 +5,6 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
-import { ThreeGMobiledata } from "@mui/icons-material";
 
 function formatTime(diff) {
   const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
@@ -30,23 +29,38 @@ const Intro = () => {
   useEffect(() => {
     async function fetchTime() {
       try {
+        //if event ended
+
         // const response = await axios.get(
         //   "http://localhost:5000/api/contest_id",
         //   {
         //     withCredentials: true,
         //   }
         // );
-        // const remainingTime = calculateTimeLeft(
+        // const remainingTime = await calculateTimeLeft(
         //   response.data.startTime,
         //   response.data.endTime
         // );
+
         const remainingTime = await calculateTimeLeft(
-          "2024-11-10T12:00:39",
+          "2024-11-10T12:00:40",
           "2024-11-10T12:00:40"
         );
-        if (remainingTime < -10000) {
+        if (remainingTime <= 5000) {
           // Expand the app to full screen
-          navigate("/eventstarted");
+          navigate("/eventended");
+        } else {
+          // if the event not ended
+          // const response = await axios.get(
+          //   "http://localhost:5000/api/contest_id",
+          //   {
+          //     withCredentials: true,
+          //   }
+          // );
+          // const remainingTime = calculateTimeLeft(
+          //   response.data.startTime,
+          //   response.data.endTime
+          // );
         }
         setTimeLeft(remainingTime);
       } catch (error) {
@@ -101,8 +115,18 @@ const Intro = () => {
 
         <div className="timer">
           {timeLeft === 0 && !error && (
-            <Link
-              to="/quizpage"
+            <div
+              onClick={() => {
+                try {
+                  //send active states to
+
+                  // const response = await axios.post(
+                  //   "http://localhost:5000/api/contest_id",
+                  //  {id:456789}
+                  // );
+                  navigate("/quizpage");
+                } catch (error) {}
+              }}
               style={{
                 backgroundColor: "#1A4D7C",
                 color: "white",
@@ -115,7 +139,7 @@ const Intro = () => {
               }}
             >
               Start
-            </Link>
+            </div>
           )}
         </div>
       </div>

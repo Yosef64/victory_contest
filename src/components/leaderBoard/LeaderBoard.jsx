@@ -145,7 +145,7 @@ function LeaderBoard() {
             userList.map((user, index) => {
               if (index > 2) {
                 return (
-                  <NavLink to={`/profile/${user.id}`}>
+                  <NavLink to={`/profile/${user.id}`} key={index + 1}>
                     <RankCard
                       rank={index + 1}
                       total={userList.length}
@@ -155,7 +155,7 @@ function LeaderBoard() {
                   </NavLink>
                 );
               } else {
-                return <></>;
+                return "";
               }
             })}
         </div>

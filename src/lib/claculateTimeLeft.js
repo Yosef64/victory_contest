@@ -1,4 +1,4 @@
-export function calculateTimeLeft(startTime, endTime) {
+export async function calculateTimeLeft(startTime, endTime) {
   const now = new Date(startTime);
   const target = new Date(endTime);
   const diff = target - now;

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect, useState } from "react";
 import "./front.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
+import { ThreeGMobiledata } from "@mui/icons-material";
 
 function formatTime(diff) {
   const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
@@ -23,6 +24,7 @@ function formatTime(diff) {
 const Intro = () => {
   const [timeLeft, setTimeLeft] = useState(-1);
   const [error, setError] = useState(false);
+  const isLate = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,10 +40,14 @@ const Intro = () => {
         //   response.data.startTime,
         //   response.data.endTime
         // );
-        const remainingTime = calculateTimeLeft(
-          "2024-11-10T12:00:00",
-          "2024-11-10T12:00:20"
+        const remainingTime = await calculateTimeLeft(
+          "2024-11-10T12:00:39",
+          "2024-11-10T12:00:40"
         );
+        if (remainingTime < -10000) {
+          // Expand the app to full screen
+          navigate("/eventstarted");
+        }
         setTimeLeft(remainingTime);
       } catch (error) {
         setError(false);
@@ -63,13 +69,13 @@ const Intro = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // useEffect(() => {
-  //   const currentPath = window.location.pathname;
-  //   console.log("Original URL path:", currentPath);
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    console.log("Original URL path:", currentPath);
 
-  //   // Navigate to the current path if needed
-  //   navigate(currentPath);
-  // }, [navigate]);
+    // Navigate to the current path if needed
+    navigate(currentPath);
+  }, [navigate]);
 
   const formattedTime = timeLeft > 0 ? formatTime(timeLeft) : "00:00:00";
 

@@ -36,11 +36,12 @@ function TimeCard({ questions }) {
         // const remainingTime = Math.max(
         //   calculateTimeLeft(response.data.startTime, response.data.endTime)
         // );
-        const remainingTime = calculateTimeLeft(
+        const remainingTime = await calculateTimeLeft(
           "2024-11-10T12:00:00",
           "2024-11-10T12:01:00"
         );
         setTimeLeft(remainingTime);
+        console.log(remainingTime);
       } catch (error) {
         console.error(error);
       }

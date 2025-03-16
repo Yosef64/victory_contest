@@ -48,6 +48,7 @@ const Register = () => {
     region: "",
     phoneNumber: "",
   });
+  console.log();
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];

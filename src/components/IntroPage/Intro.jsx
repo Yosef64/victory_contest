@@ -1,11 +1,12 @@
 import React, { useRef } from "react";
 import { useEffect, useState } from "react";
 import "./front.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
 import StartButton from "../startButton/StartButton";
+import { getContest } from "@/lib/utils";
 
 function formatTime(diff) {
   const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
@@ -26,42 +27,26 @@ const Intro = () => {
   const [error, setError] = useState(false);
   const isLate = useRef(false);
   const navigate = useNavigate();
+  const { contest_id } = useParams();
 
   useEffect(() => {
     async function fetchTime() {
       try {
         //check if the event ended
 
-        // const response = await axios.get(
-        //   "http://localhost:5000/api/contest_id",
-        //   {
-        //     withCredentials: true,
-        //   }
-        // );
+        const contest = await getContest(contest_id);
         // const EventEndTime = await calculateTimeLeft(
         //   response.data.startTime,
         //   response.data.endTime
         // );
 
-        const EventEndTime = await calculateTimeLeft(
-          "2024-11-10T12:00:20",
-          "2024-11-10T12:00:40"
+        const EventEndTime = calculateTimeLeft(
+          contest.start_time,
+          contest.end_time
         );
         if (EventEndTime <= 5000) {
           // Expand the app to full screen
           navigate("/eventended");
-        } else {
-          // if the event not ended
-          // const response2 = await axios.get(
-          //   "http://localhost:5000/api/contest_id",
-          //   {
-          //     withCredentials: true,
-          //   }
-          // );
-          // const remainingTime = calculateTimeLeft(
-          //   response2.data.startTime,
-          //   response2.data.endTime
-          // );
         }
         setTimeLeft(remainingTime);
       } catch (error) {

@@ -1,6 +1,12 @@
-export async function calculateTimeLeft(startTime, endTime) {
-  const now = new Date(startTime);
-  const target = new Date(endTime);
-  const diff = target - now;
-  return Math.max(diff); // Ensure it doesn't go negative
+export function calculateTimeLeft(startTime, endTime) {
+  const today = new Date().toDateString();
+  const startDateTime = new Date(`${today} ${startTime}`);
+  const endDateTime = new Date(`${today} ${endTime}`);
+
+  if (isNaN(startDateTime) || isNaN(endDateTime)) {
+    throw new Error("Invalid time format. Use e.g., '06:30 PM'");
+  }
+
+  const diff = endDateTime - startDateTime;
+  return Math.max(diff, 0);
 }

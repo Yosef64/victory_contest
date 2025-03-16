@@ -138,9 +138,6 @@ input[type="file"] {
   padding: 10px;
 }
 
-.upload-box:hover {
-  border-color: #007bff;
-}
 
 .file-input {
   display: none;

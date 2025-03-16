@@ -10,6 +10,21 @@ import { isRegister } from "./lib/isRegister";
 import Profile from "./components/profile/Profile";
 import EventEnded from "./components/eventEnded/EventEnded";
 
+const router = createBrowserRouter([
+  { path: "/", element: <Intro />, caseSensitive: false },
+  { path: "quizPage", element: <QuizPage />, caseSensitive: false },
+  { path: "leaderboard", element: <LeaderBoard />, caseSensitive: false },
+  { path: "profile/:id", element: <Profile />, caseSensitive: false },
+  { path: "register", element: <Register />, caseSensitive: false },
+  {
+    path: "agentRegister/:id",
+    element: <AgentRegistered />,
+    loader: ({ params }) => isRegister(params.id),
+    caseSensitive: false,
+  },
+  { path: "successPage", element: <SuccessPage />, caseSensitive: false },
+  { path: "eventended", element: <EventEnded />, caseSensitive: false },
+]);
 function App() {
   useEffect(() => {
     // Ensure Telegram Web App SDK is available
@@ -20,21 +35,7 @@ function App() {
       // Set background color based on the Telegram theme's background
     }
   }, []);
-  const router = createBrowserRouter([
-    { path: "/", element: <Intro />, caseSensitive: false },
-    { path: "quizPage", element: <QuizPage />, caseSensitive: false },
-    { path: "leaderboard", element: <LeaderBoard />, caseSensitive: false },
-    { path: "profile/:id", element: <Profile />, caseSensitive: false },
-    { path: "register", element: <Register />, caseSensitive: false },
-    {
-      path: "agentRegister/:id",
-      element: <AgentRegistered />,
-      loader: ({ params }) => isRegister(params.id),
-      caseSensitive: false,
-    },
-    { path: "successPage", element: <SuccessPage />, caseSensitive: false },
-    { path: "eventended", element: <EventEnded />, caseSensitive: false },
-  ]);
+
   return <RouterProvider router={router} />;
 }
 

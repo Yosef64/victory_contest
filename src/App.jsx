@@ -11,7 +11,7 @@ import Profile from "./components/profile/Profile";
 import EventEnded from "./components/eventEnded/EventEnded";
 
 const router = createBrowserRouter([
-  { path: "/", element: <Intro />, caseSensitive: false },
+  { path: "/:contest_id", element: <Intro />, caseSensitive: false },
   { path: "quizPage", element: <QuizPage />, caseSensitive: false },
   { path: "leaderboard", element: <LeaderBoard />, caseSensitive: false },
   { path: "profile/:id", element: <Profile />, caseSensitive: false },

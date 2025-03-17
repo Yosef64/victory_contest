@@ -1,82 +1,63 @@
 import React, { useRef } from "react";
 import { useEffect, useState } from "react";
 import "./front.css";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { calculateTimeLeft } from "@/lib/claculateTimeLeft";
+import { calculateTimeLeft, formatTime } from "@/lib/claculateTimeLeft";
 import TransitionsSnackbar from "../QuizPage/TransitionsSnackbar";
 import StartButton from "../startButton/StartButton";
 import { getContest } from "@/lib/utils";
-
-function formatTime(diff) {
-  const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(
-    2,
-    "0"
-  );
-  const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(
-    2,
-    "0"
-  );
-  const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
-
-  return `${hours}:${minutes}:${seconds}`;
-}
+import { useQuery } from "@tanstack/react-query";
+import ErrorComponent from "../Error";
+import Loader from "../Loader";
 
 const Intro = () => {
   const [timeLeft, setTimeLeft] = useState(-1);
-  const [error, setError] = useState(false);
-  const isLate = useRef(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
   const { contest_id } = useParams();
+  const student_id = queryParams.get("tele_id");
 
+  const {
+    data: contest,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["contest", contest_id],
+    queryFn: () => getContest(contest_id),
+  });
+
+  // Use effect to update timeLeft when contest data is successfully fetched
   useEffect(() => {
-    async function fetchTime() {
-      try {
-        //check if the event ended
-
-        const contest = await getContest(contest_id);
-        // const EventEndTime = await calculateTimeLeft(
-        //   response.data.startTime,
-        //   response.data.endTime
-        // );
-
-        const EventEndTime = calculateTimeLeft(
-          contest.start_time,
-          contest.end_time
-        );
-        if (EventEndTime <= 5000) {
-          // Expand the app to full screen
-          navigate("/eventended");
-        }
-        setTimeLeft(remainingTime);
-      } catch (error) {
-        setError(false);
+    if (status === "success" && contest && Object.keys(contest).length > 0) {
+      console.log(contest);
+      const EventEndTime = calculateTimeLeft(contest.start_time);
+      if (EventEndTime <= 5000) {
+        navigate("/eventended");
+      } else {
+        setTimeLeft(EventEndTime);
       }
     }
-    fetchTime();
+  }, [contest, status, navigate]);
 
-    const interval = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 0) {
-          clearInterval(interval);
-          return 0;
-        }
+  // Conditional rendering based on status
+  if (status === "pending") {
+    return <Loader />;
+  }
 
-        return prevTime - 1000;
-      });
-    }, 1000);
+  if (status === "error") {
+    return <ErrorComponent />;
+  }
 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const currentPath = window.location.pathname;
-    console.log("Original URL path:", currentPath);
-
-    // Navigate to the current path if needed
-    navigate(currentPath);
-  }, [navigate]);
-
+  if (status === "success" && Object.keys(contest).length === 0) {
+    return (
+      <div className="h-screen">
+        <ErrorComponent />
+      </div>
+    );
+  }
+  console.log(timeLeft);
   const formattedTime = timeLeft > 0 ? formatTime(timeLeft) : "00:00:00";
 
   return (
@@ -99,9 +80,13 @@ const Intro = () => {
           <span>{formattedTime}</span>
         </p>
 
-        <div className="timer">
-          {timeLeft === 0 && !error && <StartButton />}
-        </div>
+        {Object.keys(contest).length > 0 ? (
+          <div className="timer">
+            {timeLeft === 0 && <StartButton contest={contest} />}
+          </div>
+        ) : (
+          <div className="">No contest found!</div>
+        )}
       </div>
     </div>
   );

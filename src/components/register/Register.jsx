@@ -151,7 +151,7 @@ const Register = () => {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <div className="backdrop-filter  rounded-2xl shadow-xl p-3">
             <form onSubmit={handleSubmit} className="space-y-4">
               {inputFields.slice(0, 1).map((field, index) => (
                 <InputComponents
@@ -175,7 +175,7 @@ const Register = () => {
                     setFormData({ ...formData, sex: value })
                   }
                 >
-                  <SelectTrigger className="w-full mt-2">
+                  <SelectTrigger className="w-full mt-2 h-12">
                     <SelectValue placeholder="Select a gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -195,10 +195,10 @@ const Register = () => {
                 />
               ))}
               <div>
-                <label className="block text-sm/6 font-medium text-gray-900">
+                <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">
                   Your Photo
                 </label>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-2  mb-5 flex items-center gap-2">
                   <label className="upload-box  hover:border-indigo-600">
                     <input
                       type="file"
@@ -242,7 +242,7 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r  from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">

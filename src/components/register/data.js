@@ -31,14 +31,7 @@ export const inputFields = [
     type: "date",
     name: "age",
   },
-  {
-    label: "Region",
-    icon: Globe,
-    value: "",
-    type: "text",
-    name: "region",
-    placeholder: "Enter you region",
-  },
+
   {
     label: "Phone No.",
     icon: Phone,
@@ -46,6 +39,14 @@ export const inputFields = [
     type: "tel",
     name: "phoneNumber",
     placeholder: "Enter your phone No.",
+  },
+  {
+    label: "Region",
+    icon: Globe,
+    value: "",
+    type: "text",
+    name: "region",
+    placeholder: "Enter you region",
   },
   {
     label: "City",

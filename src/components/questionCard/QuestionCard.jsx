@@ -7,7 +7,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 function QuestionCard({ question, index, length }) {
   const {
     question_id,
-    question_text,
     multiple_choice,
     answer,
     explanation,
@@ -16,7 +15,7 @@ function QuestionCard({ question, index, length }) {
     subject,
   } = question;
   const [selected, setSelected] = useState("");
-
+  const question_text = question.question_text;
   return (
     <>
       <div className="question flex flex-col items-center ">

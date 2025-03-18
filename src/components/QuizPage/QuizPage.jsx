@@ -16,37 +16,43 @@ import TimeCard from "./TimeCard";
 import SendScore from "../../lib/SendScore";
 import AlertDialogSlide from "./AlertDialogSlide";
 import { useQuery } from "@tanstack/react-query";
+import QuizePart from "./quizePageT";
 
 export const AnswerContext = createContext();
 function QuizPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const contest_id = queryParams.get("contest_id");
-  const Student_id = queryParams.get("tele_id");
-  const questions = location.state?.questions;
+  // const navigate = useNavigate();
+  // const location = useLocation();
+  // const queryParams = new URLSearchParams(location.search);
+  // const contest_id = queryParams.get("contest_id");
+  // const Student_id = queryParams.get("tele_id");
+  // const contest = location.state?.contest;
+  // const questions = contest.questions;
 
-  const answersRef = useRef(
-    questions.reduce((acc, question) => {
-      acc[question.question_id] = "notSelected";
-      return acc;
-    }, {})
-  );
-  const [open, setOpen] = useState(false);
+  // const answersRef = useRef(
+  //   questions.reduce((acc, question) => {
+  //     acc[question.question_id] = "notSelected";
+  //     return acc;
+  //   }, {})
+  // );
+  // const [open, setOpen] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  // const handleClickOpen = () => {
+  //   setOpen(true);
+  // };
 
-  const handleClose = () => {
-    setOpen(false);
-    navigate("/successPage");
-  };
-  const navigatePage = () => {
-    navigate("/leaderboard");
-  };
-  return (
-    <AnswerContext.Provider value={{ answersRef }}>
+  // const handleClose = () => {
+  //   setOpen(false);
+  //   navigate("/successPage");
+  // };
+  // const navigatePage = () => {
+  //   navigate("/leaderboard");
+  // };
+  return <QuizePart />;
+}
+
+export default QuizPage;
+{
+  /* <AnswerContext.Provider value={{ answersRef }}>
       <div className="quiz-page">
         {open && (
           <AlertDialogSlide
@@ -73,6 +79,7 @@ function QuizPage() {
               <CarouselContent>
                 {questions &&
                   questions.map((question, index) => {
+                    console.log(question);
                     return (
                       <CarouselItem key={index}>
                         <QuestionCard
@@ -109,8 +116,5 @@ function QuizPage() {
           </Carousel>
         </div>
       </div>
-    </AnswerContext.Provider>
-  );
+    </AnswerContext.Provider> */
 }
-
-export default QuizPage;

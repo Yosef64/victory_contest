@@ -9,7 +9,9 @@ export function cn(...inputs) {
 }
 
 export async function getContest(contest_id) {
-  const res = await axios.get(`${VITE_BACKEND_API}/api/contest/${contest_id}`);
+  const res = await axios.get(`${VITE_BACKEND_API}/api/contest/${contest_id}`, {
+    timeout: 1000,
+  });
   const { contest } = res.data;
   return contest;
 }
@@ -50,5 +52,32 @@ export async function getSummissionByRange(when, contest_id) {
       timeout: 1000,
     });
   }
+  return res.data;
+}
+export async function calculateAndSendSubmission(questions, cached, data) {
+  const resp = await checkUser(data.tele_id);
+  console.log(resp);
+  const st = resp.student;
+  const submission = {
+    student: {
+      student_id: data.tele_id,
+      imgurl: st.imgurl,
+      name: st.name,
+    },
+    contest_id: data.contest_id,
+    submission_time: "",
+    score: 0,
+    wrong_question: [],
+  };
+  Object.keys(cached).forEach((key) => {
+    if (questions[key].answer == cached[key]) {
+      submission.score += 1;
+    } else {
+      submission.wrong_question.push(questions[key]);
+    }
+  });
+  const res = await axios.post(`${VITE_BACKEND_API}/api/submission/`, {
+    submission,
+  });
   return res.data;
 }

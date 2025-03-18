@@ -17,19 +17,31 @@ import {
 import { useDarkMode } from "@/DarkModeProvider";
 import { useQuery } from "@tanstack/react-query";
 import { checkUser } from "@/lib/utils";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Loader from "../Loader";
+import { data } from "autoprefixer";
 
 function EditProfile() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isEditing, setIsEditing] = useState(false);
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-  const telegram_id = queryParams.get("tele_id")
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const {data:student,error,status} = useQuery({queryKey:["student"],queryFn:async ()=> checkUser(telegram_id)})
- 
-  
+  const {
+    data: student,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["student"],
+    queryFn: async () => checkUser(id),
+  });
+
+  if (status === "success" && Object.keys(student).length === 0) {
+    navigate(`/register?tele_id=${id}`);
+  }
+
   const ViewMode = () => (
     <div className="space-y-6">
       <div
@@ -112,13 +124,14 @@ function EditProfile() {
   const EditMode = () => (
     <div className="space-y-6">
       {[
-        { 
-          label: "Name", 
-          icon: User, 
-          value: student.name, 
-          type: "text" },
+        {
+          label: "Name",
+          icon: User,
+          value: student.name,
+          type: "text",
+        },
         { label: "Email", icon: Mail, value: student.email, type: "email" },
-        
+
         {
           label: "Date of Birth",
           icon: Calendar,
@@ -257,36 +270,45 @@ function EditProfile() {
       {/* Profile Content */}
       <div className="px-6 py-8 max-w-2xl mx-auto">
         {/* Profile Image */}
-        {
-          student ==="success" &&<div className="flex justify-center mb-12">
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            <div className="relative">
-              <img
-                src={student.imgurl}
-                alt="Profile"
-                className={`w-36 h-36 rounded-full object-cover ring-4 ${
-                  isDarkMode ? "ring-gray-800" : "ring-white"
-                }`}
-              />
-              <button
-                className={`absolute bottom-0 right-0 ${
-                  isDarkMode ? "bg-gray-800" : "bg-white"
-                } p-3 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 group-hover:-translate-y-1`}
-              >
-                <Camera
-                  className={`w-5 h-5 ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
+        {status === "success" && (
+          <div className="flex justify-center mb-12">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+              <div className="relative">
+                <img
+                  src={student.imgurl}
+                  alt="Profile"
+                  className={`w-36 h-36 rounded-full object-cover ring-4 ${
+                    isDarkMode ? "ring-gray-800" : "ring-white"
                   }`}
                 />
-              </button>
+                <button
+                  className={`absolute bottom-0 right-0 ${
+                    isDarkMode ? "bg-gray-800" : "bg-white"
+                  } p-3 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 group-hover:-translate-y-1`}
+                >
+                  <Camera
+                    className={`w-5 h-5 ${
+                      isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        }
-        
+        )}
 
-        {status === "success" ? (isEditing ? <EditMode /> : <ViewMode />):status ==="error"? <div>Erorr</div>:<Loader />}
+        {status === "success" ? (
+          isEditing ? (
+            <EditMode />
+          ) : (
+            <ViewMode />
+          )
+        ) : status === "error" ? (
+          <div>Erorr</div>
+        ) : (
+          <Loader />
+        )}
       </div>
     </div>
   );

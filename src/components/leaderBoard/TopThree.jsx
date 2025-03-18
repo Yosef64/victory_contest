@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Loader from "../Loader";
 import { useQuery } from "@tanstack/react-query";
 import ErrorComponent from "../Error";
+import { getSummissionByRange } from "@/lib/utils";
 
 function TopThree({ rank, image, name, score, total }) {
   return (
@@ -20,72 +21,72 @@ function TopThree({ rank, image, name, score, total }) {
   );
 }
 
-const users = [
-  {
-    id: 1,
-    name: "Jane Cooper",
-    achievements: 54,
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    medal: "gold",
-  },
-  {
-    id: 2,
-    name: "Marvin McKinney",
-    achievements: 46,
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
-    medal: "silver",
-  },
-  {
-    id: 3,
-    name: "Bessie Cooper",
-    achievements: 43,
-    avatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
-    medal: "bronze",
-  },
-  {
-    id: 4,
-    name: "Robert Fox",
-    achievements: 42,
-    rank: 4,
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
-  },
-  {
-    id: 5,
-    name: "Courtney Henry",
-    achievements: 32,
-    rank: 5,
-    avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
-  },
-  {
-    id: 6,
-    name: "Dianne Russell",
-    achievements: 30,
-    rank: 6,
-    avatar:
-      "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=100&h=100&fit=crop",
-  },
-  {
-    id: 7,
-    name: "Cameron Williamson",
-    achievements: 28,
-    rank: 7,
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-  },
-  {
-    id: 8,
-    name: "Wenji Tsu",
-    achievements: 4,
-    rank: 29,
-    avatar:
-      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop",
-  },
-];
+// const users = [
+//   {
+//     id: 1,
+//     name: "Jane Cooper",
+//     achievements: 54,
+//     avatar:
+//       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+//     medal: "gold",
+//   },
+//   {
+//     id: 2,
+//     name: "Marvin McKinney",
+//     achievements: 46,
+//     avatar:
+//       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+//     medal: "silver",
+//   },
+//   {
+//     id: 3,
+//     name: "Bessie Cooper",
+//     achievements: 43,
+//     avatar:
+//       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+//     medal: "bronze",
+//   },
+//   {
+//     id: 4,
+//     name: "Robert Fox",
+//     achievements: 42,
+//     rank: 4,
+//     avatar:
+//       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
+//   },
+//   {
+//     id: 5,
+//     name: "Courtney Henry",
+//     achievements: 32,
+//     rank: 5,
+//     avatar:
+//       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
+//   },
+//   {
+//     id: 6,
+//     name: "Dianne Russell",
+//     achievements: 30,
+//     rank: 6,
+//     avatar:
+//       "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=100&h=100&fit=crop",
+//   },
+//   {
+//     id: 7,
+//     name: "Cameron Williamson",
+//     achievements: 28,
+//     rank: 7,
+//     avatar:
+//       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+//   },
+//   {
+//     id: 8,
+//     name: "Wenji Tsu",
+//     achievements: 4,
+//     rank: 29,
+//     avatar:
+//       "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop",
+//   },
+// ];
 
 const currentUser = {
   name: "You",
@@ -101,15 +102,16 @@ export function Leaderboard1() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("tele_id");
-  const contest_id = queryParams.get("contst_id");
+  const contest_id = queryParams.get("contest_id");
   const {
     data: submissions,
     status,
     error,
   } = useQuery({
     queryKey: ["submissions", when, contest_id],
-    queryFn: async () => getSummissionByRange(when, contest_id),
+    queryFn: async () => await getSummissionByRange(when, contest_id),
   });
+  console.log(submissions);
 
   return (
     <div className="h-screen flex bg-white dark:bg-black text-gray-900 dark:text-white pb-24">
@@ -156,16 +158,17 @@ export function Leaderboard1() {
         </div>
 
         {/* Leaderboard List / Loader */}
-        <div className="flex-1 flex justify-center items-center">
+        <div className="flex-1 flex ">
           {status == "success" ? (
             <div className="space-y-3 w-full">
               {submissions
                 .map((submission, index) => ({
-                  id: submission.student.Student_id,
-                  name: submission.Student.name,
+                  id: submission.student.student_id,
+                  name: submission.student.name,
                   achievements: submission.score, // Assuming achievements are based on the score
                   rank: index + 1, // Modify this logic if rank is determined differently
-                  avatar: submission.Student.Imgurl,
+                  avatar: submission.student.imgurl,
+                  point: submission.score,
                 }))
                 .map((user, index) => (
                   <div
@@ -180,25 +183,19 @@ export function Leaderboard1() {
                     <div className="flex-1">
                       <h3 className="font-medium flex items-center gap-2">
                         {user.name}
-                        {user.medal === "gold" && (
+                        {user.rank === 1 && (
                           <Crown className="w-4 h-4 text-yellow-500" />
                         )}
                       </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                         <Trophy className="w-4 h-4 mr-1.5 text-yellow-500" />
-                        {user.achievements} achievements
+                        {user.point} points
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {user.medal === "gold" && (
-                        <span className="text-2xl">🥇</span>
-                      )}
-                      {user.medal === "silver" && (
-                        <span className="text-2xl">🥈</span>
-                      )}
-                      {user.medal === "bronze" && (
-                        <span className="text-2xl">🥉</span>
-                      )}
+                      {user.rank === 1 && <span className="text-2xl">🥇</span>}
+                      {user.rank === 2 && <span className="text-2xl">🥈</span>}
+                      {user.rank === 3 && <span className="text-2xl">🥉</span>}
                       {user.rank && (
                         <span className="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 px-3 py-1 rounded-full text-sm">
                           #{user.rank}

@@ -36,9 +36,8 @@ const Register = () => {
     status,
   } = useQuery({
     queryKey: ["user", telegram_id],
-    queryFn: async () => checkUser(telegram_id),
+    queryFn: async () => await checkUser(telegram_id),
   });
-  console.log(user);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -50,7 +49,6 @@ const Register = () => {
     region: "",
     phoneNumber: "",
   });
-  console.log();
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -68,9 +66,7 @@ const Register = () => {
         binaryReader.onloadend = () => {
           const arrayBuffer = binaryReader.result;
           const binaryData = new Uint8Array(arrayBuffer);
-          setImageBinary(binaryData); // Store binary data in state
-
-          console.log("Binary Data:", binaryData); // For debugging
+          setImageBinary(binaryData);
         };
       };
     }
@@ -88,18 +84,23 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const newformData = new FormData();
+    newformData.append("file", file);
+    newformData.append("upload_preset", "victory_bot");
+    newformData.append("cloud_name", "dud4t1ptn");
     if (Object.values(formData).some((value) => !value)) {
       setstat("Fill all fields!");
       return;
     }
 
     setIsLoading(true);
-    const newformData = new FormData();
-    newformData.append("file", file);
-    newformData.append("upload_preset", "victory_bot");
-    newformData.append("cloud_name", "dud4t1ptn");
-    const { url } = await uploadeImage(newformData);
+    let url = "";
+
+    if (imageBinary) {
+      const res = await uploadeImage(newformData);
+      url = res.url;
+    }
+
     const dataToSubmit = {
       ...formData,
       telegram_id,
@@ -129,8 +130,7 @@ const Register = () => {
       </div>
     );
   }
-  if (status == "success" && Object.keys(user.student).length > 0) {
-    console.log(Object.keys(user).length);
+  if (status == "success" && Object.keys(user).length > 0) {
     return <SuccessAlert message="Already Registered!" />;
   }
 

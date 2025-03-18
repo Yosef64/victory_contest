@@ -38,6 +38,8 @@ const Register = () => {
     queryKey: ["user", telegram_id],
     queryFn: async () => checkUser(telegram_id),
   });
+  console.log(user);
+
   const [formData, setFormData] = useState({
     name: "",
     sex: "",
@@ -127,7 +129,8 @@ const Register = () => {
       </div>
     );
   }
-  if (status == "success" && user.student) {
+  if (status == "success" && Object.keys(user.student).length > 0) {
+    console.log(Object.keys(user).length);
     return <SuccessAlert message="Already Registered!" />;
   }
 

@@ -79,7 +79,6 @@ const Register = () => {
       ...formData,
       [name]: value,
     });
-    console.log(name, value);
   };
 
   const handleSubmit = async (e) => {
@@ -206,7 +205,6 @@ const Register = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      dataToSubmit
                       onChange={handleImageUpload}
                       className="file-input"
                     />

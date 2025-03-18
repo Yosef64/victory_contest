@@ -21,8 +21,10 @@ export async function addStudent(student) {
     {
       student,
     },
-    { timeout: 1000 }
+    { timeout: 5000 }
   );
+  console.log(res.data);
+
   return res;
 }
 export async function checkUser(telegram_id) {

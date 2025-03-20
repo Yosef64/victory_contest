@@ -143,13 +143,8 @@ function Statistics() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#1A1A1A] text-white p-4 pb-24">
       <div className="max-w-md mx-auto">
-        {/* Header */}
         <Header />
-
-        {/* Quick Stats */}
         <QuickStats />
-
-        {/* Time Period Pills */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {["current", "month", "week"].map((period) => (
             <button
@@ -167,8 +162,6 @@ function Statistics() {
             </button>
           ))}
         </div>
-
-        {/* Subject Selection */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-custom">
           <button
             className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
@@ -196,7 +189,6 @@ function Statistics() {
           ))}
         </div>
 
-        {/* Main Stats Card */}
         <div className="bg-[#1A1A1A] p-6 rounded-2xl mb-6 backdrop-blur-xl bg-opacity-50">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -213,7 +205,9 @@ function Statistics() {
                   : "#6366F1",
               }}
             >
-              {status === "success" && selectedSubject
+              {status === "success" &&
+              selectedSubject &&
+              subjectData[selectedSubject]
                 ? subjectData[selectedSubject].missed
                 : totalMissedQuestions}
             </div>

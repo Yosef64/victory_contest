@@ -185,70 +185,63 @@ const EditMode = ({ student, imageFile, setIsEditing }) => {
 const ViewMode = ({ student, setIsEditing }) => {
   const { isDarkMode } = useDarkMode();
 
+  const profileItems = [
+    {
+      label: "Name",
+      value: student.name,
+      icon: User,
+      color: "text-indigo-400",
+    },
+    {
+      label: "Date of Birth",
+      value: new Date(student.age).toLocaleDateString(),
+      icon: Calendar,
+      color: "text-purple-400",
+    },
+    {
+      label: "Region",
+      value: student.region,
+      icon: Globe,
+      color: "text-blue-400",
+    },
+    {
+      label: "City",
+      value: student.city || "Not specified",
+      icon: Building2,
+      color: "text-indigo-400",
+    },
+    {
+      label: "Grade",
+      value: student.grade || "Not specified",
+      icon: GraduationCap,
+      color: "text-purple-400",
+    },
+    {
+      label: "School",
+      value: student.school || "Not specified",
+      icon: School,
+      color: "text-blue-400",
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div
-        className={` bg-[#1A1A1A] p-6 rounded-2xl mb-6 backdrop-blur-xl  ${
-          isDarkMode ? "bg-[#1A1A1A]" : "bg-white"
-        } shadow-lg`}
-      >
-        <div className="space-y-4">
-          {[
-            { label: "Name", value: student.name, icon: User },
-            {
-              label: "Date of Birth",
-              value: new Date(student.age).toLocaleDateString(),
-              icon: Calendar,
-            },
-            { label: "Region", value: student.region, icon: Globe },
-            {
-              label: "City",
-              value: student.city || "Not specified",
-              icon: Building2,
-            },
-            {
-              label: "Grade",
-              value: student.grade || "Not specified",
-              icon: GraduationCap,
-            },
-            {
-              label: "School",
-              value: student.school || "Not specified",
-              icon: School,
-            },
-          ].map((item, index) => (
-            <div key={index} className="flex items-center space-x-4">
-              <div
-                className={`p-2 rounded-lg ${
-                  isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                }`}
-              >
-                <item.icon
-                  className={`w-5 h-5 ${
-                    isDarkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                />
-              </div>
-              <div>
-                <p
-                  className={`text-sm ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  {item.label}
-                </p>
-                <p
-                  className={`font-medium ${
-                    isDarkMode ? "text-gray-200" : "text-gray-900"
-                  }`}
-                >
-                  {item.value}
-                </p>
-              </div>
+    <div className="space-y-4">
+      {profileItems.map((item, index) => (
+        <div
+          key={index}
+          className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-4 rounded-xl border border-gray-800/50 backdrop-blur-xl transition-all hover:from-indigo-500/15 hover:to-purple-500/15"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+              <item.icon className={`w-5 h-5 ${item.color}`} />
             </div>
-          ))}
+            <div className="flex-1">
+              <p className="text-sm text-gray-400">{item.label}</p>
+              <p className="font-medium text-white">{item.value}</p>
+            </div>
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };

@@ -307,7 +307,7 @@ function Statistics() {
                   {Object.entries(grades).map(([grade, { chapters }]) => (
                     <div key={grade} className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">
+                        <span className="text-[#6366F1] font-bold">
                           {grade.replace("_", " ")}
                         </span>
                       </div>

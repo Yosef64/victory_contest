@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { ChevronLeft, Camera, Moon, Sun, Pencil } from "lucide-react";
+import {
+  ChevronLeft,
+  Camera,
+  Moon,
+  Sun,
+  Pencil,
+  Calendar,
+  Briefcase,
+  MapPin,
+} from "lucide-react";
 
 import { useDarkMode } from "@/DarkModeProvider";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
@@ -39,146 +48,140 @@ function Profile() {
   }
   if (status === "error") {
     return (
-      <div className="">
-        <div className="">something went wrong!</div>
+      <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#1A1A1A] flex items-center justify-center">
+        <div className="bg-[#1A1A1A] p-6 rounded-2xl backdrop-blur-xl bg-opacity-50 border border-gray-800">
+          <p className="text-red-400">Something went wrong!</p>
+        </div>
       </div>
     );
   }
+
   if (status === "success" && Object.keys(student).length === 0) {
     navigate(`/register?tele_id=${id}`);
   }
 
   return (
-    <div
-      className={`min-h-screen ${
-        isDarkMode
-          ? "bg-gradient-to-b from-[#0A0A0A] to-[#1A1A1A]"
-          : "bg-gradient-to-b from-gray-50 to-white"
-      }`}
-    >
+    <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#1A1A1A] text-white">
       {/* Header */}
-      <div
-        className={`px-6 py-6 flex items-center justify-between border-b ${
-          isDarkMode
-            ? "border-gray-800 bg-gradient-to-b from-[#1A1A1A] to-[#0A0A0A]"
-            : "border-gray-100 bg-white/80"
-        } backdrop-blur-sm sticky top-0 z-10`}
-      >
-        <div className="flex items-center">
-          <div
+      <div className="px-6 py-6 flex items-center justify-between bg-[#1A1A1A]/90 backdrop-blur-lg border-b border-gray-800 sticky top-0 z-10">
+        <div className="flex items-center gap-4">
+          <button
             onClick={() => navigate(-1)}
-            className={`p-2 ${
-              isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
-            } rounded-full transition-colors`}
+            className="p-2 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 hover:from-indigo-500/20 hover:to-purple-500/20 transition-all"
           >
-            <ChevronLeft
-              className={`w-6 h-6 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            />
-          </div>
-          <h1 className="ml-4 text-2xl font-semibold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+            <ChevronLeft className="w-5 h-5 text-indigo-400" />
+          </button>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
             {isEditing ? "Edit Profile" : "Profile"}
           </h1>
         </div>
         <button
           onClick={toggleDarkMode}
-          className={`p-2 ${
-            isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
-          } rounded-full transition-colors`}
+          className="p-2 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 hover:from-indigo-500/20 hover:to-purple-500/20 transition-all"
         >
           {isDarkMode ? (
-            <Sun className="w-6 h-6 text-gray-300" />
+            <Sun className="w-5 h-5 text-indigo-400" />
           ) : (
-            <Moon className="w-6 h-6 text-gray-700" />
+            <Moon className="w-5 h-5 text-indigo-400" />
           )}
         </button>
       </div>
 
-      <div className="px-6 py-8 max-w-2xl mx-auto">
+      <div className="max-w-md mx-auto px-2 py-8">
         {status === "success" && student && (
           <>
             {/* Profile Image */}
-            <div className="flex justify-center mb-12">
+            <div className="flex justify-center mb-8">
               <div className="relative group">
-                <div className="absolute -inset-0.5 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-75 blur"></div>
                 <div className="relative">
-                  <div>
-                    <Avatar className="w-36 h-36">
-                      <div className="inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full p-[3px]">
-                        <div className="bg-white dark:bg-gray-900 rounded-full p-[2px] h-full">
-                          <AvatarImage
-                            className="rounded-full w-full h-full object-cover"
-                            src={binaryImage || student.imgurl}
-                            alt="Profile"
-                          />
-                          <AvatarFallback className="rounded-full text-4xl w-36 h-36">
-                            {student.name[0]}
-                          </AvatarFallback>
-                        </div>
+                  <Avatar className="w-32 h-32">
+                    <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full p-[3px]">
+                      <div className="bg-[#1A1A1A] rounded-full p-[2px] h-full">
+                        <AvatarImage
+                          className="rounded-full w-full h-full object-cover"
+                          src={binaryImage || student.imgurl}
+                          alt="Profile"
+                        />
+                        <AvatarFallback className="rounded-full text-4xl w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-indigo-400">
+                          {student.name[0]}
+                        </AvatarFallback>
                       </div>
-                    </Avatar>
-                    {isEditing && (
-                      <button
-                        onClick={() =>
-                          document.getElementById("fileInput")?.click()
-                        }
-                        className={`absolute bottom-0 right-0 ${
-                          isDarkMode ? "bg-gray-800" : "bg-white"
-                        } p-3 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 group-hover:-translate-y-1`}
-                      >
-                        <Camera
-                          className={`w-5 h-5 ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        />
-                        <input
-                          onChange={handleImageChange}
-                          type="file"
-                          id="fileInput"
-                          accept="image/*"
-                          hidden
-                        />
-                      </button>
-                    )}
-                  </div>
-                  {!isEditing && (
+                    </div>
+                  </Avatar>
+                  {isEditing && (
                     <button
-                      onClick={() => setIsEditing(true)}
-                      className={`mt-6 w-full flex items-center justify-center space-x-2 ${
-                        isDarkMode
-                          ? "bg-gradient-to-r from-indigo-500 to-purple-500  shadow-blue-500/10"
-                          : "bg-gradient-to-r from-indigo-500 to-purple-500  shadow-blue-500/20"
-                      } text-white w-[50%] m-auto py-2 rounded-[40px] font-medium shadow-lg hover:shadow-xl hover:shadow-blue-500/30 transform transition-all duration-300 hover:-translate-y-0.5 focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:outline-none`}
+                      onClick={() =>
+                        document.getElementById("fileInput")?.click()
+                      }
+                      className="absolute bottom-0 right-0 bg-[#1A1A1A] p-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 hover:from-indigo-500/20 hover:to-purple-500/20 transition-all shadow-lg"
                     >
-                      <Pencil className="w-3 h-3" />
-                      <span>Edit profile</span>
+                      <Camera className="w-5 h-5 text-indigo-400" />
+                      <input
+                        onChange={handleImageChange}
+                        type="file"
+                        id="fileInput"
+                        accept="image/*"
+                        hidden
+                      />
                     </button>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Profile Information */}
-            {isEditing ? (
-              <EditMode
-                student={student}
-                setIsEditing={setIsEditing}
-                imageFile={imageFile}
-              />
-            ) : (
-              <ViewMode student={student} setIsEditing={setIsEditing} />
+            {/* Quick Stats */}
+            <div
+              className={`grid grid-cols-2 gap-3 mb-6 px-2 ${
+                isEditing ? "hidden" : "block"
+              }`}
+            >
+              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-4 rounded-xl">
+                <Calendar className="w-5 h-5 text-indigo-400 mb-2" />
+                <p className="text-xs text-gray-400">Joined</p>
+                <p className="text-lg font-bold">2024</p>
+              </div>
+              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-4 rounded-xl">
+                <Briefcase className="w-5 h-5 text-purple-400 mb-2" />
+                <p className="text-xs text-gray-400">Role</p>
+                <p className="text-lg font-bold">Student</p>
+              </div>
+            </div>
+
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="w-[50%] font-semibold m-auto mb-8 bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2 rounded-full  shadow-lg hover:shadow-indigo-500/25 transition-all flex items-center justify-center gap-2"
+              >
+                <Pencil className="w-4 h-4" />
+                <span>Edit Profile</span>
+              </button>
             )}
+
+            {/* Profile Information */}
+            <div className="bg-[#1A1A1A] p-2 rounded-2xl backdrop-blur-xl bg-opacity-50 border border-gray-800">
+              {isEditing ? (
+                <EditMode
+                  student={student}
+                  setIsEditing={setIsEditing}
+                  imageFile={imageFile}
+                />
+              ) : (
+                <ViewMode student={student} setIsEditing={setIsEditing} />
+              )}
+            </div>
           </>
         )}
 
         {status === "error" && (
-          <div className="text-red-500">Error loading profile data</div>
+          <div className="bg-[#1A1A1A] p-6 rounded-2xl backdrop-blur-xl bg-opacity-50 border border-gray-800">
+            <p className="text-red-400">Error loading profile data</p>
+          </div>
         )}
 
         {status === "loading" && (
           <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
       </div>

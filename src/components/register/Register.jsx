@@ -32,7 +32,7 @@ const Register = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const {
     data: user,
-    error,
+
     status,
   } = useQuery({
     queryKey: ["user", telegram_id],
@@ -124,7 +124,13 @@ const Register = () => {
       <div className="flex h-screen justify-center items-center">
         <div>
           <p>Something went wrong!</p>
-          <button>Refresh</button>
+          <button
+            onClick={() => {
+              window.location.reload();
+            }}
+          >
+            Refresh
+          </button>
         </div>
       </div>
     );
@@ -260,7 +266,7 @@ const Register = () => {
           <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
             Are you a member?{" "}
             <a
-              href="#"
+              href="https://t.me/VictoryTutor_7"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               Join official victory channel

@@ -9,7 +9,7 @@ import {
   GraduationCap,
   BookOpen,
 } from "lucide-react";
-import { getContest } from "@/lib/utils";
+import { getContest, getContestNoParticipants } from "@/lib/utils";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Loader from "../Loader";
 
@@ -21,6 +21,8 @@ function Intro1() {
     seconds: 0,
   });
   const [isContestStarted, setIsContestStarted] = useState(false);
+  const [isContestEnded, setIsContestEnded] = useState(false);
+  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { contest_id } = useParams();
   const [searchQueryParams] = useSearchParams();
@@ -30,40 +32,50 @@ function Intro1() {
   useEffect(() => {
     // Simulated API call - replace with your actual API endpoint
     const fetchContest = async () => {
+      console.log("first effect");
       try {
         const contest = await getContest(contest_id);
         setContest(contest);
         setIsLoading(false);
       } catch (error) {
-        console.error("Failed to fetch contest:", error);
+        setError("Something went wrong. Please try again later.");
+        console.log(error);
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchContest();
-  }, []);
+    console.log(contest);
+  }, [contest_id]);
 
   useEffect(() => {
+    console.log("second effect");
     if (!contest?.start_time) return;
+    console.log(contest);
 
     const calculateTimeLeft = () => {
-      // Convert contest start time to today's date
-      const today = new Date();
-      const [time, period] = contest.start_time.split(" ");
-      const [hours, minutes] = time.split(":");
-      let hour = parseInt(hours);
-
-      // Convert to 24-hour format
-      if (period === "PM" && hour !== 12) hour += 12;
-      if (period === "AM" && hour === 12) hour = 0;
-
-      today.setHours(hour, parseInt(minutes), 0);
-
       const now = new Date();
-      const difference = today.getTime() - now.getTime();
+      // console.log(contest);
+      const date = contest.date.split("T")[0];
+      const [year, month, day] = date.split("-").map(Number);
 
+      const contestDate = new Date(year, month - 1, day);
+      const contestEndDate = new Date(year, month - 1, day);
+      const start_time = contest.start_time.split(" ")[0];
+      const end_time = contest.end_time.split(" ")[0];
+      const [hours, minutes] = start_time.split(":").map(Number);
+      const [endHours, endMinutes] = end_time.split(":").map(Number);
+      contestDate.setHours(hours, minutes, 0, 0);
+      contestEndDate.setHours(endHours, endMinutes, 0, 0);
+
+      const difference = contestDate.getTime() - now.getTime();
+      const endDifference = contestEndDate.getTime() - now.getTime();
+
+      if (endDifference <= 0) {
+        setIsContestEnded(true);
+      }
       if (difference <= 0) {
-        setIsContestStarted(true);
         return { hours: 0, minutes: 0, seconds: 0 };
       }
 
@@ -75,16 +87,20 @@ function Intro1() {
     };
 
     const timer = setInterval(() => {
-      const newTimeLeft = calculateTimeLeft();
-      setTimeLeft(newTimeLeft);
+      try {
+        const newTimeLeft = calculateTimeLeft();
+        setTimeLeft(newTimeLeft);
 
-      if (
-        newTimeLeft.hours === 0 &&
-        newTimeLeft.minutes === 0 &&
-        newTimeLeft.seconds === 0
-      ) {
-        clearInterval(timer);
-        setIsContestStarted(true);
+        if (
+          newTimeLeft.hours === 0 &&
+          newTimeLeft.minutes === 0 &&
+          newTimeLeft.seconds === 0
+        ) {
+          clearInterval(timer);
+          setIsContestStarted(true);
+        }
+      } catch (error) {
+        console.log(error);
       }
     }, 1000);
 
@@ -92,12 +108,25 @@ function Intro1() {
   }, [contest]);
 
   const formatTime = (value) => value.toString().padStart(2, "0");
+  const handleRegister = async () => {
+    try {
+      await registerStudentForContest(tele_id, contest_id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (isLoading) {
     return <Loader />;
   }
-
-  if (!contest) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#162233] flex items-center justify-center">
+        <div className="text-white text-xl">{error}</div>
+      </div>
+    );
+  }
+  if (Object.keys(contest).length == 0) {
     return (
       <div className="min-h-screen bg-[#162233] flex items-center justify-center">
         <div className="text-white text-xl">No contest found</div>
@@ -185,17 +214,10 @@ function Intro1() {
             )}
 
             <div className="w-full space-y-4">
-              <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                <Users className="text-emerald-400" />
-                <div className="flex-1">
-                  <div className="text-white font-semibold">Participants</div>
-                  <div className="text-emerald-200 text-sm">50 registered</div>
-                </div>
-                <Sparkles className="text-yellow-300 animate-pulse" />
-              </div>
-
+              <Participants />
               {isContestStarted ? (
                 <button
+                  disabled={isContestEnded}
                   onClick={() =>
                     navigate(
                       `/quizPage?tele_id=${tele_id}&contest_id=${contest_id}`,
@@ -207,7 +229,7 @@ function Intro1() {
                   className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-orange-500/20"
                 >
                   <Play className="group-hover:translate-x-1 transition-transform duration-300" />
-                  Join Contest Now
+                  {isContestEnded ? "Contest has Ended" : "Join Contest Now"}
                 </button>
               ) : (
                 <button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-emerald-500/20">
@@ -224,5 +246,33 @@ function Intro1() {
     </div>
   );
 }
+function Participants() {
+  const { contest_id } = useParams();
+  const [participants, setParticipants] = useState(0);
 
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        const res = await getContestNoParticipants(contest_id);
+        setParticipants(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchParticipants();
+  }, [contest_id]);
+  return (
+    <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
+      <Users className="text-emerald-400" />
+      <div className="flex-1">
+        <div className="text-white font-semibold">Participants</div>
+        <div className="text-emerald-200 text-sm">
+          {participants} registered
+        </div>
+      </div>
+      <Sparkles className="text-yellow-300 animate-pulse" />
+    </div>
+  );
+}
 export default Intro1;

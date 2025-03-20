@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, Trophy, Crown, Flame } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import Loader from "../Loader";
@@ -99,20 +99,28 @@ const currentUser = {
 
 export function Leaderboard1() {
   const [when, setWhen] = useState("today");
+  const [submissions, setSubmissions] = useState([]);
+  const [status, setStatus] = useState("pending");
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("tele_id");
   const contest_id = queryParams.get("contest_id");
-  const {
-    data: submissions,
-    status,
-    error,
-  } = useQuery({
-    queryKey: ["submissions", when, contest_id],
-    queryFn: async () => await getSummissionByRange(when, contest_id),
-  });
-  console.log(submissions);
 
+  useEffect(() => {
+    setStatus("pending");
+    async function fetchSubmissions() {
+      try {
+        const res = await getSummissionByRange(when, contest_id);
+        setSubmissions(res);
+        setStatus("success");
+      } catch (error) {
+        setStatus("error");
+        console.log(error);
+      }
+    }
+    fetchSubmissions();
+  }, [when]);
+  console.log(submissions);
   return (
     <div className="h-screen flex bg-white dark:bg-black text-gray-900 dark:text-white pb-24">
       <div className="max-w-md flex flex-col mx-auto pt-8 px-4 flex-1">
@@ -165,8 +173,8 @@ export function Leaderboard1() {
                 .map((submission, index) => ({
                   id: submission.student.student_id,
                   name: submission.student.name,
-                  achievements: submission.score, // Assuming achievements are based on the score
-                  rank: index + 1, // Modify this logic if rank is determined differently
+                  achievements: submission.score,
+                  rank: index + 1,
                   avatar: submission.student.imgurl,
                   point: submission.score,
                 }))

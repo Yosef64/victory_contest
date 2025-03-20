@@ -1,7 +1,7 @@
 import axios from "axios";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
+import CryptoJS from "crypto-js";
 const VITE_BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 export function cn(...inputs) {
@@ -10,7 +10,7 @@ export function cn(...inputs) {
 
 export async function getContest(contest_id) {
   const res = await axios.get(`${VITE_BACKEND_API}/api/contest/${contest_id}`, {
-    timeout: 1000,
+    timeout: 10000,
   });
   const { contest } = res.data;
   return contest;
@@ -27,23 +27,40 @@ export async function addStudent(student) {
 
   return res;
 }
+
+export async function updateUser(student) {
+  const student_id = student.telegram_id;
+  const res = await axios.put(
+    `${VITE_BACKEND_API}/api/student/${student_id}`,
+    {
+      student,
+    },
+    { timeout: 5000 }
+  );
+
+  return res;
+}
 export async function checkUser(telegram_id) {
   const res = await axios.get(
     `${VITE_BACKEND_API}/api/student/${telegram_id}`,
-    { timeout: 1000 }
+    { timeout: 10000 }
   );
   const { student } = res.data;
   return student;
 }
-export async function uploadeImage(formData) {
+export async function uploadeImage(file, public_id) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  formData.append("public_id", public_id);
   const res = await axios.post(
-    "https://api.cloudinary.com/v1_1/dud4t1ptn/image/upload",
+    `${VITE_BACKEND_API}/api/image/upload`,
     formData,
     {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      timeout: 4000,
+      timeout: 10000,
     }
   );
   return res.data;
@@ -51,16 +68,16 @@ export async function uploadeImage(formData) {
 
 export async function getSummissionByRange(when, contest_id) {
   let res;
-  if (contest_id) {
+  if (when === "today" && contest_id) {
     res = await axios.get(
       `${VITE_BACKEND_API}/api/submission/contest_id/${contest_id}`,
       {
-        timeout: 1000,
+        timeout: 10000,
       }
     );
   } else {
     res = await axios.get(`${VITE_BACKEND_API}/api/submission/${when}`, {
-      timeout: 1000,
+      timeout: 10000,
     });
   }
   const { submissions } = res.data;
@@ -91,4 +108,51 @@ export async function calculateAndSendSubmission(questions, cached, data) {
     submission,
   });
   return res.data;
+}
+export async function registerStudentForContest(tele_id, contest_id) {
+  const res = await axios.post(
+    `${VITE_BACKEND_API}/api/contest/register`,
+    {
+      tele_id,
+      contest_id,
+    },
+    { timeout: 10000 }
+  );
+  return res.data;
+}
+export async function checkUserRegisterForContest(tele_id) {
+  const res = await axios.get(
+    `${VITE_BACKEND_API}/api/contest/register/${tele_id}`,
+    { timeout: 10000 }
+  );
+  return res.data;
+}
+export async function getContestNoParticipants(contest_id) {
+  const res = await axios.get(
+    `${VITE_BACKEND_API}/api/contest/participants/${contest_id}`,
+    { timeout: 10000 }
+  );
+  const { participants } = res.data;
+  return participants;
+}
+export async function fetchUserMissedData(dur, tele_id) {
+  const api_path = {
+    month: "monthly_missed_questions",
+    week: "weekly_missed_questions",
+    current: "missed-questions",
+  };
+  const path = api_path[dur];
+
+  const res = await axios.get(
+    `${VITE_BACKEND_API}/api/question/${path}/${tele_id}`
+  );
+  return res.data;
+}
+
+export async function getQuickStats(tele_id) {
+  const res = await axios.get(
+    `${VITE_BACKEND_API}/api/student/quickstat/${tele_id}`
+  );
+  const { stat } = res.data;
+  return stat;
 }

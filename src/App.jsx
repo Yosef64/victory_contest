@@ -9,13 +9,15 @@ import SuccessPage from "./components/successful/SuccessPage";
 import { isRegister } from "./lib/isRegister";
 import Profile from "./components/profile/Profile";
 import EventEnded from "./components/eventEnded/EventEnded";
+import Statistics from "./components/statistics/Statistics";
 
 const router = createBrowserRouter([
-  { path: "/:contest_id", element: <Intro />, caseSensitive: false },
-  { path: "quizPage", element: <QuizPage />, caseSensitive: false },
-  { path: "leaderboard", element: <LeaderBoard />, caseSensitive: false },
-  { path: "profile/:id", element: <Profile />, caseSensitive: false },
-  { path: "register", element: <Register />, caseSensitive: false },
+  { path: "/:contest_id", element: <Intro /> },
+  { path: "quizPage", element: <QuizPage /> },
+  { path: "leaderboard", element: <LeaderBoard /> },
+  { path: "profile/:id", element: <Profile /> },
+  { path: "register", element: <Register /> },
+  { path: "/statistics/:id", element: <Statistics /> },
   {
     path: "agentRegister/:id",
     element: <AgentRegistered />,

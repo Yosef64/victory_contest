@@ -95,6 +95,30 @@
   background-size: 20% 50%;
   animation: loading 1s infinite linear;
 }
+.scrollbar-custom::-webkit-scrollbar {
+  height: 5px;
+  margin-top: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, #6366F1, #8B5CF6);
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to right, #4F46E5, #7C3AED);
+}
+
+/* Hide default scrollbar for Firefox */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #6366F1 rgba(255, 255, 255, 0.05);
+}
 .dark .loader {
   --c: no-repeat linear-gradient(#fff 0 0); /* White in dark mode */
 }

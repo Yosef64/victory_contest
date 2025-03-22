@@ -109,7 +109,7 @@ export async function calculateAndSendSubmission(questions, cached, data) {
   });
   return res.data;
 }
-export async function registerStudentForContest(tele_id, contest_id) {
+export async function registerStudentForContest(contest_id, tele_id) {
   const res = await axios.post(
     `${VITE_BACKEND_API}/api/contest/register`,
     {
@@ -120,6 +120,13 @@ export async function registerStudentForContest(tele_id, contest_id) {
   );
   return res.data;
 }
+export async function getActiveContestants(contest_id) {
+  const res = await axios.get(
+    `${VITE_BACKEND_API}/api/contest/active/${contest_id}`
+  );
+  const { active_contestants } = res.data;
+  return active_contestants;
+}
 export async function checkUserRegisterForContest(tele_id) {
   const res = await axios.get(
     `${VITE_BACKEND_API}/api/contest/register/${tele_id}`,
@@ -127,6 +134,7 @@ export async function checkUserRegisterForContest(tele_id) {
   );
   return res.data;
 }
+
 export async function getContestNoParticipants(contest_id) {
   const res = await axios.get(
     `${VITE_BACKEND_API}/api/contest/participants/${contest_id}`,
@@ -134,6 +142,10 @@ export async function getContestNoParticipants(contest_id) {
   );
   const { participants } = res.data;
   return participants;
+}
+
+export async function getUserFromContest(tele_id) {
+  const res = await axios.get(`${VITE_BACKEND_API}/api/`);
 }
 export async function fetchUserMissedData(dur, tele_id) {
   const api_path = {

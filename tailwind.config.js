@@ -13,6 +13,11 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
         custom: "16px !important",
       },
+      fontFamily: {
+        sans: ["Public Sans", "sans-serif"],
+        raleway: ["Raleway", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+      },
       flex: {
         3: "3 3 0%",
       },

@@ -88,15 +88,6 @@ function TopThree({ rank, image, name, score, total }) {
 //   },
 // ];
 
-const currentUser = {
-  name: "You",
-  rank: 15,
-  achievements: 18,
-  avatar:
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-  streak: 7,
-};
-
 export function Leaderboard1() {
   const [when, setWhen] = useState("today");
   const [submissions, setSubmissions] = useState([]);
@@ -262,4 +253,49 @@ export function Leaderboard1() {
   );
 }
 
+const currentUser = {
+  name: "You",
+  rank: 15,
+  achievements: 18,
+  avatar:
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
+  streak: 7,
+};
+function FixedUser() {
+  const [currentUser, setCurrentUser] = useState({});
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-t border-gray-200 dark:border-zinc-800">
+      <div className="max-w-md mx-auto px-4 py-4">
+        <div className="flex items-center space-x-4">
+          <img
+            src={currentUser.avatar}
+            alt="Your avatar"
+            className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500"
+          />
+          <div className="flex-1">
+            <h3 className="font-medium flex items-center gap-2">
+              {currentUser.name}
+              <span className="bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full text-xs text-emerald-600 dark:text-emerald-500">
+                #{currentUser.rank}
+              </span>
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+              <Trophy className="w-4 h-4 mr-1.5 text-yellow-500" />
+              {currentUser.achievements} achievements
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center">
+              <Flame className="w-5 h-5 text-orange-500 mb-1" />
+              <span className="text-sm font-medium">{currentUser.streak}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Streak
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default TopThree;

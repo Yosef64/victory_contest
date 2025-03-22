@@ -9,9 +9,29 @@ import {
   GraduationCap,
   BookOpen,
 } from "lucide-react";
-import { getContest, getContestNoParticipants } from "@/lib/utils";
+import {
+  getActiveContestants,
+  getContest,
+  getContestNoParticipants,
+  getUserFromContest,
+  registerStudentForContest,
+} from "@/lib/utils";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Loader from "../Loader";
+import UnAuthorized from "./UnauthriziedError";
+
+function convertTo24Hour(timeStr) {
+  const [time, modifier] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (modifier === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (modifier === "AM" && hours === 12) {
+    hours = 0; // Convert 12 AM to 00:00
+  }
+
+  return { hours, minutes };
+}
 
 function Intro1() {
   const [contest, setContest] = useState(null);
@@ -21,6 +41,7 @@ function Intro1() {
     seconds: 0,
   });
   const [isContestStarted, setIsContestStarted] = useState(false);
+  const [authorized, setAuthorized] = useState(true);
   const [isContestEnded, setIsContestEnded] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +51,7 @@ function Intro1() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulated API call - replace with your actual API endpoint
+    setIsLoading(true);
     const fetchContest = async () => {
       console.log("first effect");
       try {
@@ -46,75 +67,27 @@ function Intro1() {
     };
 
     fetchContest();
-    console.log(contest);
   }, [contest_id]);
-
-  useEffect(() => {
-    console.log("second effect");
-    if (!contest?.start_time) return;
-    console.log(contest);
-
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      // console.log(contest);
-      const date = contest.date.split("T")[0];
-      const [year, month, day] = date.split("-").map(Number);
-
-      const contestDate = new Date(year, month - 1, day);
-      const contestEndDate = new Date(year, month - 1, day);
-      const start_time = contest.start_time.split(" ")[0];
-      const end_time = contest.end_time.split(" ")[0];
-      const [hours, minutes] = start_time.split(":").map(Number);
-      const [endHours, endMinutes] = end_time.split(":").map(Number);
-      contestDate.setHours(hours, minutes, 0, 0);
-      contestEndDate.setHours(endHours, endMinutes, 0, 0);
-
-      const difference = contestDate.getTime() - now.getTime();
-      const endDifference = contestEndDate.getTime() - now.getTime();
-
-      if (endDifference <= 0) {
-        setIsContestEnded(true);
-      }
-      if (difference <= 0) {
-        return { hours: 0, minutes: 0, seconds: 0 };
-      }
-
-      return {
-        hours: Math.floor(difference / (1000 * 60 * 60)),
-        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((difference % (1000 * 60)) / 1000),
-      };
-    };
-
-    const timer = setInterval(() => {
-      try {
-        const newTimeLeft = calculateTimeLeft();
-        setTimeLeft(newTimeLeft);
-
-        if (
-          newTimeLeft.hours === 0 &&
-          newTimeLeft.minutes === 0 &&
-          newTimeLeft.seconds === 0
-        ) {
-          clearInterval(timer);
-          setIsContestStarted(true);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [contest]);
-
-  const formatTime = (value) => value.toString().padStart(2, "0");
-  const handleRegister = async () => {
+  const handleJoin = async () => {
+    setIsLoading(true);
     try {
-      await registerStudentForContest(tele_id, contest_id);
+      const res = await getActiveContestants(contest_id);
+      if (res.includes) {
+        setAuthorized(false);
+        return;
+      }
+      navigate(`/quizPage?tele_id=${tele_id}&contest_id=${contest_id}`, {
+        state: { contest: contest },
+      });
     } catch (error) {
-      console.log(error);
+      setError("Something went wrong. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
+  if (authorized === false) {
+    return <UnAuthorized />;
+  }
 
   if (isLoading) {
     return <Loader />;
@@ -136,7 +109,7 @@ function Intro1() {
 
   return (
     <div
-      className="min-h-screen bg-[#040c15] flex items-center justify-center p-4 relative overflow-hidden"
+      className="font-sans min-h-screen bg-[#040c15] flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         backgroundImage: `
           radial-gradient(circle at 10% 20%, rgba(255, 200, 124, 0.03) 0%, transparent 20%),
@@ -194,23 +167,11 @@ function Intro1() {
             </div>
 
             {!isContestStarted && (
-              <div className="grid grid-cols-3 gap-6 w-full">
-                {[
-                  { value: timeLeft.hours, label: "Hours" },
-                  { value: timeLeft.minutes, label: "Minutes" },
-                  { value: timeLeft.seconds, label: "Seconds" },
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    className="bg-white/5 rounded-2xl p-4 backdrop-blur-sm border border-white/10 text-center group hover:bg-white/10 transition-all duration-300"
-                  >
-                    <div className="text-4xl font-mono font-bold text-white mb-1 group-hover:scale-105 transition-transform">
-                      {formatTime(item.value)}
-                    </div>
-                    <div className="text-emerald-200 text-sm">{item.label}</div>
-                  </div>
-                ))}
-              </div>
+              <CountDown
+                contest={contest}
+                setIsContestEnded={setIsContestEnded}
+                setIsContestStarted={setIsContestStarted}
+              />
             )}
 
             <div className="w-full space-y-4">
@@ -218,24 +179,18 @@ function Intro1() {
               {isContestStarted ? (
                 <button
                   disabled={isContestEnded}
-                  onClick={() =>
-                    navigate(
-                      `/quizPage?tele_id=${tele_id}&contest_id=${contest_id}`,
-                      {
-                        state: { contest: contest },
-                      }
-                    )
-                  }
-                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-orange-500/20"
+                  onClick={handleJoin}
+                  className={`w-full  text-white py-4 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-orange-500/20 ${
+                    isContestEnded
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                      : "bg-gradient-to-r from-[#2ea329fc] to-[#46bb17] text-gray-700"
+                  }`}
                 >
                   <Play className="group-hover:translate-x-1 transition-transform duration-300" />
                   {isContestEnded ? "Contest has Ended" : "Join Contest Now"}
                 </button>
               ) : (
-                <button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-emerald-500/20">
-                  <Timer className="group-hover:rotate-12 transition-transform duration-300" />
-                  Register Now
-                </button>
+                <Registered />
               )}
             </div>
           </div>
@@ -246,6 +201,143 @@ function Intro1() {
     </div>
   );
 }
+
+function CountDown({ contest, setIsContestEnded, setIsContestStarted }) {
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    if (!contest?.start_time) return;
+    console.log(contest);
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+
+      const date = contest.date.split("T")[0];
+      const [year, month, day] = date.split("-").map(Number);
+
+      const contestDate = new Date(year, month - 1, day);
+      const contestEndDate = new Date(year, month - 1, day);
+
+      const { hours, minutes } = convertTo24Hour(contest.start_time);
+      const { hours: endHours, minutes: endMinutes } = convertTo24Hour(
+        contest.end_time
+      );
+
+      contestDate.setHours(hours, minutes, 0, 0);
+      contestEndDate.setHours(endHours, endMinutes, 0, 0);
+
+      const difference = contestDate.getTime() - now.getTime();
+      const endDifference = contestEndDate.getTime() - now.getTime();
+
+      if (endDifference <= 0) {
+        setIsContestEnded(true);
+      }
+      if (difference <= 0) {
+        return { hours: 0, minutes: 0, seconds: 0 };
+      }
+
+      return {
+        hours: Math.floor(difference / (1000 * 60 * 60)),
+        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((difference % (1000 * 60)) / 1000),
+      };
+    };
+
+    const timer = setInterval(() => {
+      try {
+        const newTimeLeft = calculateTimeLeft();
+        setTimeLeft(newTimeLeft);
+
+        if (
+          newTimeLeft.hours === 0 &&
+          newTimeLeft.minutes === 0 &&
+          newTimeLeft.seconds === 0
+        ) {
+          clearInterval(timer);
+          setIsContestStarted(true);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [contest]);
+
+  const formatTime = (value) => value.toString().padStart(2, "0");
+
+  return (
+    <div className="grid grid-cols-3 gap-6 w-full">
+      {[
+        { value: timeLeft.hours, label: "Hours" },
+        { value: timeLeft.minutes, label: "Minutes" },
+        { value: timeLeft.seconds, label: "Seconds" },
+      ].map((item, index) => (
+        <div
+          key={index}
+          className="bg-white/5 rounded-2xl p-4 backdrop-blur-sm border border-white/10 text-center group hover:bg-white/10 transition-all duration-300"
+        >
+          <div className="text-4xl font-mono font-bold text-white mb-1 group-hover:scale-105 transition-transform">
+            {formatTime(item.value)}
+          </div>
+          <div className="text-emerald-200 text-sm">{item.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+function Registered() {
+  const [isUserRegisterd, setIsUserRegisterd] = useState(false);
+  const [status, setStatus] = useState("edil");
+  const [searchQueryParams] = useSearchParams();
+  const tele_id = searchQueryParams.get("tele_id");
+  const { contest_id } = useParams();
+  useEffect(() => {
+    const checkIsUserRegistered = async () => {
+      try {
+        const res = await getContestNoParticipants(contest_id);
+
+        setIsUserRegisterd(res.includes(tele_id));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkIsUserRegistered();
+  }, [isUserRegisterd]);
+
+  const handleRegister = async () => {
+    setStatus("pending");
+    try {
+      await registerStudentForContest(contest_id, tele_id);
+      setStatus("success");
+
+      setIsUserRegisterd(true);
+    } catch (error) {
+      setStatus("error");
+      console.log(error);
+    }
+  };
+  if (isUserRegisterd) {
+    return <div className="text-center text-green-400">Good Luck!</div>;
+  }
+  if (status === "edil") {
+    return <div className="text-center text-green-400">Loading</div>;
+  }
+  return (
+    <button
+      onClick={handleRegister}
+      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 px-6 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-emerald-500/20"
+    >
+      <Timer className="group-hover:rotate-12 transition-transform duration-300" />
+      {status === "pending" ? "Registering..." : "Register Now"}
+    </button>
+  );
+}
+
 function Participants() {
   const { contest_id } = useParams();
   const [participants, setParticipants] = useState(0);
@@ -254,7 +346,7 @@ function Participants() {
     const fetchParticipants = async () => {
       try {
         const res = await getContestNoParticipants(contest_id);
-        setParticipants(res);
+        setParticipants(res.length);
       } catch (error) {
         console.log(error);
       }

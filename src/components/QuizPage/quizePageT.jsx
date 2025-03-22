@@ -44,10 +44,7 @@ import FishingCountDown from "./FiishingCountDown";
 const cachedAnswers = {};
 
 function QuizePart() {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState();
   const [score, setScore] = useState(0);
-  const [isQuizComplete, setIsQuizComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQueryParams] = useSearchParams();
   const tele_id = searchQueryParams.get("tele_id");
@@ -57,6 +54,9 @@ function QuizePart() {
   const contest = location.state?.contest;
 
   const questions = contest.questions;
+  const [currentQuestion, setCurrentQuestion] = useState(questions.length - 1);
+  const [isQuizComplete, setIsQuizComplete] = useState(currentQuestion === -1);
+  const [selectedAnswer, setSelectedAnswer] = useState();
   if (!questions) {
     return <div className="">Try again</div>;
   }
@@ -97,7 +97,7 @@ function QuizePart() {
 
   if (isQuizComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] flex items-center justify-center p-4">
+      <div className="font-raleway min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] flex items-center justify-center p-4">
         <div className="w-full max-w-2xl bg-[#1a1a1a]/80 backdrop-blur-xl rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)] p-8 text-center border border-blue-500/20">
           <Trophy size={80} className="text-blue-500 mx-auto mb-6" />
           <h2 className="text-4xl font-bold text-white mb-4">Quiz Complete!</h2>
@@ -128,7 +128,7 @@ function QuizePart() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] flex items-center justify-center p-4">
+    <div className="font-raleway min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-[#1a1a1a]/80 backdrop-blur-xl rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)] overflow-hidden border border-blue-500/20">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-900/50 to-[#2a2a2a] p-6 flex items-center justify-between">

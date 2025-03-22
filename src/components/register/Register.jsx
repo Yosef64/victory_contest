@@ -180,7 +180,7 @@ const Register = () => {
                 </label>
                 <Select
                   onValueChange={(value) =>
-                    setFormData({ ...formData, sex: value })
+                    setFormData({ ...formData, gender: value })
                   }
                 >
                   <SelectTrigger className="w-full mt-2 h-12">

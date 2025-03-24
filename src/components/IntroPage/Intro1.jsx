@@ -72,7 +72,7 @@ function Intro1() {
     setIsLoading(true);
     try {
       const res = await getActiveContestants(contest_id);
-      if (res.includes) {
+      if (res.includes(tele_id)) {
         setAuthorized(false);
         return;
       }

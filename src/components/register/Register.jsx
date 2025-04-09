@@ -84,9 +84,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(formData);
-    const newformData = new FormData();
-    newformData.append("file", file);
-    newformData.append("public_id", telegram_id);
 
     if (Object.values(formData).some((value) => !value)) {
       setstat("Fill all fields!");
@@ -98,7 +95,7 @@ const Register = () => {
 
     try {
       if (imageBinary) {
-        const res = await uploadeImage(newformData);
+        const res = await uploadeImage(file, telegram_id);
         url = res.url;
       }
 

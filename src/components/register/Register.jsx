@@ -52,6 +52,7 @@ const Register = () => {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
+    setFile(file);
     if (file) {
       const reader = new FileReader();
 

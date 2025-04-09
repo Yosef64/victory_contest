@@ -97,7 +97,7 @@ const Register = () => {
     try {
       if (imageBinary) {
         const res = await uploadeImage(file, telegram_id);
-        url = res.url;
+        url = res.secure_url;
       }
 
       const dataToSubmit = {

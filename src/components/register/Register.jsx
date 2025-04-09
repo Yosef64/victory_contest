@@ -83,10 +83,11 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData);
     const newformData = new FormData();
     newformData.append("file", file);
-    newformData.append("upload_preset", "victory_bot");
-    newformData.append("cloud_name", "dud4t1ptn");
+    newformData.append("public_id", telegram_id);
+
     if (Object.values(formData).some((value) => !value)) {
       setstat("Fill all fields!");
       return;
@@ -95,18 +96,18 @@ const Register = () => {
     setIsLoading(true);
     let url = "";
 
-    if (imageBinary) {
-      const res = await uploadeImage(newformData);
-      url = res.url;
-    }
-
-    const dataToSubmit = {
-      ...formData,
-      telegram_id,
-      phoneNumber: countryCode + formData.phoneNumber,
-      imgurl: url,
-    };
     try {
+      if (imageBinary) {
+        const res = await uploadeImage(newformData);
+        url = res.url;
+      }
+
+      const dataToSubmit = {
+        ...formData,
+        telegram_id,
+        phoneNumber: countryCode + formData.phoneNumber,
+        imgurl: url,
+      };
       await addStudent(dataToSubmit);
       setstat("success");
     } catch (err) {
@@ -180,7 +181,7 @@ const Register = () => {
                 </label>
                 <Select
                   onValueChange={(value) =>
-                    setFormData({ ...formData, gender: value })
+                    setFormData({ ...formData, sex: value })
                   }
                 >
                   <SelectTrigger className="w-full mt-2 h-12">

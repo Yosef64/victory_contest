@@ -1,0 +1,259 @@
+import React, { useState, useEffect } from 'react';
+import { useTelegram } from '../hooks/useTelegram';
+import { 
+  Bell, X, Trophy, Calendar, Award, TrendingUp, 
+  Clock, Users, CheckCircle, AlertCircle, Info
+} from 'lucide-react';
+
+interface Notification {
+  id: number;
+  type: 'contest' | 'achievement' | 'reminder' | 'leaderboard' | 'system';
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  icon?: React.ComponentType<any>;
+  color?: string;
+  actionUrl?: string;
+}
+
+interface NotificationCenterProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose }) => {
+  const { hapticFeedback } = useTelegram();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Simulate API call to fetch notifications
+      setTimeout(() => {
+        const mockNotifications: Notification[] = [
+          {
+            id: 1,
+            type: 'contest',
+            title: 'New Contest Available!',
+            message: 'Mathematics Championship 2024 starts in 2 hours. Register now!',
+            timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+            read: false,
+            icon: Calendar,
+            color: 'text-blue-500',
+            actionUrl: '/registration'
+          },
+          {
+            id: 2,
+            type: 'achievement',
+            title: 'Achievement Unlocked!',
+            message: 'You earned the "Speed Demon" badge for answering 10 questions in under 30 seconds!',
+            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+            read: false,
+            icon: Award,
+            color: 'text-yellow-500'
+          },
+          {
+            id: 3,
+            type: 'leaderboard',
+            title: 'Rank Update',
+            message: 'Great job! You moved up 3 positions to rank #15 in the global leaderboard.',
+            timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+            read: true,
+            icon: TrendingUp,
+            color: 'text-green-500',
+            actionUrl: '/leaderboard'
+          },
+          {
+            id: 4,
+            type: 'reminder',
+            title: 'Study Reminder',
+            message: 'Don\'t forget to practice Mathematics today. You have 15 questions pending.',
+            timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+            read: true,
+            icon: Clock,
+            color: 'text-purple-500'
+          },
+          {
+            id: 5,
+            type: 'system',
+            title: 'App Update',
+            message: 'New features added: Enhanced statistics and improved performance tracking.',
+            timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+            read: true,
+            icon: Info,
+            color: 'text-gray-500'
+          }
+        ];
+        setNotifications(mockNotifications);
+        setLoading(false);
+      }, 500);
+    }
+  }, [isOpen]);
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    );
+    hapticFeedback('selection');
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, read: true }))
+    );
+    hapticFeedback('impact', 'light');
+  };
+
+  const deleteNotification = (id: number) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== id));
+    hapticFeedback('impact', 'medium');
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const now = new Date();
+    const notifTime = new Date(timestamp);
+    const diffInMinutes = Math.floor((now.getTime() - notifTime.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-20">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[70vh] overflow-hidden">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Bell className="w-6 h-6 text-blue-500" />
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                Notifications
+              </h3>
+              {unreadCount > 0 && (
+                <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Mark all read
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Notifications List */}
+        <div className="overflow-y-auto max-h-96">
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="text-center py-12">
+              <Bell className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">No notifications yet</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {notifications.map((notification) => {
+                const IconComponent = notification.icon || Bell;
+                return (
+                  <div
+                    key={notification.id}
+                    className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
+                    }`}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        !notification.read 
+                          ? 'bg-blue-100 dark:bg-blue-900/20' 
+                          : 'bg-gray-100 dark:bg-gray-700'
+                      }`}>
+                        <IconComponent className={`w-5 h-5 ${notification.color || 'text-gray-500'}`} />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className={`text-sm font-semibold ${
+                              !notification.read 
+                                ? 'text-gray-900 dark:text-white' 
+                                : 'text-gray-700 dark:text-gray-300'
+                            }`}>
+                              {notification.title}
+                              {!notification.read && (
+                                <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full inline-block"></span>
+                              )}
+                            </h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                              {formatTimestamp(notification.timestamp)}
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center space-x-1 ml-2">
+                            {!notification.read && (
+                              <button
+                                onClick={() => markAsRead(notification.id)}
+                                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                                title="Mark as read"
+                              >
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => deleteNotification(notification.id)}
+                              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                              title="Delete"
+                            >
+                              <X className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {notifications.length > 0 && (
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+              {notifications.length} notification{notifications.length !== 1 ? 's' : ''} total
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NotificationCenter;

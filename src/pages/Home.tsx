@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { Contest, LeaderboardEntry } from "../types";
-import {
-  Play,
-  Trophy,
-  Calendar,
-  Award,
-  ChevronRight,
-  Medal,
-  Timer,
-  PlayCircle,
-} from "lucide-react";
+import { Trophy, Calendar, Award, Medal } from "lucide-react";
 import { formatDistanceToNow, isAfter, parseISO } from "date-fns";
 import {
   getAllContests,

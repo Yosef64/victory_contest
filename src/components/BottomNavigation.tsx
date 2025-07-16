@@ -1,15 +1,41 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Trophy, BarChart3, User } from "lucide-react";
-
+import { BarChart3 } from "lucide-react";
+import HomeIcon from "../assets/home-09-stroke-rounded.svg?react";
+import AwardIcon from "../assets/award-04-stroke-rounded.svg?react";
+import AccountIcon from "../assets/account-setting-02-stroke-rounded (1).svg?react";
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: "/", icon: Home, label: "Home" },
-    { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
-    { path: "/statistics", icon: BarChart3, label: "Stats" },
-    { path: "/profile", icon: User, label: "Profile" },
+    {
+      path: "/",
+      icon: ({ className }: { className: string }) => {
+        return <HomeIcon className={className} />;
+      },
+      label: "Home",
+    },
+    {
+      path: "/leaderboard",
+      icon: ({ className }: { className: string }) => {
+        return <AwardIcon className={className} />;
+      },
+      label: "Leaderboard",
+    },
+    {
+      path: "/statistics",
+      icon: () => {
+        return <BarChart3 className="mb-1 transition-all duration-200" />;
+      },
+      label: "Stats",
+    },
+    {
+      path: "/profile",
+      icon: ({ className }: { className: string }) => {
+        return <AccountIcon className={className} />;
+      },
+      label: "Profile",
+    },
   ];
 
   return (
@@ -32,7 +58,13 @@ const BottomNavigation: React.FC = () => {
                     : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50"
                 }`}
               >
-                <Icon size={22} className="mb-1 transition-all duration-200" />
+                <Icon
+                  className={`${
+                    isActive
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                      : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                  }`}
+                />
               </div>
 
               <span

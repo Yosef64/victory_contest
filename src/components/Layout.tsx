@@ -4,6 +4,7 @@ import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
+import { NotificationProvider } from "./context/NotificationContext";
 
 const Layout: React.FC = () => {
   const { webApp } = useTelegram();
@@ -90,7 +91,9 @@ const Layout: React.FC = () => {
       className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900"
       style={getThemeStyles()}
     >
-      <TopNavigation />
+      <NotificationProvider>
+        <TopNavigation />
+      </NotificationProvider>
       <main className="flex-1 pt-16 pb-20 overflow-y-auto">
         <Outlet />
         <Toaster />

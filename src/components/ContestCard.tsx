@@ -162,7 +162,7 @@ export default function ContestCard({
             </span>
           ) : isRegistered ? (
             <>
-              <PlayCircle className="w-5 h-5 mr-2" />
+              <PlayCircle className="w-5 h-5 mr-2 text-gray-200" />
               Registered
             </>
           ) : timeLeft?.includes("Contest Started") ? (

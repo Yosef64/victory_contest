@@ -48,6 +48,23 @@ const ContestComponent: React.FC = () => {
         const diff = Math.floor((endTime.getTime() - now.getTime()) / 1000);
         setTimeLeft(diff > 0 ? diff : 0);
       } catch (error) {
+        toast.error("Network Error!", {
+          description: "Failed to load contest data. Please try again later.",
+          icon: <XCircle className="w-6 h-6 text-red-500" />,
+          position: "bottom-right",
+          action: (
+            <button
+              onClick={() => navigate("/")}
+              className="text-blue-600 dark:text-blue-400 underline"
+            >
+              Refresh
+            </button>
+          ),
+          style: {
+            backgroundColor: "#f8d7da",
+            color: "#721c24",
+          },
+        });
       } finally {
         setLoading(false);
       }
@@ -61,12 +78,19 @@ const ContestComponent: React.FC = () => {
         await api.get(`/contest/is_active/${con}/${user.id}`);
       } catch (e) {
         // Optionally handle error
-        toast.error("Contest is not active or has ended", {
-          description: "Please check the contest status or try again later.",
-          icon: <XCircle className="w-6 h-6 text-red-500" />,
-          duration: 5000,
-          position: "bottom-right",
-        });
+        toast.error(
+          "You cannot enter the contest since you already on the contest!",
+          {
+            description: "Please check the contest status or try again later.",
+            icon: <XCircle className="w-6 h-6 text-red-500" />,
+            duration: 5000,
+            style: {
+              backgroundColor: "#f8d7da",
+              color: "#721c24",
+            },
+            position: "bottom-right",
+          }
+        );
         navigate("/");
       }
     };

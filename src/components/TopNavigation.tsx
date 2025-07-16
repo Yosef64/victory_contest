@@ -3,12 +3,14 @@ import { useLocation } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { Bell, Settings } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
+import { useNotification } from "./context/NotificationContext";
 
 const TopNavigation: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [unreadCount] = useState(3); // This would come from your notification state
+  const { notifications } = useNotification();
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const getPageTitle = () => {
     switch (location.pathname) {

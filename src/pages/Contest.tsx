@@ -5,6 +5,8 @@ import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown
 import { Question, ContestAnswer, Contest } from "../types";
 import { Clock, ArrowRight, CheckCircle, XCircle } from "lucide-react";
 import { getContestById } from "../services/contestApi";
+import { toast } from "sonner";
+import api from "../services/api";
 
 const ContestComponent: React.FC = () => {
   const { hapticFeedback, showMainButton, hideMainButton } = useTelegram();
@@ -22,6 +24,7 @@ const ContestComponent: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>(
     contest.questions || []
   );
+  const { user } = useTelegram();
 
   useEffect(() => {
     if (timeLeft > 0 && !contestEnded) {
@@ -51,6 +54,24 @@ const ContestComponent: React.FC = () => {
     };
     fetchContest();
   }, []);
+  useEffect(() => {
+    const checkActive = async () => {
+      if (!con || !user?.id) return;
+      try {
+        await api.get(`/contest/is_active/${con}/${user.id}`);
+      } catch (e) {
+        // Optionally handle error
+        toast.error("Contest is not active or has ended", {
+          description: "Please check the contest status or try again later.",
+          icon: <XCircle className="w-6 h-6 text-red-500" />,
+          duration: 5000,
+          position: "bottom-right",
+        });
+        navigate("/");
+      }
+    };
+    checkActive();
+  }, [con, user?.id, navigate]);
 
   useEffect(() => {
     if (selectedAnswer !== null) {

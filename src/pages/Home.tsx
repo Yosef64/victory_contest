@@ -19,6 +19,7 @@ import {
 } from "../services/contestApi";
 import ContestCard from "../components/ContestCard";
 import NoContests from "../components/NoContest";
+import { Button } from "../components/ui/button";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
@@ -172,12 +173,12 @@ const Home: React.FC = () => {
                     <span>{contest.questions.length} questions</span>
                   </div>
                 </div>
-                <button
+                <Button
                   onClick={() => handleShowStandings(contest)}
                   className="flex items-center px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                 >
                   Standings
-                </button>
+                </Button>
               </div>
             </div>
           ))}

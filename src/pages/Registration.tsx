@@ -12,6 +12,8 @@ import {
   Target,
 } from "lucide-react";
 import { registerForContest } from "../services/contestApi";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
 
 const Registration: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
@@ -80,15 +82,41 @@ const Registration: React.FC = () => {
   const handleSubmit = async () => {
     // handleContestClick();
     if (!user) {
-      console.log("user not found!");
+      // console.log("user not found!");
+      toast.warning("User not found! Please log in.", {
+        icon: <AlertCircle className="w-5 h-5" />,
+        duration: 3000,
+        position: "top-right",
+        style: {
+          backgroundColor: "#fff3cd",
+          color: "#856404",
+        },
+      });
+      return;
     }
     setRegistering(true);
     try {
       await registerForContest(contest_id!, user!.id.toString());
       hapticFeedback("notification", "success");
+      toast.success("Registration successful!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 3000,
+        style: {
+          backgroundColor: "#d4edda",
+          color: "#155724",
+        },
+      });
       navigate("/");
     } catch (err) {
       // Optionally show error
+      toast.error("Registration failed. Please try again.", {
+        icon: <AlertCircle className="w-5 h-5" />,
+        duration: 3000,
+        style: {
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+        },
+      });
     } finally {
       setRegistering(false);
     }
@@ -131,16 +159,6 @@ const Registration: React.FC = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-          Contest Registration
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Complete your registration to participate in the contest
-        </p>
-      </div>
-
       {/* Contest Info Card */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl mb-6">
         <h2 className="text-xl font-bold mb-2">{contestInfo.title}</h2>
@@ -338,7 +356,7 @@ const Registration: React.FC = () => {
 
       {/* Navigation */}
       <div className="flex justify-between items-center mt-6">
-        <button
+        <Button
           onClick={() => setStep(Math.max(1, step - 1))}
           disabled={step === 1}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -348,9 +366,9 @@ const Registration: React.FC = () => {
           }`}
         >
           Previous
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={handleNext}
           disabled={!isStepValid()}
           className={`px-6 py-2 rounded-lg font-medium transition-colors ${
@@ -364,7 +382,7 @@ const Registration: React.FC = () => {
             : registering
             ? "Registering"
             : "Complete Registeration"}
-        </button>
+        </Button>
       </div>
     </div>
   );

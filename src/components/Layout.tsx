@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
+import { Toaster } from "sonner";
 
 const Layout: React.FC = () => {
   const { webApp } = useTelegram();
@@ -92,7 +93,9 @@ const Layout: React.FC = () => {
       <TopNavigation />
       <main className="flex-1 pt-16 pb-20 overflow-y-auto">
         <Outlet />
+        <Toaster />
       </main>
+
       <BottomNavigation />
     </div>
   );

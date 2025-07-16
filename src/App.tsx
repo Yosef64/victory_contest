@@ -1,17 +1,15 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useTelegram } from './hooks/useTelegram';
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import Contest from './pages/Contest';
-import Leaderboard from './pages/Leaderboard';
-import Statistics from './pages/Statistics';
-import Profile from './pages/Profile';
-import Registration from './pages/Registration';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useTelegram } from "./hooks/useTelegram";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Leaderboard from "./pages/Leaderboard";
+import Statistics from "./pages/Statistics";
+import Profile from "./pages/Profile";
+import Registration from "./pages/Registration";
+import ContestComponent from "./pages/Contest";
 
 function App() {
   const { isLoading } = useTelegram();
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
@@ -25,7 +23,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="contest" element={<Contest />} />
+          <Route path="contest" element={<ContestComponent />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="statistics" element={<Statistics />} />
           <Route path="profile" element={<Profile />} />

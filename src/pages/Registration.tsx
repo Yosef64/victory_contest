@@ -1,90 +1,118 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTelegram } from '../hooks/useTelegram';
-import { CheckCircle, AlertCircle, User, BookOpen, Clock, Trophy, Users, Target } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTelegram } from "../hooks/useTelegram";
+import {
+  CheckCircle,
+  AlertCircle,
+  User,
+  BookOpen,
+  Clock,
+  Trophy,
+  Users,
+  Target,
+} from "lucide-react";
+import { registerForContest } from "../services/contestApi";
 
 const Registration: React.FC = () => {
-  const { user, hapticFeedback, showMainButton, hideMainButton } = useTelegram();
+  const { user, hapticFeedback } = useTelegram();
   const navigate = useNavigate();
-  
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    grade: '',
+    grade: "",
     subjects: [] as string[],
-    experience: '',
-    terms: false
+    experience: "",
+    terms: false,
   });
   const [loading, setLoading] = useState(false);
+  const [registering, setRegistering] = useState<boolean>(false);
+  const [searchParams] = useSearchParams();
+  const contest_id = searchParams.get("con");
 
   const availableSubjects = [
-    'Mathematics', 'Physics', 'Chemistry', 'Biology', 
-    'English', 'History', 'Geography', 'Computer Science'
+    "Mathematics",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "English",
+    "History",
+    "Geography",
+    "Computer Science",
   ];
 
   const experienceLevels = [
-    { value: 'beginner', label: 'Beginner', description: 'New to competitive contests' },
-    { value: 'intermediate', label: 'Intermediate', description: 'Some contest experience' },
-    { value: 'advanced', label: 'Advanced', description: 'Experienced competitor' }
+    {
+      value: "beginner",
+      label: "Beginner",
+      description: "New to competitive contests",
+    },
+    {
+      value: "intermediate",
+      label: "Intermediate",
+      description: "Some contest experience",
+    },
+    {
+      value: "advanced",
+      label: "Advanced",
+      description: "Experienced competitor",
+    },
   ];
 
   const handleSubjectToggle = (subject: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       subjects: prev.subjects.includes(subject)
-        ? prev.subjects.filter(s => s !== subject)
-        : [...prev.subjects, subject]
+        ? prev.subjects.filter((s) => s !== subject)
+        : [...prev.subjects, subject],
     }));
-    hapticFeedback('selection');
+    hapticFeedback("selection");
   };
 
   const handleNext = () => {
     if (step < 3) {
       setStep(step + 1);
-      hapticFeedback('impact', 'light');
+      hapticFeedback("impact", "light");
     } else {
       handleSubmit();
     }
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
-    hapticFeedback('impact', 'medium');
-    
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/contest');
-      hapticFeedback('notification', 'success');
-    }, 2000);
+    // handleContestClick();
+    if (!user) {
+      console.log("user not found!");
+    }
+    setRegistering(true);
+    try {
+      await registerForContest(contest_id!, user!.id.toString());
+      hapticFeedback("notification", "success");
+      navigate("/");
+    } catch (err) {
+      // Optionally show error
+    } finally {
+      setRegistering(false);
+    }
   };
 
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return formData.grade !== '';
+        return formData.grade !== "";
       case 2:
         return formData.subjects.length > 0;
       case 3:
-        return formData.experience !== '' && formData.terms;
+        return formData.experience !== "" && formData.terms;
       default:
         return false;
     }
   };
-
-  React.useEffect(() => {
-    if (isStepValid()) {
-      showMainButton(step === 3 ? 'Complete Registration' : 'Next', handleNext);
-    } else {
-      hideMainButton();
-    }
-  }, [step, formData]);
 
   const contestInfo = {
     title: "Mathematics Championship 2024",
     duration: "90 minutes",
     questions: 50,
     participants: 1250,
-    startTime: "January 15, 2024 at 10:00 AM"
+    startTime: "January 15, 2024 at 10:00 AM",
   };
 
   if (loading) {
@@ -147,7 +175,7 @@ const Registration: React.FC = () => {
           </span>
         </div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div 
+          <div
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(step / 3) * 100}%` }}
           ></div>
@@ -162,22 +190,24 @@ const Registration: React.FC = () => {
               What's your grade level?
             </h3>
             <div className="space-y-3">
-              {['9th Grade', '10th Grade', '11th Grade', '12th Grade'].map((grade) => (
-                <button
-                  key={grade}
-                  onClick={() => setFormData(prev => ({ ...prev, grade }))}
-                  className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left ${
-                    formData.grade === grade
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <BookOpen className="w-5 h-5 mr-3" />
-                    <span className="font-medium">{grade}</span>
-                  </div>
-                </button>
-              ))}
+              {["9th Grade", "10th Grade", "11th Grade", "12th Grade"].map(
+                (grade) => (
+                  <button
+                    key={grade}
+                    onClick={() => setFormData((prev) => ({ ...prev, grade }))}
+                    className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                      formData.grade === grade
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                        : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <BookOpen className="w-5 h-5 mr-3" />
+                      <span className="font-medium">{grade}</span>
+                    </div>
+                  </button>
+                )
+              )}
             </div>
           </div>
         )}
@@ -197,8 +227,8 @@ const Registration: React.FC = () => {
                   onClick={() => handleSubjectToggle(subject)}
                   className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${
                     formData.subjects.includes(subject)
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                      : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
                   }`}
                 >
                   <div className="font-medium text-sm">{subject}</div>
@@ -216,7 +246,7 @@ const Registration: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
               Almost done! Just a few more details
             </h3>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -226,15 +256,22 @@ const Registration: React.FC = () => {
                   {experienceLevels.map((level) => (
                     <button
                       key={level.value}
-                      onClick={() => setFormData(prev => ({ ...prev, experience: level.value }))}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          experience: level.value,
+                        }))
+                      }
                       className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                         formData.experience === level.value
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                          : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                          : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
                       }`}
                     >
                       <div className="font-medium">{level.label}</div>
-                      <div className="text-sm opacity-75">{level.description}</div>
+                      <div className="text-sm opacity-75">
+                        {level.description}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -246,16 +283,30 @@ const Registration: React.FC = () => {
                     type="checkbox"
                     id="terms"
                     checked={formData.terms}
-                    onChange={(e) => setFormData(prev => ({ ...prev, terms: e.target.checked }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        terms: e.target.checked,
+                      }))
+                    }
                     className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="terms" className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                    I agree to the{' '}
-                    <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  <label
+                    htmlFor="terms"
+                    className="ml-3 text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    I agree to the{" "}
+                    <a
+                      href="#"
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
                       contest rules
-                    </a>{' '}
-                    and{' '}
-                    <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="#"
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
                       privacy policy
                     </a>
                   </label>
@@ -269,8 +320,15 @@ const Registration: React.FC = () => {
                 </h4>
                 <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                   <div>Grade: {formData.grade}</div>
-                  <div>Subjects: {formData.subjects.join(', ')}</div>
-                  <div>Experience: {experienceLevels.find(l => l.value === formData.experience)?.label}</div>
+                  <div>Subjects: {formData.subjects.join(", ")}</div>
+                  <div>
+                    Experience:{" "}
+                    {
+                      experienceLevels.find(
+                        (l) => l.value === formData.experience
+                      )?.label
+                    }
+                  </div>
                 </div>
               </div>
             </div>
@@ -285,23 +343,27 @@ const Registration: React.FC = () => {
           disabled={step === 1}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             step === 1
-              ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              ? "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
           }`}
         >
           Previous
         </button>
-        
+
         <button
           onClick={handleNext}
           disabled={!isStepValid()}
           className={`px-6 py-2 rounded-lg font-medium transition-colors ${
             isStepValid()
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed"
           }`}
         >
-          {step === 3 ? 'Complete Registration' : 'Next'}
+          {step !== 3
+            ? "Next"
+            : registering
+            ? "Registering"
+            : "Complete Registeration"}
         </button>
       </div>
     </div>

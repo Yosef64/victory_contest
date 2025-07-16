@@ -1,20 +1,15 @@
-import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  Home, 
-  Trophy, 
-  BarChart3, 
-  User, 
-} from 'lucide-react';
+import React from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Home, Trophy, BarChart3, User } from "lucide-react";
 
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-    { path: '/statistics', icon: BarChart3, label: 'Stats' },
-    { path: '/profile', icon: User, label: 'Profile' },
+    { path: "/", icon: Home, label: "Home" },
+    { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+    { path: "/statistics", icon: BarChart3, label: "Stats" },
+    { path: "/profile", icon: User, label: "Profile" },
   ];
 
   return (
@@ -23,30 +18,36 @@ const BottomNavigation: React.FC = () => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
-          
+
           return (
             <NavLink
               key={item.path}
               to={item.path}
-              className={`relative flex flex-col items-center justify-center p-3 rounded-2xl transition-all duration-300 min-w-[70px] ${
-                isActive 
-                  ? 'text-white bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg transform scale-110' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'
-              }`}
+              className="flex flex-col items-center"
             >
-              {/* Active indicator glow */}
-              {isActive && (
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-30 -z-10 scale-110"></div>
-              )}
-              
-              <Icon size={isActive ? 24 : 22} className={`mb-1 transition-all duration-300 ${isActive ? 'drop-shadow-sm' : ''}`} />
-              <span className={`text-xs font-semibold transition-all duration-300 ${isActive ? 'drop-shadow-sm' : ''}`}>
+              <div
+                className={`relative flex flex-col items-center py-1 justify-center  rounded-xl transition-all duration-200 min-w-[70px] ${
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                    : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                }`}
+              >
+                <Icon size={22} className="mb-1 transition-all duration-200" />
+              </div>
+
+              <span
+                className={`text-xs font-medium transition-all duration-200 ${
+                  isActive
+                    ? "font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                    : ""
+                }`}
+              >
                 {item.label}
               </span>
-              
-              {/* Active dot indicator */}
+
+              {/* Active indicator */}
               {isActive && (
-                <div className="absolute -top-1 w-2 h-2 bg-white rounded-full shadow-sm"></div>
+                <div className="absolute -top-1 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
               )}
             </NavLink>
           );

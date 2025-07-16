@@ -20,7 +20,7 @@ export interface TelegramWebApp {
   };
   version: string;
   platform: string;
-  colorScheme: 'light' | 'dark';
+  colorScheme: "light" | "dark";
   themeParams: {
     bg_color?: string;
     text_color?: string;
@@ -60,8 +60,10 @@ export interface TelegramWebApp {
     hide: () => void;
   };
   HapticFeedback: {
-    impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
-    notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+    impactOccurred: (
+      style: "light" | "medium" | "heavy" | "rigid" | "soft"
+    ) => void;
+    notificationOccurred: (type: "error" | "success" | "warning") => void;
     selectionChanged: () => void;
   };
   ready: () => void;
@@ -74,32 +76,46 @@ export interface TelegramWebApp {
 }
 
 export interface Question {
-  id: number;
-  text: string;
-  options: string[];
-  correct_answer: number;
+  id: string;
+  question_text: string;
+  answer: string;
+  explanation: string;
   subject: string;
-  chapter: string;
   grade: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  chapter: string;
+  multiple_choice: string[];
 }
 
 export interface ContestAnswer {
-  question_id: number;
-  selected_answer: number;
+  question_id: string;
+  selected_answer: string;
   is_correct: boolean;
   time_taken: number;
 }
+export interface Student {
+  id: string; // or use telegram_id as pk if unique
+  telegram_id: string; // link this to submissions or registrations
+  name: string;
+  age: Date; // originally string, but better as date for calculation
+  city: string;
+  region: string;
+  school: string;
+  grade: string;
+  imgurl?: string;
+  isSuspended?: boolean;
+}
 
 export interface Contest {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  start_date: string;
-  end_date: string;
-  total_questions: number;
-  duration_minutes: number;
-  is_active: boolean;
+  start_time: string;
+  end_time: string;
+  subject: string;
+  grade: string;
+  prize: string;
+  active_contestant: Student[];
+  questions: Question[];
 }
 
 export interface LeaderboardEntry {

@@ -85,10 +85,51 @@ const Profile = () => {
           getUserProfile(user.id.toString()),
           getUserBadge(user.id.toString()),
         ]);
+
         if (isMounted) {
+          // Validate stats
+          if (!stat || typeof stat !== "object") {
+            console.error("Invalid stats response:", stat);
+            throw new Error("Invalid stats response");
+          }
           setUserStats(stat);
-          setEditedProfile(prof);
-          setAchievements(achies);
+
+          // Validate profile
+          if (!prof || typeof prof !== "object") {
+            console.error("Invalid profile response:", prof);
+            throw new Error("Invalid profile response");
+          }
+          setEditedProfile({
+            name: prof.name || user?.first_name || "",
+            grade: prof.grade || "11th Grade",
+            city: prof.city || "",
+            region: prof.region || "",
+            school: prof.school || "",
+            imgurl: prof.imgurl || user?.photo_url || "",
+            isSuspended: prof.isSuspended ?? false,
+            telegram_id: prof.telegram_id || user?.id.toString() || "",
+            id: prof.id || user?.id.toString() || "",
+            age: prof.age || "",
+          });
+
+          // Validate achievements
+          if (!Array.isArray(achies)) {
+            console.error("Invalid achievements response:", achies);
+            throw new Error("Invalid achievements response");
+          }
+          setAchievements(
+            achies
+              .filter(
+                (a) =>
+                  a.name && a.type && a.rarity && typeof a.earned === "boolean"
+              )
+              .map((a) => ({
+                ...a,
+                earnedDate: a.earnedDate || undefined,
+                progress:
+                  typeof a.progress === "number" ? a.progress : undefined,
+              }))
+          );
         }
       } catch (e) {
         let message = "Unknown error";
@@ -117,6 +158,10 @@ const Profile = () => {
     }
 
     fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const achievementStyles: any = {
@@ -481,7 +526,7 @@ const Profile = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {userStats && (
           <>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
@@ -526,7 +571,7 @@ const Profile = () => {
             </div>
           </>
         )}
-      </div>
+      </div> */}
       <div className="space-y-6">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">

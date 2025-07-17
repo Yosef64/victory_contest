@@ -7,7 +7,7 @@ export async function getUserStat(user_id: string) {
 
 export async function getUserProfile(user_id: string) {
   const res = await api.get(`/student/${user_id}`);
-  return res.data.message;
+  return res.data.student;
 }
 export async function getUserBadge(user_id: string) {
   const res = await api.get(`/student/student/${user_id}/badge`);

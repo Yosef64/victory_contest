@@ -526,7 +526,7 @@ const Profile = () => {
           </div>
         )}
       </div>
-      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {userStats && (
           <>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
@@ -571,7 +571,7 @@ const Profile = () => {
             </div>
           </>
         )}
-      </div> */}
+      </div>
       <div className="space-y-6">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">

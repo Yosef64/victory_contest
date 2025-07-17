@@ -490,7 +490,7 @@ const Profile = () => {
                 height="1.5em"
                 preserveAspectRatio="xMidYMid meet"
                 viewBox="0 0 256 256"
-                style={{ fill: "currentColor" }} // Use style for any specific styles you need
+                style={{ fill: "currentColor" }}
               >
                 <g fill="currentColor">
                   <path

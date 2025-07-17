@@ -33,7 +33,10 @@ import {
   getUserStat,
 } from "../services/studentServices";
 import { toast } from "sonner";
-
+// import homeIcon from "../assets/contest.svg?react";
+import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
+import TimeIcon from "../assets/time-01-stroke-rounded.svg?react";
+import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?react";
 const Profile = () => {
   const { user, hapticFeedback } = useTelegram();
   const [isEditing, setIsEditing] = useState(false);
@@ -208,58 +211,6 @@ const Profile = () => {
       borderColor: "border-amber-200 dark:border-amber-800",
     },
   };
-
-  // const achievements = [
-  //   {
-  //     name: "First Steps",
-  //     description: "Complete your first contest",
-  //     type: "first",
-  //     rarity: "common",
-  //     earned: true,
-  //     earnedDate: "2024-01-10",
-  //   },
-  //   {
-  //     name: "Speed Demon",
-  //     description: "Answer 10 questions in under 30 seconds",
-  //     type: "speed",
-  //     rarity: "rare",
-  //     earned: true,
-  //     earnedDate: "2024-01-15",
-  //   },
-  //   {
-  //     name: "Perfectionist",
-  //     description: "Score 100% in any contest",
-  //     type: "perfection",
-  //     rarity: "epic",
-  //     earned: false,
-  //     progress: 95,
-  //   },
-  //   {
-  //     name: "Streak Master",
-  //     description: "Maintain a 7-day winning streak",
-  //     type: "streak",
-  //     rarity: "rare",
-  //     earned: true,
-  //     earnedDate: "2024-01-20",
-  //   },
-  //   {
-  //     name: "Math Wizard",
-  //     description: "Score 90%+ in 5 math contests",
-  //     type: "subject",
-  //     rarity: "epic",
-  //     earned: true,
-  //     earnedDate: "2024-01-18",
-  //   },
-  //   {
-  //     name: "Champion",
-  //     description: "Reach top 10 in global leaderboard",
-  //     type: "rank",
-  //     rarity: "legendary",
-  //     earned: false,
-  //     progress: 60,
-  //   },
-  // ];
-
   const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
     const colors = {
       common: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200",
@@ -446,7 +397,7 @@ const Profile = () => {
                 </h4>
                 {!isEditing ? (
                   <div className="text-lg font-bold text-gray-800 dark:text-white">
-                    {userStats?.city || "Not provided"}
+                    {editedProfile?.city || "Not provided"}
                   </div>
                 ) : (
                   <input
@@ -468,7 +419,7 @@ const Profile = () => {
                 </h4>
                 {!isEditing ? (
                   <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                    {userStats?.region || "Not provided"}
+                    {editedProfile?.region || "Not provided"}
                   </div>
                 ) : (
                   <input
@@ -490,7 +441,7 @@ const Profile = () => {
                 </h4>
                 {!isEditing ? (
                   <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {userStats?.age || "Not provided"} years old
+                    {editedProfile?.age || "Not provided"} years old
                   </div>
                 ) : (
                   <input
@@ -530,6 +481,25 @@ const Profile = () => {
         {userStats && (
           <>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                role="img"
+                className="mr-4 h-5 w-5 align-middle"
+                width="1.5em"
+                height="1.5em"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 256 256"
+                style={{ fill: "currentColor" }} // Use style for any specific styles you need
+              >
+                <g fill="currentColor">
+                  <path
+                    d="M176 56a24 24 0 1 1-24-24a24 24 0 0 1 24 24"
+                    opacity=".2"
+                  ></path>
+                  <path d="M152 88a32 32 0 1 0-32-32a32 32 0 0 0 32 32m0-48a16 16 0 1 1-16 16a16 16 0 0 1 16-16m67.31 100.68c-.61.28-7.49 3.28-19.67 3.28c-13.85 0-34.55-3.88-60.69-20a169.3 169.3 0 0 1-15.41 32.34a104.3 104.3 0 0 1 31.31 15.81C173.92 186.65 184 207.35 184 232a8 8 0 0 1-16 0c0-41.7-34.69-56.71-54.14-61.85c-.55.7-1.12 1.41-1.69 2.1c-19.64 23.8-44.25 36.18-71.63 36.18a92 92 0 0 1-9.34-.43a8 8 0 0 1 1.6-16c25.92 2.59 48.47-7.49 67-30c12.49-15.14 21-33.61 25.25-47c-38.92-22.66-63.78-3.37-64.05-3.16a8 8 0 1 1-10-12.48c1.5-1.2 37.22-29 89.51 6.57c45.47 30.91 71.93 20.31 72.18 20.19a8 8 0 1 1 6.63 14.56Z"></path>
+                </g>
+              </svg>
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.totalContests}
               </div>
@@ -537,15 +507,9 @@ const Profile = () => {
                 Contests
               </div>
             </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center"></div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
-              <div className="text-2xl font-bold text-gray-800 dark:text-white">
-                {userStats.totalQuestions}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Questions
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <img src={`${CheckMarkIcon}`} alt="" />
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.correctAnswers}
               </div>
@@ -554,6 +518,7 @@ const Profile = () => {
               </div>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <img src={`${TargetIcon}`} alt="target icon" />
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.accuracy}%
               </div>
@@ -562,6 +527,7 @@ const Profile = () => {
               </div>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <img src={`${TimeIcon}`} alt="stopwatch icon" />
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.averageTime}s
               </div>

@@ -54,18 +54,16 @@ const Profile = () => {
   const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchStats() {
       if (!user?.id) {
-        toast.warning("Unknown User. Please log in in telegram buddy!", {
+        toast.warning("Unknown User. Please log in in Telegram!", {
           description:
             "We couldn't fetch your profile data because your user ID is not available. Please log in to Telegram to continue.",
           duration: 5000,
           position: "top-center",
           icon: "⚠️",
-          style: {
-            backgroundColor: "#fff3cd",
-            color: "#856404",
-          },
           action: (
             <Button
               variant={"outline"}
@@ -76,40 +74,50 @@ const Profile = () => {
             </Button>
           ),
         });
-        setProfileLoading(false);
+        if (isMounted) setProfileLoading(false);
         return;
       }
+
       try {
         setProfileLoading(true);
-        const stat = await getUserStat(user.id.toString());
-        const prof = await getUserProfile(user.id.toString());
-        const achies = await getUserBadge(user.id.toString());
-        setUserStats(stat);
-        setEditedProfile(prof);
-        setAchievements(achies);
+        const [stat, prof, achies] = await Promise.all([
+          getUserStat(user.id.toString()),
+          getUserProfile(user.id.toString()),
+          getUserBadge(user.id.toString()),
+        ]);
+        if (isMounted) {
+          setUserStats(stat);
+          setEditedProfile(prof);
+          setAchievements(achies);
+        }
       } catch (e) {
-        const message = e instanceof Error ? e.message : "Unknown error";
+        let message = "Unknown error";
+        if (e instanceof Error) {
+          message = e.message;
+          if (e.message.includes("404")) {
+            message = "User profile not found. Please ensure you're logged in.";
+          } else if (e.message.includes("network")) {
+            message = "Network error. Please check your connection.";
+          }
+        }
         toast.error(message, {
           description:
             "We couldn't fetch your profile data. Please check your internet connection and try again.",
           duration: 5000,
           position: "top-center",
           icon: "⚠️",
-          style: {
-            backgroundColor: "#f8d7da",
-            color: "#721c24",
-          },
           action: {
             label: "Retry",
             onClick: () => fetchStats(),
           },
         });
       } finally {
-        setProfileLoading(false);
+        if (isMounted) setProfileLoading(false);
       }
     }
+
     fetchStats();
-  }, [user?.id]);
+  }, [user]);
 
   const achievementStyles: any = {
     first: {

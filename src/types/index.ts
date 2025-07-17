@@ -96,7 +96,7 @@ export interface Student {
   id: string; // or use telegram_id as pk if unique
   telegram_id: string; // link this to submissions or registrations
   name: string;
-  age: Date; // originally string, but better as date for calculation
+  age: string; // originally string, but better as date for calculation
   city: string;
   region: string;
   school: string;
@@ -104,7 +104,15 @@ export interface Student {
   imgurl?: string;
   isSuspended?: boolean;
 }
-
+export interface Achievement {
+  name: string;
+  description: string;
+  type: string;
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
+  earned: boolean;
+  earnedDate: string;
+  progress: string;
+}
 export interface Contest {
   id: string;
   title: string;

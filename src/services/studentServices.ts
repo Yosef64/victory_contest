@@ -11,5 +11,5 @@ export async function getUserProfile(user_id: string) {
 }
 export async function getUserBadge(user_id: string) {
   const res = await api.get(`/student/student/${user_id}/badge`);
-  return res.data.message;
+  return res.data.submissions;
 }

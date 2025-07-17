@@ -88,7 +88,8 @@ const Profile = () => {
         setEditedProfile(prof);
         setAchievements(achies);
       } catch (e) {
-        toast.error("Connection error. Please try again later.", {
+        const message = e instanceof Error ? e.message : "Unknown error";
+        toast.error(message, {
           description:
             "We couldn't fetch your profile data. Please check your internet connection and try again.",
           duration: 5000,

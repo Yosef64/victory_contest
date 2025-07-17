@@ -113,6 +113,7 @@ export interface Achievement {
   earnedDate: string;
   progress: string;
 }
+export interface UserStat {}
 export interface Contest {
   id: string;
   title: string;

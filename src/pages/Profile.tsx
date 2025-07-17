@@ -480,7 +480,7 @@ const Profile = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {userStats && (
           <>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+            <div className="bg-white items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
@@ -507,9 +507,8 @@ const Profile = () => {
                 Contests
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center"></div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
-              <img src={`${CheckMarkIcon}`} alt="" />
+            <div className="bg-white flex items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <CheckMarkIcon className="w-6 h-6 text-green-500 mb-2" />
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.correctAnswers}
               </div>
@@ -517,8 +516,8 @@ const Profile = () => {
                 Correct
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
-              <img src={`${TargetIcon}`} alt="target icon" />
+            <div className="bg-white items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <TargetIcon className="w-6 h-6 text-blue-500 mb-2" />
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.accuracy}%
               </div>
@@ -526,8 +525,8 @@ const Profile = () => {
                 Accuracy
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
-              <img src={`${TimeIcon}`} alt="stopwatch icon" />
+            <div className="bg-white items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <TimeIcon className="w-6 h-6 text-purple-500 mb-2" />
               <div className="text-2xl font-bold text-gray-800 dark:text-white">
                 {userStats.averageTime}s
               </div>

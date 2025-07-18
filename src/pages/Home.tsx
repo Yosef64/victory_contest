@@ -10,6 +10,7 @@ import {
 import ContestCard from "../components/ContestCard";
 import NoContests from "../components/NoContest";
 import { Button } from "../components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
@@ -23,6 +24,7 @@ const Home: React.FC = () => {
   >([]);
   const [showPreviousModal, setShowPreviousModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchContests = async () => {
@@ -147,6 +149,7 @@ const Home: React.FC = () => {
         <div className="space-y-3">
           {previousContests.map((contest) => (
             <div
+              onClick={() => navigate("/contest-editorial")}
               key={contest.id}
               className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
             >

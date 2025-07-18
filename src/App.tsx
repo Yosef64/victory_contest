@@ -7,6 +7,7 @@ import Statistics from "./pages/Statistics";
 import Profile from "./pages/Profile";
 import Registration from "./pages/Registration";
 import ContestComponent from "./pages/Contest";
+import ContestEditorial from "./pages/ContestEditorial";
 
 function App() {
   const { isLoading } = useTelegram();
@@ -28,6 +29,7 @@ function App() {
           <Route path="statistics" element={<Statistics />} />
           <Route path="profile" element={<Profile />} />
           <Route path="registration" element={<Registration />} />
+          <Route path="contest-editorial" element={<ContestEditorial />} />
         </Route>
       </Routes>
     </Router>

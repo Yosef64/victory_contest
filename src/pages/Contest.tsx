@@ -7,6 +7,7 @@ import { Clock, ArrowRight, CheckCircle, XCircle } from "lucide-react";
 import { getContestById } from "../services/contestApi";
 import { toast } from "sonner";
 import api from "../services/api";
+import { submitContestResult } from "../services/contestApi";
 
 const ContestComponent: React.FC = () => {
   const { hapticFeedback, showMainButton, hideMainButton } = useTelegram();
@@ -24,7 +25,9 @@ const ContestComponent: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>(
     contest.questions || []
   );
+  const [submitting, setSubmitting] = useState(false);
   const { user } = useTelegram();
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   useEffect(() => {
     if (timeLeft > 0 && !contestEnded) {
@@ -42,7 +45,7 @@ const ContestComponent: React.FC = () => {
         const contest: Contest = await getContestById(con!);
         setQuestions(contest.questions || []);
         setContest(contest);
-        // Calculate time left in seconds
+        setStartTime(new Date(contest.start_time).getTime()); // Calculate time left in seconds
         const now = new Date();
         const endTime = new Date(contest.end_time);
         const diff = Math.floor((endTime.getTime() - now.getTime()) / 1000);
@@ -126,7 +129,7 @@ const ContestComponent: React.FC = () => {
     const isCorrect = selectedAnswer === currentQuestion.answer;
 
     const newAnswer: ContestAnswer = {
-      question_id: currentQuestion.id,
+      question: currentQuestion,
       selected_answer: selectedAnswer,
       is_correct: isCorrect,
       time_taken: 60, // Simulate time taken
@@ -134,7 +137,7 @@ const ContestComponent: React.FC = () => {
 
     const updatedAnswers = [...answers];
     const existingAnswerIndex = updatedAnswers.findIndex(
-      (a) => a.question_id === currentQuestion.id
+      (a) => a.question.id === currentQuestion.id
     );
 
     if (existingAnswerIndex >= 0) {
@@ -161,7 +164,7 @@ const ContestComponent: React.FC = () => {
       const isCorrect = selectedAnswer === currentQuestion.answer;
 
       const newAnswer: ContestAnswer = {
-        question_id: currentQuestion.id,
+        question: currentQuestion,
         selected_answer: selectedAnswer,
         is_correct: isCorrect,
         time_taken: 60,
@@ -169,7 +172,7 @@ const ContestComponent: React.FC = () => {
 
       const updatedAnswers = [...answers];
       const existingAnswerIndex = updatedAnswers.findIndex(
-        (a) => a.question_id === currentQuestion.id
+        (a) => a.question.id === currentQuestion.id
       );
 
       if (existingAnswerIndex >= 0) {
@@ -187,21 +190,70 @@ const ContestComponent: React.FC = () => {
     // Check if this question was already answered
     const targetQuestion = questions[questionIndex];
     const existingAnswer = answers.find(
-      (a) => a.question_id === targetQuestion.id
+      (a) => a.question.id === targetQuestion.id
     );
     setSelectedAnswer(existingAnswer ? existingAnswer.selected_answer : null);
 
     hapticFeedback("selection");
   };
-  const endContest = () => {
-    setContestEnded(true);
-    hideMainButton();
-    hapticFeedback("notification", "success");
+  const endContest = async () => {
+    // Organize submission data
+    const correctAnswers = answers.filter((a) => a.is_correct).length;
+    const totalQuestions = questions.length;
+    const score = Math.round((correctAnswers / totalQuestions) * 100);
+    const missed_questions = answers
+      .filter((a) => !a.is_correct)
+      .map((a) => a.question.id);
+    const endTime = Date.now();
+    let time_spend = "00:00:00";
+    if (startTime) {
+      const seconds = Math.round((endTime - startTime) / 1000);
+      time_spend = formatTime(seconds); // hh:mm:ss
+    }
+    const submission = {
+      student: {
+        telegram_id: user?.id?.toString() || "",
+        imgurl: user?.photo_url || "",
+        name: user?.first_name || "",
+      },
+      contest: contest,
+      score,
+      wrong_answers: missed_questions,
+      time_spend,
+    };
+    try {
+      setSubmitting(true);
+      await submitContestResult(submission);
+      toast.success("Submission successful!", {
+        description: "Your contest answers have been submitted successfully.",
+        icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+        position: "bottom-right",
+        style: {
+          backgroundColor: "#d4edda",
+          color: "#155724",
+        },
+      });
+      setContestEnded(true);
+      hideMainButton();
+      hapticFeedback("notification", "success");
+    } catch (e) {
+      // Optionally handle error
+      toast.error("Submission failed!", {
+        description: "Failed to submit your contest answers. Please try again.",
+        icon: <XCircle className="w-6 h-6 text-red-500" />,
+        position: "bottom-right",
+        style: {
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+        },
+      });
+    } finally {
+      setSubmitting(false);
+    }
 
     // Navigate to results after a short delay
-    setTimeout(() => {
-      navigate("/statistics");
-    }, 2000);
+
+    navigate("/");
   };
 
   if (loading) {
@@ -213,9 +265,7 @@ const ContestComponent: React.FC = () => {
   }
 
   if (contestEnded) {
-    const correctAnswers = answers.filter((a) => a.is_correct).length;
     const totalQuestions = questions.length;
-    const score = Math.round((correctAnswers / totalQuestions) * 100);
 
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-screen">
@@ -225,16 +275,17 @@ const ContestComponent: React.FC = () => {
             Contest Complete!
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Great job! Here's your performance summary:
+            Great job! Here's your total summary:
           </p>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
             <div className="text-4xl font-bold text-blue-600 mb-2">
-              {score}%
+              {(answers.length / totalQuestions) * 100}%
             </div>
             <div className="text-gray-600 dark:text-gray-400">
-              {correctAnswers} out of {totalQuestions} correct
+              {answers.length} out of {totalQuestions} solved
             </div>
           </div>
+          <p>You can see your standings after the contest ended</p>
         </div>
       </div>
     );
@@ -345,6 +396,8 @@ const ContestComponent: React.FC = () => {
         >
           {currentQuestionIndex < questions.length - 1
             ? "Next Question"
+            : submitting
+            ? "Submitting..."
             : "Finish Contest"}
           <ArrowRight className="w-4 h-4 ml-2" />
         </button>

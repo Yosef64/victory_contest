@@ -10,13 +10,12 @@ import {
   TrendingUp,
   Calendar,
   Lock,
-  ChevronsUpDown,
+  GraduationCap,
+  Globe,
+  Building2,
+  User,
 } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../components/ui/collapsible";
+
 import { Button } from "../components/ui/button";
 import { Achievement, Student } from "../types";
 import {
@@ -37,6 +36,7 @@ import { toast } from "sonner";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
 import TimeIcon from "../assets/time-01-stroke-rounded.svg?react";
 import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?react";
+import CollapseText from "../components/ui/Collapse";
 const Profile = () => {
   const { user, hapticFeedback } = useTelegram();
   const [isEditing, setIsEditing] = useState(false);
@@ -61,22 +61,6 @@ const Profile = () => {
 
     async function fetchStats() {
       if (!user?.id) {
-        toast.warning("Unknown User. Please log in in Telegram!", {
-          description:
-            "We couldn't fetch your profile data because your user ID is not available. Please log in to Telegram to continue.",
-          duration: 5000,
-          position: "top-center",
-          icon: "⚠️",
-          action: (
-            <Button
-              variant={"outline"}
-              onClick={() => window.location.reload()}
-              className="bg-yellow-500 text-white"
-            >
-              Reload
-            </Button>
-          ),
-        });
         if (isMounted) setProfileLoading(false);
         return;
       }
@@ -211,6 +195,7 @@ const Profile = () => {
       borderColor: "border-amber-200 dark:border-amber-800",
     },
   };
+
   const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
     const colors = {
       common: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200",
@@ -358,108 +343,107 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        <Collapsible>
-          <div className="flex items-center justify-between gap-4 px-4">
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <ChevronsUpDown />
-                <span className="sr-only">Toggle</span>
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent className="transition-all duration-1000 ease-in-out data-[state=closed]:h-0 data-[state=closed]:opacity-0 data-[state=open]:opacity-100 overflow-hidden">
-            <div className="grid grid-cols-2 gap-4 transition-all duration-1000 ease-in-out data-[state=closed]:h-0 data-[state=closed]:opacity-0 data-[state=open]:opacity-100 overflow-hidden">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  School
-                </h4>
-                {!isEditing ? (
-                  <div className="text-lg font-bold text-gray-800 dark:text-white">
-                    {editedProfile.school || "Not provided"}
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={editedProfile.school}
-                    onChange={(e) =>
-                      setEditedProfile((prev) => ({
-                        ...prev,
-                        school: e.target.value,
-                      }))
-                    }
-                    className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
-                  />
-                )}
+
+        <CollapseText>
+          <div className="grid grid-cols-2 gap-4 transition-all duration-1000 ease-in-out data-[state=closed]:h-0 data-[state=closed]:opacity-0 data-[state=open]:opacity-100 overflow-hidden">
+            <div>
+              <div className="flex items-center  text-sm font-medium text-gray-700 gap-2 mb-1">
+                <GraduationCap />
+                <h4 className=" dark:text-gray-300 ">School</h4>
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  City
-                </h4>
-                {!isEditing ? (
-                  <div className="text-lg font-bold text-gray-800 dark:text-white">
-                    {editedProfile?.city || "Not provided"}
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={editedProfile.city}
-                    onChange={(e) =>
-                      setEditedProfile((prev) => ({
-                        ...prev,
-                        city: e.target.value,
-                      }))
-                    }
-                    className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
-                  />
-                )}
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Region
-                </h4>
-                {!isEditing ? (
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                    {editedProfile?.region || "Not provided"}
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={editedProfile.region}
-                    onChange={(e) =>
-                      setEditedProfile((prev) => ({
-                        ...prev,
-                        region: e.target.value,
-                      }))
-                    }
-                    className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
-                  />
-                )}
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Age
-                </h4>
-                {!isEditing ? (
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {editedProfile?.age || "Not provided"} years old
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={editedProfile.age}
-                    onChange={(e) =>
-                      setEditedProfile((prev) => ({
-                        ...prev,
-                        age: e.target.value,
-                      }))
-                    }
-                    className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
-                  />
-                )}
-              </div>
+              {!isEditing ? (
+                <div className="text-sm font-bold text-gray-800 dark:text-white">
+                  {editedProfile.school || "Not provided"}
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={editedProfile.school}
+                  onChange={(e) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      school: e.target.value,
+                    }))
+                  }
+                  className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
+                />
+              )}
             </div>
-          </CollapsibleContent>
-        </Collapsible>
+            <div>
+              <div className="flex gap-2 items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <Building2 className="w-5 h-5 " />
+                <h4 className="">City</h4>
+              </div>
+
+              {!isEditing ? (
+                <div className="text-sm font-bold text-gray-800 dark:text-white">
+                  {editedProfile?.city || "Not provided"}
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={editedProfile.city}
+                  onChange={(e) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      city: e.target.value,
+                    }))
+                  }
+                  className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
+                />
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <Globe className="w-5 h-5 " />
+                <h4 className="">Region</h4>
+              </div>
+
+              {!isEditing ? (
+                <div className="text-sm font-bold text-gray-600 dark:text-green-400">
+                  {editedProfile?.region || "Not provided"}
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={editedProfile.region}
+                  onChange={(e) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      region: e.target.value,
+                    }))
+                  }
+                  className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
+                />
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <User className="w-5 h-5 " />
+                <h4 className="">Age</h4>
+              </div>
+
+              {!isEditing ? (
+                <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                  {editedProfile?.age || "Not provided"} years old
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={editedProfile.age}
+                  onChange={(e) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      age: e.target.value,
+                    }))
+                  }
+                  className="w-24 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-3 py-1 mb-2"
+                />
+              )}
+            </div>
+          </div>
+        </CollapseText>
+
         {isEditing && (
           <div className="flex gap-4 space-x-0 mt-4">
             <Button
@@ -485,7 +469,7 @@ const Profile = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
                 role="img"
-                className="mr-4 h-10 w-10 align-middle"
+                className="h-10 w-10 align-middle"
                 width="1.5em"
                 height="1.5em"
                 preserveAspectRatio="xMidYMid meet"

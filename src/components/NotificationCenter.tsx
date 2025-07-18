@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTelegram } from "../hooks/useTelegram";
-import { useNotification } from "./context/NotificationContext";
+import { useNotification } from "../context/NotificationContext";
 import {
   Bell,
   X,

@@ -1,8 +1,5 @@
-import axios from "axios";
 import { Contest, LeaderboardEntry } from "../types";
 import api from "./api";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export const getAllContests = async (): Promise<Contest[]> => {
   const res = await api.get(`/contest/`);
@@ -54,4 +51,18 @@ export const registerForContest = async (
     tele_id: studentId,
   });
   return res.data;
+};
+
+export const submitContestResult = async (submission: any): Promise<any> => {
+  const res = await api.post(`/submission/`, { submission });
+  return res.data;
+};
+export const getEditorial = async (
+  student_id: string,
+  contest_id: string
+): Promise<any> => {
+  const res = await api.get(
+    `/student/editorial/${student_id}?contest_id=${contest_id}`
+  );
+  return res.data.editorial;
 };

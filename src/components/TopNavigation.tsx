@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { Bell, Settings } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
-import { useNotification } from "./context/NotificationContext";
+import { useNotification } from "../context/NotificationContext";
 
 const TopNavigation: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();

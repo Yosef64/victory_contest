@@ -84,10 +84,11 @@ export interface Question {
   grade: string;
   chapter: string;
   multiple_choice: string[];
+  difficulty?: "easy" | "medium" | "hard";
 }
 
 export interface ContestAnswer {
-  question_id: string;
+  question: Question;
   selected_answer: string;
   is_correct: boolean;
   time_taken: number;

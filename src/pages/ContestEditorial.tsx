@@ -6,51 +6,35 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Target,
   Lightbulb,
-  TrendingUp,
   ChevronDown,
   ChevronUp,
   Eye,
   Brain,
-  Star,
-  AlertTriangle,
   Trophy,
   Timer,
 } from "lucide-react";
-
-// Mock useTelegram hook for Telegram Mini App
-interface Telegram {
-  hapticFeedback: (type: string) => void;
-}
-
-const useTelegram = (): Telegram => ({
-  hapticFeedback: (type) => console.log(`Haptic feedback: ${type}`),
-});
+import { getEditorial } from "../services/contestApi";
+import { useTelegram } from "../hooks/useTelegram";
+import { toast } from "sonner";
 
 // Question interface
 interface Question {
   id: number;
   question_text: string;
   multiple_choice: string[];
-  answer: string;
+  answer: number;
   subject: string;
   chapter: string;
   grade: string;
-  difficulty: string;
+  difficulty?: string;
 }
 
 // EditorialQuestion interface
 interface EditorialQuestion extends Question {
   explanation: string;
-  tips: string[];
-  common_mistakes: string[];
-  time_complexity?: string;
-  difficulty_explanation: string;
   user_answer?: number;
   is_correct?: boolean;
-  average_time: number;
-  success_rate: number;
 }
 
 const ContestEditorial: React.FC = () => {
@@ -67,93 +51,54 @@ const ContestEditorial: React.FC = () => {
   const [filter, setFilter] = useState<
     "all" | "correct" | "incorrect" | "skipped"
   >("all");
+  const { user } = useTelegram();
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockQuestions: EditorialQuestion[] = [
-        {
-          id: 1,
-          question_text: "What is the derivative of f(x) = x² + 3x + 2?",
-          multiple_choice: ["2x + 3", "x² + 3", "2x + 2", "x + 3"],
-          answer: "2x + 3",
-          subject: "Mathematics",
-          chapter: "Calculus",
-          grade: "12th",
-          difficulty: "medium",
-          explanation:
-            "To find the derivative of f(x) = x² + 3x + 2, apply the power rule and constant rule:\n\n1. Derivative of x² is 2x\n2. Derivative of 3x is 3\n3. Derivative of 2 is 0\n\nThus: f'(x) = 2x + 3",
-          tips: [
-            "Use the power rule: d/dx[xⁿ] = nxⁿ⁻¹",
-            "Constant derivative is 0",
-            "Sum rule applies",
-          ],
-          common_mistakes: [
-            "Forgetting to multiply by the exponent",
-            "Not reducing the exponent",
-            "Including the constant",
-          ],
-          difficulty_explanation:
-            "Medium difficulty due to multiple derivative rules.",
-          user_answer: 0,
-          is_correct: true,
-          average_time: 45,
-          success_rate: 78,
-        },
-        {
-          id: 2,
-          question_text: "Which is the chemical formula for water?",
-          multiple_choice: ["H₂O", "CO₂", "NaCl", "CH₄"],
-          answer: "0",
-          subject: "Chemistry",
-          chapter: "Basic Chemistry",
-          grade: "9th",
-          difficulty: "easy",
-          explanation:
-            "Water has two hydrogen atoms and one oxygen: H₂O.\n\nOthers:\n• CO₂ = Carbon dioxide\n• NaCl = Sodium chloride\n• CH₄ = Methane",
-          tips: [
-            "Water is H₂O",
-            "Subscripts indicate atom count",
-            "Common compound",
-          ],
-          common_mistakes: ["Confusing with CO₂", "Wrong hydrogen count"],
-          difficulty_explanation: "Easy, tests basic compound knowledge.",
-          user_answer: 1,
-          is_correct: false,
-          average_time: 15,
-          success_rate: 95,
-        },
-        {
-          id: 3,
-          question_text: "What is the capital of France?",
-          multiple_choice: ["London", "Berlin", "Paris", "Madrid"],
-          answer: "2",
-          subject: "Geography",
-          chapter: "European Geography",
-          grade: "10th",
-          difficulty: "easy",
-          explanation:
-            "Paris is France's capital since 987 AD, on the Seine River.\n\nFacts:\n• Population: ~2.1M city, ~12M metro\n• 'City of Light'\n• Home to Eiffel Tower, Louvre",
-          tips: [
-            "France = Paris",
-            "Recall famous landmarks",
-            "Compare with other capitals",
-          ],
-          common_mistakes: [
-            "Confusing with other capitals",
-            "Mixing countries",
-          ],
-          difficulty_explanation: "Easy, tests basic capital knowledge.",
-          user_answer: undefined,
-          is_correct: undefined,
-          average_time: 12,
-          success_rate: 92,
-        },
-      ];
-      setQuestions(mockQuestions);
-      setLoading(false);
-    }, 1000);
-  }, [contestId]);
+    let isMounted = true;
+    const fetchEditorials = async () => {
+      if (!user || !contestId) return;
+      try {
+        setLoading(true);
+        const res = await getEditorial(user.id.toString(), contestId);
+        if (isMounted) {
+          if (!Array.isArray(res)) {
+            throw new Error("Invalid editorial data.");
+          }
+          setQuestions(res);
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to fetch editorial.";
+        if (isMounted) {
+          toast.error(message, {
+            style: {
+              maxWidth: "400px",
+              backgroundColor: "#f8d7da",
+              color: "#721c24",
+            },
+            duration: 10000,
+            position: "top-center",
+            action: {
+              label: "Retry",
+              onClick: () => fetchEditorials(),
+              actionButtonStyle: {
+                backgroundColor: "#f5c6cb",
+                color: "#721c24",
+              },
+            },
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    fetchEditorials();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, contestId]);
 
   const toggleQuestionExpansion = (questionId: number) => {
     const newExpanded = new Set(expandedQuestions);
@@ -173,7 +118,9 @@ const ContestEditorial: React.FC = () => {
       case "incorrect":
         return questions.filter((q) => q.is_correct === false);
       case "skipped":
-        return questions.filter((q) => q.user_answer === undefined);
+        return questions.filter(
+          (q) => q.user_answer === undefined || q.user_answer == null
+        );
       default:
         return questions;
     }
@@ -189,7 +136,7 @@ const ContestEditorial: React.FC = () => {
   }
 
   const getAnswerStatus = (question: EditorialQuestion): AnswerStatus => {
-    if (question.user_answer === undefined) {
+    if (question.user_answer === undefined || question.user_answer == null) {
       return {
         icon: Clock,
         color: "text-amber-500",
@@ -219,46 +166,6 @@ const ContestEditorial: React.FC = () => {
     };
   };
 
-  interface DifficultyConfig {
-    bg: string;
-    text: string;
-    border: string;
-    icon: string;
-  }
-
-  const getDifficultyConfig = (difficulty: string): DifficultyConfig => {
-    switch (difficulty) {
-      case "easy":
-        return {
-          bg: "bg-green-50 dark:bg-green-900/20",
-          text: "text-green-800 dark:text-green-300",
-          border: "border-green-200 dark:border-green-800",
-          icon: "🟢",
-        };
-      case "medium":
-        return {
-          bg: "bg-yellow-50 dark:bg-yellow-900/20",
-          text: "text-yellow-800 dark:text-yellow-300",
-          border: "border-yellow-200 dark:border-yellow-800",
-          icon: "🟡",
-        };
-      case "hard":
-        return {
-          bg: "bg-red-50 dark:bg-red-900/20",
-          text: "text-red-800 dark:text-red-300",
-          border: "border-red-200 dark:border-red-800",
-          icon: "🔴",
-        };
-      default:
-        return {
-          bg: "bg-gray-50 dark:bg-gray-700",
-          text: "text-gray-800 dark:text-gray-300",
-          border: "border-gray-200 dark:border-gray-700",
-          icon: "⚪",
-        };
-    }
-  };
-
   interface PerformanceStats {
     total: number;
     correct: number;
@@ -271,7 +178,9 @@ const ContestEditorial: React.FC = () => {
     const total = questions.length;
     const correct = questions.filter((q) => q.is_correct === true).length;
     const incorrect = questions.filter((q) => q.is_correct === false).length;
-    const skipped = questions.filter((q) => q.user_answer === undefined).length;
+    const skipped = questions.filter(
+      (q) => q.user_answer === undefined || q.user_answer == null
+    ).length;
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
     return { total, correct, incorrect, skipped, accuracy };
   };
@@ -442,7 +351,6 @@ const ContestEditorial: React.FC = () => {
           {filteredQuestions.map((question, index) => {
             const isExpanded = expandedQuestions.has(question.id);
             const status = getAnswerStatus(question);
-            const difficultyConfig = getDifficultyConfig(question.difficulty);
             const StatusIcon = status.icon;
 
             return (
@@ -464,36 +372,14 @@ const ContestEditorial: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-gray-800 dark:text-white">
-                          Question {index + 1}
+                          #{index + 1}
                         </h3>
                         <div className="flex flex-wrap items-center space-x-2 mt-1">
-                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-md">
-                            📚 {question.subject}
-                          </span>
                           <span
-                            className={`px-2 py-1 text-xs rounded-md ${difficultyConfig.bg} ${difficultyConfig.text}`}
-                          >
-                            {difficultyConfig.icon} {question.difficulty}
-                          </span>
-                          <span
-                            className={`px-2 py-1 text-xs rounded-md ${status.bg} ${status.color}`}
+                            className={`px-2 py-1 text-xs rounded-md ${status.bg} font-semibold ${status.color}`}
                           >
                             {status.text}
                           </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-md">
-                        <Timer className="w-4 h-4 text-purple-600 dark:text-purple-400 mx-auto" />
-                        <div className="text-xs font-bold text-purple-800 dark:text-purple-300">
-                          {question.average_time}s
-                        </div>
-                      </div>
-                      <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-md">
-                        <Target className="w-4 h-4 text-green-600 dark:text-green-400 mx-auto" />
-                        <div className="text-xs font-bold text-green-800 dark:text-green-300">
-                          {question.success_rate}%
                         </div>
                       </div>
                     </div>
@@ -508,8 +394,7 @@ const ContestEditorial: React.FC = () => {
                   {/* Options */}
                   <div className="space-y-2 mb-3">
                     {question.multiple_choice.map((option, optionIndex) => {
-                      const isCorrect =
-                        optionIndex.toString() === question.answer;
+                      const isCorrect = optionIndex === question.answer;
                       const isUserAnswer = optionIndex === question.user_answer;
 
                       return (
@@ -594,79 +479,6 @@ const ContestEditorial: React.FC = () => {
                         <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
                           {question.explanation}
                         </p>
-                      </div>
-
-                      {/* Pro Tips */}
-                      <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-md p-3 border border-yellow-200 dark:border-yellow-800">
-                        <h4 className="flex items-center text-base font-bold text-gray-800 dark:text-white mb-2">
-                          <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
-                          Tips
-                        </h4>
-                        {question.tips.map((tip, tipIndex) => (
-                          <div
-                            key={tipIndex}
-                            className="flex items-start bg-white/60 dark:bg-gray-800/60 p-2 rounded-md"
-                          >
-                            <Star className="w-4 h-4 text-yellow-500 mr-2" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              {tip}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Common Mistakes */}
-                      <div className="bg-red-50 dark:bg-red-900/20 rounded-md p-3 border border-red-200 dark:border-red-800">
-                        <h4 className="flex items-center text-base font-bold text-gray-800 dark:text-white mb-2">
-                          <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
-                          Mistakes
-                        </h4>
-                        {question.common_mistakes.map(
-                          (mistake, mistakeIndex) => (
-                            <div
-                              key={mistakeIndex}
-                              className="flex items-start bg-white/60 dark:bg-gray-800/60 p-2 rounded-md"
-                            >
-                              <XCircle className="w-4 h-4 text-red-500 mr-2" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                {mistake}
-                              </span>
-                            </div>
-                          )
-                        )}
-                      </div>
-
-                      {/* Difficulty Analysis */}
-                      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-md p-3 border border-purple-200 dark:border-purple-800">
-                        <h4 className="flex items-center text-base font-bold text-gray-800 dark:text-white mb-2">
-                          <TrendingUp className="w-5 h-5 text-purple-500 mr-2" />
-                          Difficulty
-                        </h4>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {question.difficulty_explanation}
-                        </p>
-                      </div>
-
-                      {/* Statistics */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-center border border-blue-200 dark:border-blue-800">
-                          <Timer className="w-5 h-5 text-blue-500 mx-auto" />
-                          <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                            {question.average_time}s
-                          </div>
-                          <div className="text-xs text-blue-700 dark:text-blue-300">
-                            Avg Time
-                          </div>
-                        </div>
-                        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md text-center border border-green-200 dark:border-green-800">
-                          <Target className="w-5 h-5 text-green-500 mx-auto" />
-                          <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {question.success_rate}%
-                          </div>
-                          <div className="text-xs text-green-700 dark:text-green-300">
-                            Success
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </div>

@@ -5,8 +5,8 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { useTelegram } from "../../hooks/useTelegram";
-import { getNotification } from "../../services/notificationService";
+import { useTelegram } from "../hooks/useTelegram";
+import { getNotification } from "../services/notificationService";
 
 export interface Notification {
   id: number;

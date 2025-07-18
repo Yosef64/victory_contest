@@ -10,12 +10,9 @@ import {
   TrendingUp,
   Calendar,
   Lock,
-  ChevronsUpDown,
   GraduationCap,
   Globe,
-  Building,
   Building2,
-  User2Icon,
   User,
 } from "lucide-react";
 
@@ -472,7 +469,7 @@ const Profile = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
                 role="img"
-                className="mr-4 h-10 w-10 align-middle"
+                className="h-10 w-10 align-middle"
                 width="1.5em"
                 height="1.5em"
                 preserveAspectRatio="xMidYMid meet"

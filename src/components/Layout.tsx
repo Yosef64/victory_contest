@@ -4,7 +4,7 @@ import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
-import { NotificationProvider } from "./context/NotificationContext";
+import { NotificationProvider } from "../context/NotificationContext";
 
 const Layout: React.FC = () => {
   const { webApp } = useTelegram();

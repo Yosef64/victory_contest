@@ -82,14 +82,6 @@ const Home: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-4 space-y-6">
       {/* Welcome Section */}
@@ -119,24 +111,30 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          {contests.map((contest) => {
-            const startTime = parseISO(contest.start_time);
-            const now = new Date();
-            const isStartingSoon =
-              isAfter(startTime, now) &&
-              startTime.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {contests.map((contest) => {
+              const startTime = parseISO(contest.start_time);
+              const now = new Date();
+              const isStartingSoon =
+                isAfter(startTime, now) &&
+                startTime.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
 
-            return (
-              <ContestCard
-                contest={contest}
-                key={contest.id}
-                isStartingSoon={isStartingSoon}
-              />
-            );
-          })}
-        </div>
-        {contests.length === 0 && <NoContests type="active" />}
+              return (
+                <ContestCard
+                  contest={contest}
+                  key={contest.id}
+                  isStartingSoon={isStartingSoon}
+                />
+              );
+            })}
+          </div>
+        )}
+        {contests.length === 0 && !loading && <NoContests type="active" />}
       </div>
 
       {/* Previous Contests */}
@@ -144,86 +142,92 @@ const Home: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
           Previous Contests
         </h2>
-        <div className="space-y-3">
-          {previousContests.map((contest) => (
-            <div
-              onClick={() => handleShowStandings(contest)}
-              key={contest.id}
-              className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 dark:text-white mb-1">
-                    {contest.title}
-                  </h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>
-                      {formatDistanceToNow(parseISO(contest.start_time))} ago
-                    </span>
-                    <span>•</span>
-                    <span>{contest.questions.length} questions</span>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {previousContests.map((contest) => (
+              <div
+                onClick={() => handleShowStandings(contest)}
+                key={contest.id}
+                className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-800 dark:text-white mb-1">
+                      {contest.title}
+                    </h3>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                      <span>
+                        {formatDistanceToNow(parseISO(contest.start_time))} ago
+                      </span>
+                      <span>•</span>
+                      <span>{contest.questions.length} questions</span>
+                    </div>
                   </div>
+                  <Link
+                    to={`/contest-editorial?id=${contest.id}&title=${contest.title}`}
+                    className={`flex rounded-full cursor-pointer items-center justify-center w-10 h-10 text-sm hover:text-[#00AB55] hover:bg-[#00AB5514] text-[#00AB55] font-bold`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      role="img"
+                      className="h-5 w-5 "
+                      width="1.5em"
+                      height="1.5em"
+                      preserveAspectRatio="xMidYMid meet"
+                      viewBox="0 0 256 256"
+                    >
+                      <g fill="currentColor">
+                        <path
+                          d="M152 128a24 24 0 1 1-24-24a24 24 0 0 1 24 24"
+                          opacity=".2"
+                        ></path>
+                        <path d="M200 152a31.84 31.84 0 0 0-19.53 6.68l-23.11-18A31.65 31.65 0 0 0 160 128c0-.74 0-1.48-.08-2.21l13.23-4.41A32 32 0 1 0 168 104c0 .74 0 1.48.08 2.21l-13.23 4.41A32 32 0 0 0 128 96a32.6 32.6 0 0 0-5.27.44L115.89 81A32 32 0 1 0 96 88a32.6 32.6 0 0 0 5.27-.44l6.84 15.4a31.92 31.92 0 0 0-8.57 39.64l-25.71 22.84a32.06 32.06 0 1 0 10.63 12l25.71-22.84a31.91 31.91 0 0 0 37.36-1.24l23.11 18A31.65 31.65 0 0 0 168 184a32 32 0 1 0 32-32m0-64a16 16 0 1 1-16 16a16 16 0 0 1 16-16M80 56a16 16 0 1 1 16 16a16 16 0 0 1-16-16M56 208a16 16 0 1 1 16-16a16 16 0 0 1-16 16m56-80a16 16 0 1 1 16 16a16 16 0 0 1-16-16m88 72a16 16 0 1 1 16-16a16 16 0 0 1-16 16"></path>
+                      </g>
+                    </svg>
+                  </Link>
+                  <Link
+                    onClick={() => {
+                      handleShowStandings(contest);
+                    }}
+                    to=""
+                    className={`flex rounded-full cursor-pointer items-center justify-center w-10 h-10 text-sm hover:text-[#00AB55] hover:bg-[#00AB5514] text-[#00AB55] font-bold`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      role="img"
+                      width="0.8em"
+                      height="0.8em"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="h-5 w-5 "
+                    >
+                      <g fill="none">
+                        <path
+                          fill="currentColor"
+                          d="M4 4.001h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"
+                          opacity=".16"
+                        ></path>
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M11 4H4v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M9 15L20 4m-5 0h5v5"
+                        ></path>
+                      </g>
+                    </svg>
+                  </Link>
                 </div>
-                <Link
-                  to={`/contest-editorial?id=${contest.id}&title=${contest.title}`}
-                  className={`flex rounded-full cursor-pointer items-center justify-center w-10 h-10 text-sm hover:text-[#00AB55] hover:bg-[#00AB5514] text-[#00AB55] font-bold`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    role="img"
-                    className="h-5 w-5 "
-                    width="1.5em"
-                    height="1.5em"
-                    preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 256 256"
-                  >
-                    <g fill="currentColor">
-                      <path
-                        d="M152 128a24 24 0 1 1-24-24a24 24 0 0 1 24 24"
-                        opacity=".2"
-                      ></path>
-                      <path d="M200 152a31.84 31.84 0 0 0-19.53 6.68l-23.11-18A31.65 31.65 0 0 0 160 128c0-.74 0-1.48-.08-2.21l13.23-4.41A32 32 0 1 0 168 104c0 .74 0 1.48.08 2.21l-13.23 4.41A32 32 0 0 0 128 96a32.6 32.6 0 0 0-5.27.44L115.89 81A32 32 0 1 0 96 88a32.6 32.6 0 0 0 5.27-.44l6.84 15.4a31.92 31.92 0 0 0-8.57 39.64l-25.71 22.84a32.06 32.06 0 1 0 10.63 12l25.71-22.84a31.91 31.91 0 0 0 37.36-1.24l23.11 18A31.65 31.65 0 0 0 168 184a32 32 0 1 0 32-32m0-64a16 16 0 1 1-16 16a16 16 0 0 1 16-16M80 56a16 16 0 1 1 16 16a16 16 0 0 1-16-16M56 208a16 16 0 1 1 16-16a16 16 0 0 1-16 16m56-80a16 16 0 1 1 16 16a16 16 0 0 1-16-16m88 72a16 16 0 1 1 16-16a16 16 0 0 1-16 16"></path>
-                    </g>
-                  </svg>
-                </Link>
-                <Link
-                  onClick={() => {
-                    handleShowStandings(contest);
-                  }}
-                  to=""
-                  className={`flex rounded-full cursor-pointer items-center justify-center w-10 h-10 text-sm hover:text-[#00AB55] hover:bg-[#00AB5514] text-[#00AB55] font-bold`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    role="img"
-                    width="0.8em"
-                    height="0.8em"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="h-5 w-5 "
-                  >
-                    <g fill="none">
-                      <path
-                        fill="currentColor"
-                        d="M4 4.001h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"
-                        opacity=".16"
-                      ></path>
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M11 4H4v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M9 15L20 4m-5 0h5v5"
-                      ></path>
-                    </g>
-                  </svg>
-                </Link>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Previous Contest Modal */}
@@ -232,9 +236,15 @@ const Home: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white">
-                  {selectedPreviousContest.title}
-                </h3>
+                <div className="flex gap-2">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                    {selectedPreviousContest.title}
+                  </h3>
+                  <button className="bg-gradient-to-r from-yellow-400 to-orange-500 font-semibold  text-gray-800 p-2 rounded-lg text-[16px]">
+                    Editorial
+                  </button>
+                </div>
+
                 <button
                   onClick={() => setShowPreviousModal(false)}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -253,55 +263,60 @@ const Home: React.FC = () => {
               </div>
             ) : (
               <div className="p-6 overflow-y-auto max-h-96">
-                <div className="space-y-3">
-                  {previousContestLeaderboard.map((entry) => {
-                    const isCurrentUser = entry.user_id === user?.id;
+                {
+                  <div className="space-y-3">
+                    {previousContestLeaderboard.map((entry) => {
+                      const isCurrentUser = entry.user_id === user?.id;
 
-                    return (
-                      <div
-                        key={entry.user_id}
-                        className={`flex items-center justify-between p-3 rounded-xl ${
-                          isCurrentUser
-                            ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800"
-                            : "bg-gray-50 dark:bg-gray-700"
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          {getRankIcon(entry.rank)}
-                          <div>
-                            <div
-                              className={`font-semibold ${
-                                isCurrentUser
-                                  ? "text-blue-800 dark:text-blue-300"
-                                  : "text-gray-800 dark:text-white"
-                              }`}
-                            >
-                              {entry.user_name}
-                              {isCurrentUser && (
-                                <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-                                  (You)
-                                </span>
-                              )}
+                      return (
+                        <div
+                          key={entry.user_id}
+                          className={`flex items-center justify-between p-3 rounded-xl ${
+                            isCurrentUser
+                              ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800"
+                              : "bg-gray-50 dark:bg-gray-700"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            {getRankIcon(entry.rank)}
+                            <div>
+                              <div
+                                className={`font-semibold ${
+                                  isCurrentUser
+                                    ? "text-blue-800 dark:text-blue-300"
+                                    : "text-gray-800 dark:text-white"
+                                }`}
+                              >
+                                {entry.user_name}
+                                {isCurrentUser && (
+                                  <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+                                    (You)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                {entry.correct_answers}/{entry.total_questions}{" "}
+                                correct
+                              </div>
                             </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              {entry.correct_answers}/{entry.total_questions}{" "}
-                              correct
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-gray-800 dark:text-white">
+                              {entry.score}%
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              #{entry.rank}
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-gray-800 dark:text-white">
-                            {entry.score}%
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            #{entry.rank}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                }
               </div>
+            )}
+            {previousContestLeaderboard.length === 0 && !modalLoading && (
+              <div></div>
             )}
           </div>
         </div>

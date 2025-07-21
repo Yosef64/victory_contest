@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Trophy, BookOpen, Clock } from "lucide-react";
+import { Calendar, Trophy, Clock } from "lucide-react";
 
 interface NoContestsProps {
   type: "active" | "past";

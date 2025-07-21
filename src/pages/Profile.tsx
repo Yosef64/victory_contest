@@ -464,7 +464,7 @@ const Profile = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {userStats && (
           <>
-            <div className="bg-white flex flex-col items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+            <div className="bg-purple-700 dark:text- flex flex-col items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"

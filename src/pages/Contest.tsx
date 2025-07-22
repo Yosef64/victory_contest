@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown";
-import { Question, ContestAnswer, Contest } from "../types";
+import { ContestAnswer, Contest } from "../types";
 import { Clock, ArrowRight, CheckCircle, XCircle } from "lucide-react";
 import { getContestById } from "../services/contestApi";
 import { toast } from "sonner";
@@ -18,16 +18,24 @@ const ContestComponent: React.FC = () => {
   const [answers, setAnswers] = useState<ContestAnswer[]>([]);
   const [timeLeft, setTimeLeft] = useState(0); // Will be set after contest is loaded
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [contestEnded, setContestEnded] = useState(false);
   const [searchParams] = useSearchParams();
-  const con = searchParams.get("con");
+  const conId = useMemo(() => searchParams.get("con"), [searchParams]);
   const [contest, setContest] = useState({} as Contest);
-  const [questions, setQuestions] = useState<Question[]>(
-    contest.questions || []
+  const questions = useMemo(() => contest?.questions || [], [contest]);
+  const currentQuestion = useMemo(
+    () => questions[currentQuestionIndex],
+    [questions, currentQuestionIndex]
+  );
+  const progress = useMemo(
+    () => (answers.length / (questions.length || 1)) * 100,
+    [answers, questions]
   );
   const [submitting, setSubmitting] = useState(false);
   const { user } = useTelegram();
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // State for the image modal
 
   useEffect(() => {
     if (timeLeft > 0 && !contestEnded) {
@@ -39,66 +47,38 @@ const ContestComponent: React.FC = () => {
   }, [timeLeft, contestEnded]);
 
   useEffect(() => {
-    const fetchContest = async () => {
-      setLoading(true);
+    if (!conId) {
+      setError("No contest ID provided.");
+      setLoading(false);
+      return;
+    }
+
+    const fetchAndSetupContest = async () => {
       try {
-        const contest: Contest = await getContestById(con!);
-        setQuestions(contest.questions || []);
-        setContest(contest);
-        setStartTime(new Date(contest.start_time).getTime()); // Calculate time left in seconds
-        const now = new Date();
-        const endTime = new Date(contest.end_time);
-        const diff = Math.floor((endTime.getTime() - now.getTime()) / 1000);
-        setTimeLeft(diff > 0 ? diff : 0);
-      } catch (error) {
-        toast.error("Network Error!", {
-          description: "Failed to load contest data. Please try again later.",
+        // Check if user is already active in the contest
+        await api.get(`/contest/is_active/${conId}/${user?.id}`);
+
+        const contestData = await getContestById(conId);
+        setContest(contestData);
+        const endTime = new Date(contestData.end_time).getTime();
+        const now = Date.now();
+        const diffInSeconds = Math.floor((endTime - now) / 1000);
+        setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
+      } catch (err: any) {
+        // setError(err.message || "An unexpected error occurred.");
+        toast.error(err.message, {
+          description: "Please try again later or contact support.",
           icon: <XCircle className="w-6 h-6 text-red-500" />,
-          position: "bottom-right",
-          action: (
-            <button
-              onClick={() => navigate("/")}
-              className="text-blue-600 dark:text-blue-400 underline"
-            >
-              Refresh
-            </button>
-          ),
-          style: {
-            backgroundColor: "#f8d7da",
-            color: "#721c24",
-          },
         });
+        // Optional: navigate away on critical error
+        navigate("/");
       } finally {
         setLoading(false);
       }
     };
-    fetchContest();
-  }, []);
-  useEffect(() => {
-    const checkActive = async () => {
-      if (!con || !user?.id) return;
-      try {
-        await api.get(`/contest/is_active/${con}/${user.id}`);
-      } catch (e) {
-        // Optionally handle error
-        toast.error(
-          "You cannot enter the contest since you already on the contest!",
-          {
-            description: "Please check the contest status or try again later.",
-            icon: <XCircle className="w-6 h-6 text-red-500" />,
-            duration: 5000,
-            style: {
-              backgroundColor: "#f8d7da",
-              color: "#721c24",
-            },
-            position: "bottom-right",
-          }
-        );
-        navigate("/");
-      }
-    };
-    checkActive();
-  }, [con, user?.id, navigate]);
+
+    fetchAndSetupContest();
+  }, [conId, user?.id, navigate]);
 
   useEffect(() => {
     if (selectedAnswer !== null) {
@@ -198,6 +178,12 @@ const ContestComponent: React.FC = () => {
   };
   const endContest = async () => {
     // Organize submission data
+    if (answers.length === 0) {
+      toast.error("No answers submitted!", {
+        description: "Please answer at least one question before submitting.",
+      });
+      return;
+    }
     const correctAnswers = answers.filter((a) => a.is_correct).length;
     const totalQuestions = questions.length;
     const score = Math.round((correctAnswers / totalQuestions) * 100);
@@ -206,8 +192,10 @@ const ContestComponent: React.FC = () => {
       .map((a) => a.question.id);
     const endTime = Date.now();
     let time_spend = "00:00:00";
-    if (startTime) {
-      const seconds = Math.round((endTime - startTime) / 1000);
+    if (contest.start_time) {
+      const seconds = Math.round(
+        (endTime - new Date(contest.start_time).getTime()) / 1000
+      );
       time_spend = formatTime(seconds); // hh:mm:ss
     }
     const submission = {
@@ -263,6 +251,17 @@ const ContestComponent: React.FC = () => {
       </div>
     );
   }
+  if (error || !contest || !currentQuestion) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 text-red-700 dark:text-red-400 p-4 text-center">
+        <XCircle className="w-12 h-12 mb-4" />
+        <p className="text-lg font-semibold">Failed to Load Contest</p>
+        <p className="text-sm">
+          {error || "The contest data could not be found."}
+        </p>
+      </div>
+    );
+  }
 
   if (contestEnded) {
     const totalQuestions = questions.length;
@@ -291,24 +290,8 @@ const ContestComponent: React.FC = () => {
     );
   }
 
-  const emptyQuestion: Question = {
-    id: "",
-    question_text: "",
-    answer: "",
-    explanation: "",
-    subject: "",
-    grade: "",
-    chapter: "",
-    multiple_choice: [],
-  };
-  const currentQuestion =
-    0 <= currentQuestionIndex && currentQuestionIndex < questions.length
-      ? questions[currentQuestionIndex]
-      : emptyQuestion;
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="p-4 max-w-2xl mx-auto font-sans">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4 space-x-4">
@@ -337,7 +320,7 @@ const ContestComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* Question */}
+      {/* Question Card */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
@@ -350,12 +333,28 @@ const ContestComponent: React.FC = () => {
           </div>
         </div>
 
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
           {currentQuestion.question_text}
         </h3>
 
+        {/* --- START: Image Display Logic --- */}
+        {currentQuestion.question_image && (
+          <div className="my-6" onClick={() => setIsImageModalOpen(true)}>
+            <img
+              src={currentQuestion.question_image}
+              alt={`Illustration for question ${currentQuestionIndex + 1}`}
+              className="w-full max-h-64 object-contain rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+              onError={(e) => {
+                // Hide the image element if it fails to load
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          </div>
+        )}
+        {/* --- END: Image Display Logic --- */}
+
         {/* Options */}
-        <div className="space-y-3">
+        <div className="space-y-3 mt-6">
           {currentQuestion.multiple_choice.map((option, index) => (
             <button
               key={index}
@@ -368,7 +367,7 @@ const ContestComponent: React.FC = () => {
             >
               <div className="flex items-center">
                 <div
-                  className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${
+                  className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center flex-shrink-0 ${
                     selectedAnswer === index.toString()
                       ? "border-blue-500 bg-blue-500"
                       : "border-gray-300 dark:border-gray-600"
@@ -388,7 +387,7 @@ const ContestComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* Next Button (for mobile without Telegram main button) */}
+      {/* Navigation Button */}
       {selectedAnswer !== null && (
         <button
           onClick={handleNextQuestion}
@@ -402,6 +401,35 @@ const ContestComponent: React.FC = () => {
           <ArrowRight className="w-4 h-4 ml-2" />
         </button>
       )}
+
+      {/* --- START: Image Modal --- */}
+      {isImageModalOpen && currentQuestion.question_image && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 animate-fade-in"
+          onClick={() => setIsImageModalOpen(false)}
+        >
+          <style>{`.animate-fade-in { animation: fadeIn 0.2s ease-out; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
+          {/* Stop propagation to prevent closing modal when clicking the image itself */}
+          <div
+            className="relative max-w-4xl max-h-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={currentQuestion.question_image}
+              alt="Enlarged view of the question illustration"
+              className="w-auto h-auto max-w-full max-h-[90vh] object-contain rounded-lg"
+            />
+            <button
+              onClick={() => setIsImageModalOpen(false)}
+              className="absolute -top-3 -right-3 bg-white text-gray-800 rounded-full p-1.5 shadow-lg hover:bg-gray-200 transition-transform hover:scale-110"
+              aria-label="Close image view"
+            >
+              <XCircle className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+      {/* --- END: Image Modal --- */}
     </div>
   );
 };

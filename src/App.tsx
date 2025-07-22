@@ -8,7 +8,7 @@ import Profile from "./pages/Profile";
 import Registration from "./pages/Registration";
 import ContestComponent from "./pages/Contest";
 import ContestEditorial from "./pages/ContestEditorial";
-import ScreenshotProtection from "./components/ScreenProtection";
+// import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
   const { isLoading } = useTelegram();
@@ -25,14 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           {" "}
-          <Route
-            index
-            element={
-              <ScreenshotProtection>
-                <Home />
-              </ScreenshotProtection>
-            }
-          />
+          <Route index element={<Home />} />
           <Route path="contest" element={<ContestComponent />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="statistics" element={<Statistics />} />

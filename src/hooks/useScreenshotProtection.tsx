@@ -57,12 +57,10 @@ export const useScreenshotProtection = () => {
 
     // Desktop screenshot shortcuts
     const preventScreenshotShortcuts = (e: KeyboardEvent) => {
+      // 1. Correct the key value here
       const forbiddenCombinations = [
-        // Windows shortcuts
         { key: "PrintScreen" },
         { ctrl: true, shift: true, key: "S" },
-
-        // Mac shortcuts
         { meta: true, shift: true, key: "3" },
         { meta: true, shift: true, key: "4" },
         { meta: true, shift: true, key: "5" },
@@ -71,14 +69,13 @@ export const useScreenshotProtection = () => {
       for (const combo of forbiddenCombinations) {
         let matches = true;
 
+        // These checks are sufficient now
         if (combo.ctrl && !e.ctrlKey) matches = false;
         if (combo.shift && !e.shiftKey) matches = false;
         if (combo.meta && !e.metaKey) matches = false;
         if (combo.key && e.key !== combo.key) matches = false;
 
-        if (combo.key === "PrintScreen" && e.key === "PrintScreen") {
-          matches = true;
-        }
+        // 2. The redundant 'if' statement has been removed
 
         if (matches) {
           e.preventDefault();

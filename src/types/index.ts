@@ -85,6 +85,7 @@ export interface Question {
   chapter: string;
   multiple_choice: string[];
   difficulty?: "easy" | "medium" | "hard";
+  question_image?: string;
 }
 
 export interface ContestAnswer {
@@ -126,6 +127,8 @@ export interface Contest {
   prize: string;
   active_contestant: Student[];
   questions: Question[];
+  type: "free" | "premium";
+  status: string;
 }
 
 export interface LeaderboardEntry {

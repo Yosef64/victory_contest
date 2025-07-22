@@ -37,6 +37,69 @@ import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
 import TimeIcon from "../assets/time-01-stroke-rounded.svg?react";
 import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?react";
 import CollapseText from "../components/ui/Collapse";
+
+const achievementStyles: any = {
+  first: {
+    icon: Trophy,
+    color: "from-yellow-400 to-yellow-600",
+    textColor: "text-yellow-800 dark:text-yellow-200",
+    bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+    borderColor: "border-yellow-200 dark:border-yellow-800",
+  },
+  speed: {
+    icon: Zap,
+    color: "from-purple-400 to-purple-600",
+    textColor: "text-purple-800 dark:text-purple-200",
+    bgColor: "bg-purple-50 dark:bg-purple-900/20",
+    borderColor: "border-purple-200 dark:border-purple-800",
+  },
+  perfection: {
+    icon: Star,
+    color: "from-blue-400 to-blue-600",
+    textColor: "text-blue-800 dark:text-blue-200",
+    bgColor: "bg-blue-50 dark:bg-blue-900/20",
+    borderColor: "border-blue-200 dark:border-blue-800",
+  },
+  streak: {
+    icon: Flame,
+    color: "from-red-400 to-red-600",
+    textColor: "text-red-800 dark:text-red-200",
+    bgColor: "bg-red-50 dark:bg-red-900/20",
+    borderColor: "border-red-200 dark:border-red-800",
+  },
+  subject: {
+    icon: Brain,
+    color: "from-green-400 to-green-600",
+    textColor: "text-green-800 dark:text-green-200",
+    bgColor: "bg-green-50 dark:bg-green-900/20",
+    borderColor: "border-green-200 dark:border-green-800",
+  },
+  rank: {
+    icon: Crown,
+    color: "from-amber-400 to-amber-600",
+    textColor: "text-amber-800 dark:text-amber-200",
+    bgColor: "bg-amber-50 dark:bg-amber-900/20",
+    borderColor: "border-amber-200 dark:border-amber-800",
+  },
+};
+
+const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
+  const colors = {
+    common: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200",
+    rare: "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200",
+    epic: "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200",
+    legendary: "bg-gradient-to-r from-yellow-400 to-orange-500 text-white",
+  };
+
+  return (
+    <span
+      className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[rarity]}`}
+    >
+      {rarity.toUpperCase()}
+    </span>
+  );
+};
+
 const Profile = () => {
   const { user, hapticFeedback } = useTelegram();
   const [isEditing, setIsEditing] = useState(false);
@@ -150,68 +213,6 @@ const Profile = () => {
       isMounted = false;
     };
   }, [user]);
-
-  const achievementStyles: any = {
-    first: {
-      icon: Trophy,
-      color: "from-yellow-400 to-yellow-600",
-      textColor: "text-yellow-800 dark:text-yellow-200",
-      bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
-      borderColor: "border-yellow-200 dark:border-yellow-800",
-    },
-    speed: {
-      icon: Zap,
-      color: "from-purple-400 to-purple-600",
-      textColor: "text-purple-800 dark:text-purple-200",
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
-      borderColor: "border-purple-200 dark:border-purple-800",
-    },
-    perfection: {
-      icon: Star,
-      color: "from-blue-400 to-blue-600",
-      textColor: "text-blue-800 dark:text-blue-200",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
-      borderColor: "border-blue-200 dark:border-blue-800",
-    },
-    streak: {
-      icon: Flame,
-      color: "from-red-400 to-red-600",
-      textColor: "text-red-800 dark:text-red-200",
-      bgColor: "bg-red-50 dark:bg-red-900/20",
-      borderColor: "border-red-200 dark:border-red-800",
-    },
-    subject: {
-      icon: Brain,
-      color: "from-green-400 to-green-600",
-      textColor: "text-green-800 dark:text-green-200",
-      bgColor: "bg-green-50 dark:bg-green-900/20",
-      borderColor: "border-green-200 dark:border-green-800",
-    },
-    rank: {
-      icon: Crown,
-      color: "from-amber-400 to-amber-600",
-      textColor: "text-amber-800 dark:text-amber-200",
-      bgColor: "bg-amber-50 dark:bg-amber-900/20",
-      borderColor: "border-amber-200 dark:border-amber-800",
-    },
-  };
-
-  const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
-    const colors = {
-      common: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200",
-      rare: "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200",
-      epic: "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200",
-      legendary: "bg-gradient-to-r from-yellow-400 to-orange-500 text-white",
-    };
-
-    return (
-      <span
-        className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[rarity]}`}
-      >
-        {rarity.toUpperCase()}
-      </span>
-    );
-  };
 
   const handleSave = () => {
     hapticFeedback("notification", "success");
@@ -347,7 +348,7 @@ const Profile = () => {
         <CollapseText>
           <div className="grid grid-cols-2 gap-4 transition-all duration-1000 ease-in-out data-[state=closed]:h-0 data-[state=closed]:opacity-0 data-[state=open]:opacity-100 overflow-hidden">
             <div>
-              <div className="flex items-center  text-sm font-medium text-gray-700 gap-2 mb-1">
+              <div className="flex dark:text-gray-300 items-center  text-sm font-medium text-gray-700 gap-2 mb-1">
                 <GraduationCap />
                 <h4 className=" dark:text-gray-300 ">School</h4>
               </div>
@@ -464,12 +465,12 @@ const Profile = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {userStats && (
           <>
-            <div className="bg-purple-700 dark:text- flex flex-col items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+            <div className="flex flex-col items-center justify-center dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
                 role="img"
-                className="h-10 w-10 align-middle"
+                className="h-10 w-10 align-middl text-orange-500"
                 width="1.5em"
                 height="1.5em"
                 preserveAspectRatio="xMidYMid meet"

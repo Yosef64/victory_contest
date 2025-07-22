@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { UserStats } from '../types';
-import { 
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Area, AreaChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  PieChart, Pie, Cell, Area, AreaChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
-import { 
-  BarChart3, Target, Clock, TrendingUp, Filter, Book, GraduationCap, 
+import {
+  BarChart3, Target, Clock, TrendingUp,
   AlertTriangle, CheckCircle, ArrowUp, ArrowDown, Lightbulb, BookOpen,
-  Award, Zap, Brain, TrendingDown
+  Award, Zap, Brain,
 } from 'lucide-react';
+import api from '../services/api';
 
 const Statistics: React.FC = () => {
   const { user } = useTelegram();
@@ -18,40 +19,19 @@ const Statistics: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<'subjects' | 'chapters' | 'grades'>('subjects');
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockStats: UserStats = {
-        total_contests: 12,
-        total_questions: 450,
-        correct_answers: 378,
-        accuracy: 84,
-        average_time: 45,
-        subjects: {
-          'Mathematics': { total: 120, correct: 102, accuracy: 85 },
-          'Science': { total: 95, correct: 81, accuracy: 85 },
-          'English': { total: 85, correct: 68, accuracy: 80 },
-          'History': { total: 75, correct: 63, accuracy: 84 },
-          'Geography': { total: 75, correct: 64, accuracy: 85 }
-        },
-        chapters: {
-          'Algebra': { total: 45, correct: 39, accuracy: 87 },
-          'Geometry': { total: 35, correct: 28, accuracy: 80 },
-          'Calculus': { total: 40, correct: 35, accuracy: 88 },
-          'Physics': { total: 50, correct: 42, accuracy: 84 },
-          'Chemistry': { total: 45, correct: 39, accuracy: 87 },
-          'Biology': { total: 40, correct: 34, accuracy: 85 }
-        },
-        grades: {
-          '9th Grade': { total: 85, correct: 72, accuracy: 85 },
-          '10th Grade': { total: 120, correct: 98, accuracy: 82 },
-          '11th Grade': { total: 125, correct: 108, accuracy: 86 },
-          '12th Grade': { total: 120, correct: 100, accuracy: 83 }
-        }
-      };
-      setStats(mockStats);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    if (!user?.id) return;
+    setLoading(true);
+    api
+      .get(`/statistics/${user.id}`)
+      .then((res) => {
+        setStats(res.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setStats(null);
+        setLoading(false);
+      });
+  }, [user]);
 
   const getAccuracyColor = (accuracy: number) => {
     if (accuracy >= 90) return '#10b981'; // green
@@ -62,13 +42,13 @@ const Statistics: React.FC = () => {
 
   const getImprovementAreas = () => {
     if (!stats) return [];
-    
+
     const allData = [
       ...Object.entries(stats.subjects).map(([name, data]) => ({ name, ...data, type: 'Subject' })),
       ...Object.entries(stats.chapters).map(([name, data]) => ({ name, ...data, type: 'Chapter' })),
       ...Object.entries(stats.grades).map(([name, data]) => ({ name, ...data, type: 'Grade' }))
     ];
-    
+
     return allData
       .filter(item => item.accuracy < 85)
       .sort((a, b) => a.accuracy - b.accuracy)
@@ -77,12 +57,12 @@ const Statistics: React.FC = () => {
 
   const getStrengths = () => {
     if (!stats) return [];
-    
+
     const allData = [
       ...Object.entries(stats.subjects).map(([name, data]) => ({ name, ...data, type: 'Subject' })),
       ...Object.entries(stats.chapters).map(([name, data]) => ({ name, ...data, type: 'Chapter' }))
     ];
-    
+
     return allData
       .filter(item => item.accuracy >= 85)
       .sort((a, b) => b.accuracy - a.accuracy)
@@ -102,7 +82,7 @@ const Statistics: React.FC = () => {
 
   const getRadarData = () => {
     if (!stats) return [];
-    
+
     return [
       { subject: 'Math', accuracy: stats.subjects['Mathematics']?.accuracy || 0, fullMark: 100 },
       { subject: 'Science', accuracy: stats.subjects['Science']?.accuracy || 0, fullMark: 100 },
@@ -116,6 +96,15 @@ const Statistics: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!loading && (!stats || Object.keys(stats.subjects || {}).length === 0)) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+        <div className="text-2xl mb-2">No statistics available yet.</div>
+        <div className="text-sm">Participate in contests to see your statistics!</div>
       </div>
     );
   }
@@ -156,7 +145,7 @@ const Statistics: React.FC = () => {
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400">Total Contests</div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-2">
             <Target className="w-8 h-8 text-green-500" />
@@ -170,7 +159,7 @@ const Statistics: React.FC = () => {
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400">Overall Accuracy</div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-2">
             <Clock className="w-8 h-8 text-purple-500" />
@@ -184,7 +173,7 @@ const Statistics: React.FC = () => {
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Response Time</div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-2">
             <TrendingUp className="w-8 h-8 text-orange-500" />
@@ -211,28 +200,28 @@ const Statistics: React.FC = () => {
             <AreaChart data={getPerformanceTrend()}>
               <defs>
                 <linearGradient id="colorAccuracy" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" stroke="#6b7280" />
               <YAxis stroke="#6b7280" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1f2937', 
-                  border: 'none', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: 'none',
                   borderRadius: '12px',
                   color: '#fff'
                 }}
               />
-              <Area 
-                type="monotone" 
-                dataKey="accuracy" 
-                stroke="#3b82f6" 
+              <Area
+                type="monotone"
+                dataKey="accuracy"
+                stroke="#3b82f6"
                 strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorAccuracy)" 
+                fillOpacity={1}
+                fill="url(#colorAccuracy)"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -250,9 +239,9 @@ const Statistics: React.FC = () => {
             <RadarChart data={getRadarData()}>
               <PolarGrid stroke="#e5e7eb" />
               <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12 }} />
-              <PolarRadiusAxis 
-                angle={90} 
-                domain={[0, 100]} 
+              <PolarRadiusAxis
+                angle={90}
+                domain={[0, 100]}
                 tick={{ fill: '#6b7280', fontSize: 10 }}
               />
               <Radar
@@ -263,10 +252,10 @@ const Statistics: React.FC = () => {
                 fillOpacity={0.2}
                 strokeWidth={2}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1f2937', 
-                  border: 'none', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: 'none',
                   borderRadius: '12px',
                   color: '#fff'
                 }}
@@ -290,11 +279,10 @@ const Statistics: React.FC = () => {
                 <button
                   key={filter}
                   onClick={() => setSelectedFilter(filter)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                    selectedFilter === filter
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${selectedFilter === filter
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
                 </button>
@@ -305,19 +293,19 @@ const Statistics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="name" 
-                  stroke="#6b7280" 
+                <XAxis
+                  dataKey="name"
+                  stroke="#6b7280"
                   fontSize={12}
                   angle={-45}
                   textAnchor="end"
                   height={60}
                 />
                 <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1f2937', 
-                    border: 'none', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: 'none',
                     borderRadius: '12px',
                     color: '#fff'
                   }}
@@ -351,14 +339,14 @@ const Statistics: React.FC = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {pieData.map((entry, index) => (
+                  {pieData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1f2937', 
-                    border: 'none', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: 'none',
                     borderRadius: '12px',
                     color: '#fff'
                   }}
@@ -410,7 +398,7 @@ const Statistics: React.FC = () => {
                   Recommendation
                 </div>
                 <div className="text-sm text-blue-700 dark:text-blue-400">
-                  Focus on practicing {getImprovementAreas()[0]?.name} questions. 
+                  Focus on practicing {getImprovementAreas()[0]?.name} questions.
                   Consider reviewing fundamental concepts and taking practice tests.
                 </div>
               </div>
@@ -424,7 +412,7 @@ const Statistics: React.FC = () => {
             Your Strengths
           </h3>
           <div className="space-y-3">
-            {getStrengths().map((strength, index) => (
+            {getStrengths().map((strength, _) => (
               <div key={strength.name} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
@@ -454,7 +442,7 @@ const Statistics: React.FC = () => {
                   Keep it up!
                 </div>
                 <div className="text-sm text-green-700 dark:text-green-400">
-                  You're excelling in {getStrengths()[0]?.name}. 
+                  You're excelling in {getStrengths()[0]?.name}.
                   Use this strength to tackle more challenging problems in this area.
                 </div>
               </div>

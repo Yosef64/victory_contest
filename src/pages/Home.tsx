@@ -10,6 +10,7 @@ import {
 import ContestCard from "../components/ContestCard";
 import NoContests from "../components/NoContest";
 import { Link } from "react-router-dom";
+import { ContestCardSkeleton } from "../components/ContestCardSkeleton";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
@@ -112,9 +113,7 @@ const Home: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
+          <ContestCardSkeleton />
         ) : (
           <div className="space-y-4">
             {contests.map((contest) => {

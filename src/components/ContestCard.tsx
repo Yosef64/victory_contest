@@ -1,10 +1,58 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Contest } from "../types";
 import { isAfter, parseISO } from "date-fns";
-import { ChevronRight, Play, PlayCircle, Timer } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronRight,
+  Play,
+  PlayCircle,
+  Star,
+  Timer,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { isUserRegistered } from "../services/contestApi";
+
+const ExpandableDescription = ({ text }: { text: string }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  // useLayoutEffect runs synchronously after all DOM mutations.
+  // This is perfect for measuring DOM elements right after they render.
+  useLayoutEffect(() => {
+    const element = textRef.current;
+    if (element) {
+      // Check if the content's full height is greater than its visible height.
+      // This is a reliable way to detect if text is being clamped.
+      if (element.scrollHeight > element.clientHeight) {
+        setIsOverflowing(true);
+      }
+    }
+  }, [text]);
+
+  return (
+    <div className="mb-4">
+      <p
+        ref={textRef}
+        className={`text-sm text-gray-600 dark:text-gray-400 leading-relaxed ${
+          !isExpanded ? "line-clamp-1" : ""
+        }`}
+      >
+        {text}
+      </p>
+      {/* Only show the button if the text is actually overflowing */}
+      {isOverflowing && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-blue-600 dark:text-blue-400 text-xs font-semibold mt-1 hover:underline focus:outline-none"
+        >
+          {isExpanded ? "Show Less" : "Show More"}
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default function ContestCard({
   contest,
@@ -96,15 +144,19 @@ export default function ContestCard({
               <h3 className="text-lg font-bold text-gray-800 dark:text-white">
                 {contest.title}
               </h3>
-              {isStartingSoon && (
-                <span className="px-2 py-1 text-green-800 bg-green-400 dark:bg-green-900/20 dark:text-green-400 text-xs font-medium rounded-full">
-                  Active
-                </span>
+              {contest.type === "free" ? (
+                <div className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/50 dark:text-green-200">
+                  <CheckCircle className="mr-1.5 h-4 w-4 fill-current text-green-600 dark:text-green-400" />
+                  Free
+                </div>
+              ) : (
+                <div className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
+                  <Star className="mr-1.5 h-4 w-4 fill-current text-yellow-600 dark:text-yellow-400" />
+                  Premium
+                </div>
               )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-              {contest.description}
-            </p>
+            <ExpandableDescription text={contest.description} />
           </div>
         </div>
 
@@ -147,12 +199,14 @@ export default function ContestCard({
           }
           onClick={(e) => {
             handleContestClick();
-            if (isRegistered) e.preventDefault();
+            // if (isRegistered) e.preventDefault();
           }}
           className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
-            isRegistered
+            timeLeft?.includes("Contest Started") && isRegistered
+              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+              : isRegistered
               ? "bg-green-500 text-white cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+              : "bg-blue-500 text-white"
           }`}
         >
           {checkingRegistration ? (
@@ -160,15 +214,15 @@ export default function ContestCard({
               <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
               {"Checking..."}
             </span>
+          ) : timeLeft?.includes("Contest Started") && isRegistered ? (
+            <>
+              <PlayCircle className="w-5 h-5 mr-2" />
+              Join Contest Now
+            </>
           ) : isRegistered ? (
             <>
               <PlayCircle className="w-5 h-5 mr-2 text-gray-200" />
               Registered
-            </>
-          ) : timeLeft?.includes("Contest Started") ? (
-            <>
-              <PlayCircle className="w-5 h-5 mr-2" />
-              Join Contest Now
             </>
           ) : (
             <>

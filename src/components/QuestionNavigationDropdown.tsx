@@ -32,7 +32,7 @@ const QuestionNavigationDropdown: React.FC<QuestionNavigationDropdownProps> = ({
 }) => {
   const getQuestionStatus = (questionIndex: number) => {
     const question = questions[questionIndex];
-    const answer = answers.find((a) => a.question_id === question.id);
+    const answer = answers.find((a) => a.question.id === question.id);
 
     if (!answer) {
       return questionIndex < currentQuestionIndex ? "skipped" : "unanswered";

@@ -3,20 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown";
 import { ContestAnswer, Contest } from "../types";
-import { Clock, ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { getContestById } from "../services/contestApi";
 import { toast } from "sonner";
 import api from "../services/api";
 import { submitContestResult } from "../services/contestApi";
 
 const ContestComponent: React.FC = () => {
-  const {
-    hapticFeedback,
-    showMainButton,
-    hideMainButton,
-    showBackButton,
-    hideBackButton,
-  } = useTelegram();
+  const { hapticFeedback, hideMainButton } = useTelegram();
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -24,7 +18,7 @@ const ContestComponent: React.FC = () => {
   const [answers, setAnswers] = useState<ContestAnswer[]>([]);
   const [timeLeft, setTimeLeft] = useState(0); // Will be set after contest is loaded
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, _] = useState<string | null>(null);
 
   const [contestEnded, setContestEnded] = useState(false);
   const [searchParams] = useSearchParams();

@@ -200,8 +200,7 @@ const ContestComponent: React.FC = () => {
       return;
     }
     const correctAnswers = answers.filter((a) => a.is_correct).length;
-    const totalQuestions = questions.length;
-    const score = Math.round((correctAnswers / totalQuestions) * 100);
+    const score = correctAnswers;
     const missed_questions = answers.filter((a) => !a.is_correct);
     const endTime = Date.now();
     let time_spend = "00:00:00";

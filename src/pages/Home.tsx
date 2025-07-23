@@ -12,6 +12,7 @@ import NoContests from "../components/NoContest";
 import { Link } from "react-router-dom";
 import { ContestCardSkeleton } from "../components/ContestCardSkeleton";
 import { BookOpenIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import WelcomeCarousel from "../components/WelcomeCarousell";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
@@ -87,18 +88,7 @@ const Home: React.FC = () => {
   return (
     <div className="p-4 space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white p-6 rounded-2xl shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">
-              Welcome back, {user?.first_name || "Student"}! 👋
-            </h1>
-            <p className="text-blue-100 opacity-90">
-              Ready to challenge yourself with today's contests?
-            </p>
-          </div>
-        </div>
-      </div>
+      <WelcomeCarousel user={user} />
       {/* Upcoming Contests */}
       <div>
         <div className="flex items-center justify-between mb-4">

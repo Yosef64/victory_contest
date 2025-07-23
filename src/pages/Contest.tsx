@@ -3,22 +3,22 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown";
 import { ContestAnswer, Contest } from "../types";
-import { Clock, ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { getContestById } from "../services/contestApi";
 import { toast } from "sonner";
 import api from "../services/api";
 import { submitContestResult } from "../services/contestApi";
 
 const ContestComponent: React.FC = () => {
-  const { hapticFeedback, showMainButton, hideMainButton } = useTelegram();
+  const { hapticFeedback, hideMainButton } = useTelegram();
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [answers, setAnswers] = useState<ContestAnswer[]>([]);
   const [timeLeft, setTimeLeft] = useState(0); // Will be set after contest is loaded
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, _] = useState<string | null>(null);
 
   const [contestEnded, setContestEnded] = useState(false);
   const [searchParams] = useSearchParams();
@@ -41,15 +41,14 @@ const ContestComponent: React.FC = () => {
     if (timeLeft > 0 && !contestEnded) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && Object.keys(contest).length > 0) {
       endContest();
     }
   }, [timeLeft, contestEnded]);
 
   useEffect(() => {
-    if (!conId) {
-      setError("No contest ID provided.");
-      setLoading(false);
+    if (!conId || !user?.id) {
+      // setLoading(false);
       return;
     }
 
@@ -65,8 +64,11 @@ const ContestComponent: React.FC = () => {
         const diffInSeconds = Math.floor((endTime - now) / 1000);
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
       } catch (err: any) {
-        // setError(err.message || "An unexpected error occurred.");
-        toast.error(err.message, {
+        const apiError =
+          err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.response?.data?.detail;
+        toast.error(apiError || "An unexpected error occurred.", {
           description: "Please try again later or contact support.",
           icon: <XCircle className="w-6 h-6 text-red-500" />,
         });
@@ -78,15 +80,7 @@ const ContestComponent: React.FC = () => {
     };
 
     fetchAndSetupContest();
-  }, [conId, user?.id, navigate]);
-
-  useEffect(() => {
-    if (selectedAnswer !== null) {
-      showMainButton("Next Question", handleNextQuestion);
-    } else {
-      hideMainButton();
-    }
-  }, [selectedAnswer]);
+  }, [user]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -97,22 +91,43 @@ const ContestComponent: React.FC = () => {
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleAnswerSelect = (answerIndex: string) => {
-    setSelectedAnswer(answerIndex);
+  const handleAnswerSelect = (answerIndex: number) => {
+    setSelectedAnswer(answerIndex + 1);
     hapticFeedback("selection");
+  };
+  // Add this function inside your ContestComponent
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      // Restore the previously selected answer for that question
+      const targetQuestion = questions[currentQuestionIndex - 1];
+      const existingAnswer = answers.find(
+        (a) => a.question.id === targetQuestion.id
+      );
+      setSelectedAnswer(existingAnswer ? existingAnswer.selected_answer : null);
+      hapticFeedback("impact", "light");
+    }
   };
 
   const handleNextQuestion = () => {
-    if (selectedAnswer === null) return;
+    if (selectedAnswer === null) {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setSelectedAnswer(null);
+      } else {
+        endContest();
+      }
+      return;
+    }
 
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = selectedAnswer === currentQuestion.answer;
+    const isCorrect = selectedAnswer === Number(currentQuestion.answer);
 
     const newAnswer: ContestAnswer = {
       question: currentQuestion,
       selected_answer: selectedAnswer,
       is_correct: isCorrect,
-      time_taken: 60, // Simulate time taken
+      time_taken: 60,
     };
 
     const updatedAnswers = [...answers];
@@ -141,7 +156,7 @@ const ContestComponent: React.FC = () => {
     // Save current answer if one is selected
     if (selectedAnswer !== null) {
       const currentQuestion = questions[currentQuestionIndex];
-      const isCorrect = selectedAnswer === currentQuestion.answer;
+      const isCorrect = selectedAnswer === Number(currentQuestion.answer);
 
       const newAnswer: ContestAnswer = {
         question: currentQuestion,
@@ -185,11 +200,8 @@ const ContestComponent: React.FC = () => {
       return;
     }
     const correctAnswers = answers.filter((a) => a.is_correct).length;
-    const totalQuestions = questions.length;
-    const score = Math.round((correctAnswers / totalQuestions) * 100);
-    const missed_questions = answers
-      .filter((a) => !a.is_correct)
-      .map((a) => a.question.id);
+    const score = correctAnswers;
+    const missed_questions = answers.filter((a) => !a.is_correct);
     const endTime = Date.now();
     let time_spend = "00:00:00";
     if (contest.start_time) {
@@ -206,7 +218,7 @@ const ContestComponent: React.FC = () => {
       },
       contest: contest,
       score,
-      wrong_answers: missed_questions,
+      missed_questions: missed_questions,
       time_spend,
     };
     try {
@@ -237,11 +249,14 @@ const ContestComponent: React.FC = () => {
       });
     } finally {
       setSubmitting(false);
+      setContestEnded(true);
     }
 
     // Navigate to results after a short delay
 
-    navigate("/");
+    setTimeout(() => {
+      navigate("/");
+    }, 2000);
   };
 
   if (loading) {
@@ -251,7 +266,7 @@ const ContestComponent: React.FC = () => {
       </div>
     );
   }
-  if (error || !contest || !currentQuestion) {
+  if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 text-red-700 dark:text-red-400 p-4 text-center">
         <XCircle className="w-12 h-12 mb-4" />
@@ -358,9 +373,9 @@ const ContestComponent: React.FC = () => {
           {currentQuestion.multiple_choice.map((option, index) => (
             <button
               key={index}
-              onClick={() => handleAnswerSelect(index.toString())}
+              onClick={() => handleAnswerSelect(index)}
               className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${
-                selectedAnswer === index.toString()
+                selectedAnswer! - 1 === index
                   ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                   : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
               }`}
@@ -368,12 +383,12 @@ const ContestComponent: React.FC = () => {
               <div className="flex items-center">
                 <div
                   className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center flex-shrink-0 ${
-                    selectedAnswer === index.toString()
+                    selectedAnswer === index + 1
                       ? "border-blue-500 bg-blue-500"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                 >
-                  {selectedAnswer === index.toString() && (
+                  {selectedAnswer === index + 1 && (
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   )}
                 </div>
@@ -387,20 +402,34 @@ const ContestComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Button */}
-      {selectedAnswer !== null && (
-        <button
-          onClick={handleNextQuestion}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center"
-        >
-          {currentQuestionIndex < questions.length - 1
-            ? "Next Question"
-            : submitting
-            ? "Submitting..."
-            : "Finish Contest"}
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </button>
-      )}
+      <div className="">
+        <div className="flex w-full max-w-2xl mx-auto gap-3">
+          {/* Previous Button */}
+          <button
+            onClick={handlePreviousQuestion}
+            disabled={currentQuestionIndex === 0}
+            className="w-1/2 bg-gray-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+
+          {/* Next/Finish Button */}
+          <button
+            onClick={
+              currentQuestionIndex < questions.length - 1
+                ? handleNextQuestion
+                : endContest
+            }
+            className="w-1/2 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting
+              ? "Submitting..."
+              : currentQuestionIndex < questions.length - 1
+              ? "Next"
+              : "Finish"}
+          </button>
+        </div>
+      </div>
 
       {/* --- START: Image Modal --- */}
       {isImageModalOpen && currentQuestion.question_image && (

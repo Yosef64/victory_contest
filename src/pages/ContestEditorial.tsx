@@ -23,7 +23,7 @@ interface Question {
   id: number;
   question_text: string;
   multiple_choice: string[];
-  answer: number;
+  answer: string;
   subject: string;
   chapter: string;
   grade: string;
@@ -33,7 +33,7 @@ interface Question {
 // EditorialQuestion interface
 interface EditorialQuestion extends Question {
   explanation: string;
-  user_answer?: number;
+  user_answer?: number | null;
   is_correct?: boolean;
 }
 
@@ -394,8 +394,10 @@ const ContestEditorial: React.FC = () => {
                   {/* Options */}
                   <div className="space-y-2 mb-3">
                     {question.multiple_choice.map((option, optionIndex) => {
-                      const isCorrect = optionIndex === question.answer;
-                      const isUserAnswer = optionIndex === question.user_answer;
+                      const isCorrect =
+                        optionIndex === Number(question.answer) - 1;
+                      const isUserAnswer =
+                        optionIndex + 1 === question.user_answer;
 
                       return (
                         <div

@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Contest } from "../types";
 import { isAfter, parseISO } from "date-fns";
 import {
@@ -56,7 +56,6 @@ const ExpandableDescription = ({ text }: { text: string }) => {
 
 export default function ContestCard({
   contest,
-  isStartingSoon,
 }: {
   contest: Contest;
   isStartingSoon: boolean;
@@ -191,13 +190,13 @@ export default function ContestCard({
         {/* Action Button */}
         <Link
           to={
-            timeLeft?.includes("Contest Started")
+            timeLeft?.includes("Contest Started") && isRegistered
               ? `/contest?con=${contest.id}`
               : isRegistered
               ? "#"
               : `/registration?con=${contest.id}`
           }
-          onClick={(e) => {
+          onClick={() => {
             handleContestClick();
             // if (isRegistered) e.preventDefault();
           }}

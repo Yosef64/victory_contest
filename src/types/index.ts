@@ -90,7 +90,7 @@ export interface Question {
 
 export interface ContestAnswer {
   question: Question;
-  selected_answer: string;
+  selected_answer: number;
   is_correct: boolean;
   time_taken: number;
 }

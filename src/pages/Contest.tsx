@@ -14,7 +14,7 @@ const ContestComponent: React.FC = () => {
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [answers, setAnswers] = useState<ContestAnswer[]>([]);
   const [timeLeft, setTimeLeft] = useState(0); // Will be set after contest is loaded
   const [loading, setLoading] = useState(true);
@@ -91,8 +91,8 @@ const ContestComponent: React.FC = () => {
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleAnswerSelect = (answerIndex: string) => {
-    setSelectedAnswer(answerIndex);
+  const handleAnswerSelect = (answerIndex: number) => {
+    setSelectedAnswer(answerIndex + 1);
     hapticFeedback("selection");
   };
   // Add this function inside your ContestComponent
@@ -121,13 +121,13 @@ const ContestComponent: React.FC = () => {
     }
 
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = selectedAnswer === currentQuestion.answer;
+    const isCorrect = selectedAnswer === Number(currentQuestion.answer);
 
     const newAnswer: ContestAnswer = {
       question: currentQuestion,
       selected_answer: selectedAnswer,
       is_correct: isCorrect,
-      time_taken: 60, // Simulate time taken
+      time_taken: 60,
     };
 
     const updatedAnswers = [...answers];
@@ -156,7 +156,7 @@ const ContestComponent: React.FC = () => {
     // Save current answer if one is selected
     if (selectedAnswer !== null) {
       const currentQuestion = questions[currentQuestionIndex];
-      const isCorrect = selectedAnswer === currentQuestion.answer;
+      const isCorrect = selectedAnswer === Number(currentQuestion.answer);
 
       const newAnswer: ContestAnswer = {
         question: currentQuestion,
@@ -374,9 +374,9 @@ const ContestComponent: React.FC = () => {
           {currentQuestion.multiple_choice.map((option, index) => (
             <button
               key={index}
-              onClick={() => handleAnswerSelect(index.toString())}
+              onClick={() => handleAnswerSelect(index)}
               className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${
-                selectedAnswer === index.toString()
+                selectedAnswer! - 1 === index
                   ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                   : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
               }`}
@@ -384,12 +384,12 @@ const ContestComponent: React.FC = () => {
               <div className="flex items-center">
                 <div
                   className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center flex-shrink-0 ${
-                    selectedAnswer === index.toString()
+                    selectedAnswer === index + 1
                       ? "border-blue-500 bg-blue-500"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                 >
-                  {selectedAnswer === index.toString() && (
+                  {selectedAnswer === index + 1 && (
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   )}
                 </div>

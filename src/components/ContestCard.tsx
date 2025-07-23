@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Contest } from "../types";
 import { isAfter, parseISO } from "date-fns";
 import {
+  BarChart3,
   CheckCircle,
   ChevronRight,
   Play,
@@ -14,6 +15,7 @@ import { Link } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { isUserRegistered } from "../services/contestApi";
 import { useContestTimer, ContestStatus } from "../hooks/useContestTimer";
+import LeaderboardModal from "./LeaderboardModal";
 
 const ExpandableDescription = ({ text }: { text: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -56,16 +58,12 @@ const ExpandableDescription = ({ text }: { text: string }) => {
   );
 };
 
-// Make sure to import the new hook and status type
-// ... other imports like React, Link, etc.
-
 export default function ContestCard({
   contest,
 }: {
-  contest: Contest; // Ensure Contest type has start_time and end_time
+  contest: Contest;
   isStartingSoon: boolean;
 }) {
-  // --- This is our new, clean timer logic ---
   const { timeLeft, status } = useContestTimer(
     contest.start_time,
     contest.end_time
@@ -75,8 +73,8 @@ export default function ContestCard({
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
   const [checkingRegistration, setCheckingRegistration] =
     useState<boolean>(true);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  // No changes needed in your registration checking effect, it's already well-written.
   useEffect(() => {
     let ignore = false;
     const checkRegistration = async () => {
@@ -107,14 +105,17 @@ export default function ContestCard({
   const handleContestClick = () => {
     hapticFeedback("impact", "light");
   };
+  const handleCurrentStandingsClick = () => {
+    hapticFeedback("impact", "light");
+    setShowModal(true);
+  };
 
-  // --- Derived states make JSX cleaner ---
   const canJoin = status === "ACTIVE" && isRegistered;
   const isPendingStart = status === "UPCOMING" && isRegistered;
-  const canRegister = status === "UPCOMING" && !isRegistered;
+  const canRegister =
+    (status === "UPCOMING" || status === "ACTIVE") && !isRegistered;
   const isEnded = status === "ENDED";
 
-  // --- Map status to a display label ---
   const getTimerLabel = (status: ContestStatus) => {
     switch (status) {
       case "UPCOMING":
@@ -184,68 +185,86 @@ export default function ContestCard({
           </div>
         </div>
 
-        <Link
-          to={
-            canJoin
-              ? `/contest?con=${contest.id}`
-              : canRegister
-              ? `/registration?con=${contest.id}`
-              : "#"
-          }
-          onClick={handleContestClick}
-          className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
-            canJoin
-              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
-              : isPendingStart
-              ? "bg-green-500 text-white cursor-not-allowed"
-              : canRegister
-              ? "bg-blue-500 text-white"
-              : isEnded
-              ? "bg-gray-400 text-white cursor-not-allowed"
-              : "bg-blue-500 text-white" // Fallback for loading state
-          }`}
-          // Prevent navigation for disabled-like states
-          aria-disabled={isPendingStart || isEnded || checkingRegistration}
-          tabIndex={
-            isPendingStart || isEnded || checkingRegistration ? -1 : undefined
-          }
-          style={{
-            pointerEvents:
-              isPendingStart || isEnded || checkingRegistration
-                ? "none"
-                : "auto",
-          }}
-        >
-          {checkingRegistration ? (
-            <>
-              <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
-              Checking...
-            </>
-          ) : canJoin ? (
-            <>
-              <PlayCircle className="w-5 h-5 mr-2" />
-              Join Contest Now
-            </>
-          ) : isPendingStart ? (
-            <>
-              <CheckCircle className="w-5 h-5 mr-2" />
-              Registered
-            </>
-          ) : canRegister ? (
-            <>
-              <Play className="w-5 h-5 mr-2" />
-              Register Now
-            </>
-          ) : isEnded ? (
-            <>
-              <XCircle className="w-5 h-5 mr-2" />
-              Contest Ended
-            </>
-          ) : (
-            "Register" // Default loading text
+        <div className="flex flex-col items-center">
+          <Link
+            to={
+              canJoin
+                ? `/contest?con=${contest.id}`
+                : canRegister
+                ? `/registration?con=${contest.id}`
+                : "#"
+            }
+            onClick={handleContestClick}
+            className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
+              canJoin
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                : isPendingStart
+                ? "bg-green-500 text-white cursor-not-allowed"
+                : canRegister
+                ? "bg-blue-500 text-white"
+                : isEnded
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-blue-500 text-white" // Fallback for loading state
+            }`}
+            aria-disabled={isPendingStart || isEnded || checkingRegistration}
+            tabIndex={
+              isPendingStart || isEnded || checkingRegistration ? -1 : undefined
+            }
+            style={{
+              pointerEvents:
+                isPendingStart || isEnded || checkingRegistration
+                  ? "none"
+                  : "auto",
+            }}
+          >
+            {checkingRegistration ? (
+              <>
+                <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
+                Checking...
+              </>
+            ) : canJoin ? (
+              <>
+                <PlayCircle className="w-5 h-5 mr-2" />
+                Join Contest Now
+              </>
+            ) : isPendingStart ? (
+              <>
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Registered
+              </>
+            ) : canRegister ? (
+              <>
+                <Play className="w-5 h-5 mr-2" />
+                Register Now
+              </>
+            ) : isEnded ? (
+              <>
+                <XCircle className="w-5 h-5 mr-2" />
+                Contest Ended
+              </>
+            ) : (
+              "Register" // Default loading text
+            )}
+            {!checkingRegistration && <ChevronRight className="w-4 h-4 ml-2" />}
+          </Link>
+
+          {status === "ACTIVE" && (
+            <Link
+              to="#"
+              onClick={handleCurrentStandingsClick}
+              className="mt-4 flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Current Standings
+            </Link>
           )}
-          {!checkingRegistration && <ChevronRight className="w-4 h-4 ml-2" />}
-        </Link>
+        </div>
+        {showModal && (
+          <LeaderboardModal
+            selectedContest={contest}
+            setShowModal={setShowModal}
+          />
+        )}
       </div>
     </div>
   );

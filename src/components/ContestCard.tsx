@@ -255,6 +255,7 @@ export default function ContestCard({
           <LeaderboardModal
             selectedContest={contest}
             setShowModal={setShowModal}
+            isActiveContest={status === "ACTIVE"}
           />
         )}
       </div>

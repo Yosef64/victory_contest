@@ -5,13 +5,16 @@ import { Contest, LeaderboardEntry } from "../types";
 import { useTelegram } from "../hooks/useTelegram";
 import { getLeaderboardByContest } from "../services/contestApi";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function LeaderboardModal({
   selectedContest,
   setShowModal,
+  isActiveContest,
 }: {
   selectedContest: Contest;
   setShowModal: (show: boolean) => void;
+  isActiveContest: boolean;
 }) {
   const [modalLoading, setModalLoading] = React.useState(false);
   const [previousContestLeaderboard, setPreviousContestLeaderboard] =
@@ -34,6 +37,30 @@ export default function LeaderboardModal({
     fetchLeaderboard();
   }, []);
 
+  const handleEditorialClick = () => {
+    if (isActiveContest) {
+      toast.warning("You cannot view the editorial for an active contest.", {
+        style: {
+          background: "#fef3c7",
+          color: "#92400e",
+          border: "1px solid #f59e0b",
+          borderRadius: "8px",
+          padding: "12px",
+          fontSize: "14px",
+          fontWeight: "500",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+          transition: "all 0.3s ease-in-out",
+        },
+        duration: 3000,
+      });
+      return;
+    }
+
+    navigate(
+      `/contest-editorial?id=${selectedContest.id}&title=${selectedContest.title}`
+    );
+  };
+
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
@@ -52,7 +79,6 @@ export default function LeaderboardModal({
   };
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      {/* --- MODAL CONTAINER: Softer shadow, slightly wider, and structured for scrolling --- */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-lg w-full flex flex-col max-h-[90vh]">
         {/* --- MODAL HEADER --- */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
@@ -68,11 +94,7 @@ export default function LeaderboardModal({
             <div className="flex items-center gap-2">
               {/* --- REFINED BUTTON: More subtle, professional style --- */}
               <button
-                onClick={() =>
-                  navigate(
-                    `/contest-editorial?id=${selectedContest.id}&title=${selectedContest.title}`
-                  )
-                }
+                onClick={handleEditorialClick}
                 className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700/70 px-3 py-2 rounded-lg transition-colors"
               >
                 <BookOpenIcon className="h-5 w-5" />
@@ -150,7 +172,6 @@ export default function LeaderboardModal({
             /* --- PROPER EMPTY STATE --- */
             <div className="text-center py-16">
               <div className="mx-auto h-12 w-12 text-gray-400">
-                {/* Replace with an appropriate icon, e.g., UsersIcon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

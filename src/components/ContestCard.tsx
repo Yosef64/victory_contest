@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Contest } from "../types";
 import {
   BarChart3,
@@ -34,9 +34,8 @@ const ExpandableDescription = ({ text }: { text: string }) => {
     <div className="mb-4">
       <p
         ref={textRef}
-        className={`text-sm text-gray-600 dark:text-gray-400 leading-relaxed ${
-          !isExpanded ? "line-clamp-1" : ""
-        }`}
+        className={`text-sm text-gray-600 dark:text-gray-400 leading-relaxed ${!isExpanded ? "line-clamp-1" : ""
+          }`}
       >
         {text}
       </p>
@@ -183,21 +182,20 @@ export default function ContestCard({
               canJoin
                 ? `/contest?con=${contest.id}`
                 : canRegister
-                ? `/registration?con=${contest.id}`
-                : "#"
+                  ? `/registration?con=${contest.id}`
+                  : "#"
             }
             onClick={handleContestClick}
-            className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
-              canJoin
+            className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${canJoin
                 ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
                 : isPendingStart
-                ? "bg-green-500 text-white cursor-not-allowed"
-                : canRegister
-                ? "bg-blue-500 text-white"
-                : isEnded
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-blue-500 text-white" // Fallback for loading state
-            }`}
+                  ? "bg-green-500 text-white cursor-not-allowed"
+                  : canRegister
+                    ? "bg-blue-500 text-white"
+                    : isEnded
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-blue-500 text-white" // Fallback for loading state
+              }`}
             aria-disabled={isPendingStart || isEnded || checkingRegistration}
             tabIndex={
               isPendingStart || isEnded || checkingRegistration ? -1 : undefined

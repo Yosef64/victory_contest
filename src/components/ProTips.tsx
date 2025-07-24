@@ -6,12 +6,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
-import { Question } from "../types";
 
-export default function ProTips({ question }: { question: Question }) {
-  const [tips, setTips] = useState([]);
-  const [common_mistakes, setcommon_mistakes] = useState([]);
-  const [difficulty_explanation, setDifficultyExplanation] = useState("");
+export default function ProTips() {
+  const [tips] = useState([]);
+  const [common_mistakes] = useState([]);
+  const [difficulty_explanation] = useState("");
   return (
     <div>
       {/* Pro Tips */}

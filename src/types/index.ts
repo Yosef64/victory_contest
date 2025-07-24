@@ -129,6 +129,11 @@ export interface Contest {
   questions: Question[];
   type: "free" | "premium";
   status: string;
+  performance_trend?: Array<{
+    month: string;
+    accuracy: number;
+    questions: number;
+  }>;
 }
 
 export interface LeaderboardEntry {
@@ -168,6 +173,11 @@ export interface UserStats {
       accuracy: number;
     };
   };
+  performance_trend?: Array<{
+    month: string;
+    accuracy: number;
+    questions: number;
+  }>;
 }
 
 declare global {

@@ -8,7 +8,7 @@ import Profile from "./pages/Profile";
 import Registration from "./pages/Registration";
 import ContestComponent from "./pages/Contest";
 import ContestEditorial from "./pages/ContestEditorial";
-//import ScreenshotProtection from "./components/ScreenProtection";
+// import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
   const { isLoading } = useTelegram();

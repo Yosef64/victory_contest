@@ -3,7 +3,8 @@ import { useTelegram } from '../hooks/useTelegram';
 import { UserStats } from '../types';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Area, AreaChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  PieChart, Pie, Cell, Area, AreaChart, RadarChart, PolarGrid, 
+  PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import {
   BarChart3, Target, Clock, TrendingUp,
@@ -16,21 +17,31 @@ const Statistics: React.FC = () => {
   const { user } = useTelegram();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'subjects' | 'chapters' | 'grades'>('subjects');
 
   useEffect(() => {
     if (!user?.id) return;
-    setLoading(true);
-    api
-      .get(`/statistics/${user.id}`)
-      .then((res) => {
-        setStats(res.data);
+    
+    const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await api.get(`/statistics/${user.id}`);
+        if (res.data && res.data.data) {
+          setStats(res.data.data);
+        } else {
+          setError('Invalid statistics data format');
+        }
+      } catch (err) {
+        setError('Failed to fetch statistics');
+        console.error('Error fetching statistics:', err);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setStats(null);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchStats();
   }, [user]);
 
   const getAccuracyColor = (accuracy: number) => {
@@ -42,54 +53,85 @@ const Statistics: React.FC = () => {
 
   const getImprovementAreas = () => {
     if (!stats) return [];
-
+    
     const allData = [
-      ...Object.entries(stats.subjects).map(([name, data]) => ({ name, ...data, type: 'Subject' })),
-      ...Object.entries(stats.chapters).map(([name, data]) => ({ name, ...data, type: 'Chapter' })),
-      ...Object.entries(stats.grades).map(([name, data]) => ({ name, ...data, type: 'Grade' }))
-    ];
+      ...Object.entries(stats.subjects || {}).map(([name, data]) => ({ 
+        name, 
+        ...data, 
+        type: 'Subject' 
+      }))
+    ].filter(item => item.accuracy < 85)
+     .sort((a, b) => a.accuracy - b.accuracy)
+     .slice(0, 5);
 
-    return allData
-      .filter(item => item.accuracy < 85)
-      .sort((a, b) => a.accuracy - b.accuracy)
-      .slice(0, 5);
+    return allData;
   };
 
   const getStrengths = () => {
     if (!stats) return [];
-
+    
     const allData = [
-      ...Object.entries(stats.subjects).map(([name, data]) => ({ name, ...data, type: 'Subject' })),
-      ...Object.entries(stats.chapters).map(([name, data]) => ({ name, ...data, type: 'Chapter' }))
-    ];
+      ...Object.entries(stats.subjects || {}).map(([name, data]) => ({ 
+        name, 
+        ...data, 
+        type: 'Subject' 
+      }))
+    ].filter(item => item.accuracy >= 85)
+     .sort((a, b) => b.accuracy - a.accuracy)
+     .slice(0, 5);
 
-    return allData
-      .filter(item => item.accuracy >= 85)
-      .sort((a, b) => b.accuracy - a.accuracy)
-      .slice(0, 5);
+    return allData;
   };
 
   const getPerformanceTrend = () => {
-    return [
-      { month: 'Jan', accuracy: 78, questions: 45 },
-      { month: 'Feb', accuracy: 82, questions: 52 },
-      { month: 'Mar', accuracy: 79, questions: 48 },
-      { month: 'Apr', accuracy: 85, questions: 55 },
-      { month: 'May', accuracy: 84, questions: 62 },
-      { month: 'Jun', accuracy: 87, questions: 58 }
-    ];
+    if (!stats || !stats.performance_trend) return [];
+    return stats.performance_trend.map((item: {month: string, accuracy: number, questions: number}) => ({
+      month: item.month,
+      accuracy: item.accuracy,
+      questions: item.questions
+    }));
   };
 
   const getRadarData = () => {
     if (!stats) return [];
+    
+    const mainSubjects = ['Mathematics', 'Science', 'English', 'History', 'Geography'];
+    
+    return mainSubjects.map(subject => ({
+      subject,
+      accuracy: stats.subjects?.[subject]?.accuracy || 0,
+      fullMark: 100
+    }));
+  };
 
-    return [
-      { subject: 'Math', accuracy: stats.subjects['Mathematics']?.accuracy || 0, fullMark: 100 },
-      { subject: 'Science', accuracy: stats.subjects['Science']?.accuracy || 0, fullMark: 100 },
-      { subject: 'English', accuracy: stats.subjects['English']?.accuracy || 0, fullMark: 100 },
-      { subject: 'History', accuracy: stats.subjects['History']?.accuracy || 0, fullMark: 100 },
-      { subject: 'Geography', accuracy: stats.subjects['Geography']?.accuracy || 0, fullMark: 100 }
-    ];
+  const getChartData = () => {
+    if (!stats) return [];
+    
+    const dataMap = {
+      subjects: stats.subjects || {},
+      chapters: stats.chapters || {},
+      grades: stats.grades || {}
+    };
+    
+    return Object.entries(dataMap[selectedFilter])
+      .map(([key, value]) => ({
+        name: key.length > 10 ? `${key.substring(0, 8)}...` : key,
+        fullName: key,
+        accuracy: value.accuracy,
+        correct: value.correct,
+        total: value.total,
+        incorrect: value.total - value.correct
+      }))
+      .sort((a, b) => b.accuracy - a.accuracy)
+      .slice(0, 10);
+  };
+
+  const getPieData = () => {
+    return getChartData().map(item => ({
+      name: item.name,
+      value: item.accuracy,
+      color: getAccuracyColor(item.accuracy)
+    }));
   };
 
   if (loading) {
@@ -100,7 +142,21 @@ const Statistics: React.FC = () => {
     );
   }
 
-  if (!loading && (!stats || Object.keys(stats.subjects || {}).length === 0)) {
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-red-500">
+        <div className="text-lg mb-2">{error}</div>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!stats || Object.keys(stats.subjects || {}).length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-gray-500">
         <div className="text-2xl mb-2">No statistics available yet.</div>
@@ -109,24 +165,12 @@ const Statistics: React.FC = () => {
     );
   }
 
-  if (!stats) return null;
-
-  const chartData = Object.entries(stats[selectedFilter]).map(([key, value]) => ({
-    name: key.length > 10 ? key.substring(0, 10) + '...' : key,
-    fullName: key,
-    accuracy: value.accuracy,
-    correct: value.correct,
-    total: value.total,
-    incorrect: value.total - value.correct
-  }));
-
-  const pieData = chartData.map(item => ({
-    name: item.name,
-    value: item.accuracy,
-    color: getAccuracyColor(item.accuracy)
-  }));
-
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  const chartData = getChartData();
+  const pieData = getPieData();
+  const performanceTrend = getPerformanceTrend();
+  const radarData = getRadarData();
+  const improvementAreas = getImprovementAreas();
+  const strengths = getStrengths();
 
   return (
     <div className="p-4 max-w-6xl mx-auto space-y-6">
@@ -143,7 +187,9 @@ const Statistics: React.FC = () => {
           <div className="text-2xl font-bold text-gray-800 dark:text-white">
             {stats.total_contests}
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Total Contests</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Total Contests
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -157,7 +203,9 @@ const Statistics: React.FC = () => {
           <div className="text-2xl font-bold text-gray-800 dark:text-white">
             {stats.accuracy}%
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Overall Accuracy</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Overall Accuracy
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -171,7 +219,9 @@ const Statistics: React.FC = () => {
           <div className="text-2xl font-bold text-gray-800 dark:text-white">
             {stats.average_time}s
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Response Time</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Avg. Response Time
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -185,85 +235,93 @@ const Statistics: React.FC = () => {
           <div className="text-2xl font-bold text-gray-800 dark:text-white">
             {stats.correct_answers}
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Correct Answers</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Correct Answers
+          </div>
         </div>
       </div>
 
       {/* Performance Trend Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-          <TrendingUp className="w-5 h-5 mr-2 text-blue-500" />
-          Performance Trend
-        </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={getPerformanceTrend()}>
-              <defs>
-                <linearGradient id="colorAccuracy" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" stroke="#6b7280" />
-              <YAxis stroke="#6b7280" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff'
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="accuracy"
-                stroke="#3b82f6"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorAccuracy)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+      {performanceTrend.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+            <TrendingUp className="w-5 h-5 mr-2 text-blue-500" />
+            Performance Trend (Last 6 Months)
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={performanceTrend}>
+                <defs>
+                  <linearGradient id="colorAccuracy" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="month" stroke="#6b7280" />
+                <YAxis stroke="#6b7280" domain={[0, 100]} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#fff'
+                  }}
+                  formatter={(value) => [`${value}%`, 'Accuracy']}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="accuracy"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorAccuracy)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Subject Performance Radar */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-          <Brain className="w-5 h-5 mr-2 text-purple-500" />
-          Subject Performance Overview
-        </h3>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart data={getRadarData()}>
-              <PolarGrid stroke="#e5e7eb" />
-              <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12 }} />
-              <PolarRadiusAxis
-                angle={90}
-                domain={[0, 100]}
-                tick={{ fill: '#6b7280', fontSize: 10 }}
-              />
-              <Radar
-                name="Accuracy"
-                dataKey="accuracy"
-                stroke="#3b82f6"
-                fill="#3b82f6"
-                fillOpacity={0.2}
-                strokeWidth={2}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff'
-                }}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+      {radarData.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+            <Brain className="w-5 h-5 mr-2 text-purple-500" />
+            Core Subject Performance
+          </h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="#e5e7eb" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12 }} />
+                <PolarRadiusAxis
+                  angle={90}
+                  domain={[0, 100]}
+                  tick={{ fill: '#6b7280', fontSize: 10 }}
+                />
+                <Radar
+                  name="Accuracy"
+                  dataKey="accuracy"
+                  stroke="#3b82f6"
+                  fill="#3b82f6"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#fff'
+                  }}
+                  formatter={(value) => [`${value}%`, 'Accuracy']}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Performance Breakdown */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -279,10 +337,11 @@ const Statistics: React.FC = () => {
                 <button
                   key={filter}
                   onClick={() => setSelectedFilter(filter)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${selectedFilter === filter
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                    }`}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                    selectedFilter === filter
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
                 </button>
@@ -301,7 +360,7 @@ const Statistics: React.FC = () => {
                   textAnchor="end"
                   height={60}
                 />
-                <YAxis stroke="#6b7280" />
+                <YAxis stroke="#6b7280" domain={[0, 100]} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#1f2937',
@@ -338,9 +397,10 @@ const Statistics: React.FC = () => {
                   outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent ? percent * 100 : 0).toFixed(0)}%`}
                 >
-                  {pieData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -360,95 +420,99 @@ const Statistics: React.FC = () => {
 
       {/* Areas for Improvement */}
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
-            Areas for Improvement
-          </h3>
-          <div className="space-y-3">
-            {getImprovementAreas().map((area, index) => (
-              <div key={area.name} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-orange-600 dark:text-orange-400 font-bold text-sm">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-800 dark:text-white">{area.name}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {area.correct}/{area.total} correct • {area.type}
+        {improvementAreas.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+              <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
+              Areas for Improvement
+            </h3>
+            <div className="space-y-3">
+              {improvementAreas.map((area, index) => (
+                <div key={area.name} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                      <span className="text-orange-600 dark:text-orange-400 font-bold text-sm">
+                        {index + 1}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-800 dark:text-white">{area.name}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {area.correct}/{area.total} correct • {area.type}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                    {area.accuracy}%
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                      {area.accuracy}%
+                    </div>
+                    <div className="text-xs text-gray-500">Accuracy</div>
                   </div>
-                  <div className="text-xs text-gray-500">Accuracy</div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-            <div className="flex items-start space-x-2">
-              <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-              <div>
-                <div className="font-medium text-blue-800 dark:text-blue-300 mb-1">
-                  Recommendation
-                </div>
-                <div className="text-sm text-blue-700 dark:text-blue-400">
-                  Focus on practicing {getImprovementAreas()[0]?.name} questions.
-                  Consider reviewing fundamental concepts and taking practice tests.
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+              <div className="flex items-start space-x-2">
+                <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div>
+                  <div className="font-medium text-blue-800 dark:text-blue-300 mb-1">
+                    Recommendation
+                  </div>
+                  <div className="text-sm text-blue-700 dark:text-blue-400">
+                    Focus on practicing {improvementAreas[0]?.name} questions.
+                    Consider reviewing fundamental concepts and taking practice tests.
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-            <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-            Your Strengths
-          </h3>
-          <div className="space-y-3">
-            {getStrengths().map((strength, _) => (
-              <div key={strength.name} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                    <Award className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-800 dark:text-white">{strength.name}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {strength.correct}/{strength.total} correct • {strength.type}
+        {strengths.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+              <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+              Your Strengths
+            </h3>
+            <div className="space-y-3">
+              {strengths.map((strength) => (
+                <div key={strength.name} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                      <Award className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-800 dark:text-white">{strength.name}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {strength.correct}/{strength.total} correct • {strength.type}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                    {strength.accuracy}%
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                      {strength.accuracy}%
+                    </div>
+                    <div className="text-xs text-gray-500">Accuracy</div>
                   </div>
-                  <div className="text-xs text-gray-500">Accuracy</div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
-            <div className="flex items-start space-x-2">
-              <Zap className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
-              <div>
-                <div className="font-medium text-green-800 dark:text-green-300 mb-1">
-                  Keep it up!
-                </div>
-                <div className="text-sm text-green-700 dark:text-green-400">
-                  You're excelling in {getStrengths()[0]?.name}.
-                  Use this strength to tackle more challenging problems in this area.
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
+              <div className="flex items-start space-x-2">
+                <Zap className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
+                <div>
+                  <div className="font-medium text-green-800 dark:text-green-300 mb-1">
+                    Keep it up!
+                  </div>
+                  <div className="text-sm text-green-700 dark:text-green-400">
+                    You're excelling in {strengths[0]?.name}.
+                    Use this strength to tackle more challenging problems in this area.
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Study Plan Recommendations */}
@@ -463,7 +527,7 @@ const Statistics: React.FC = () => {
               This Week
             </div>
             <div className="text-gray-800 dark:text-white font-medium mb-1">
-              Focus on {getImprovementAreas()[0]?.name}
+              Focus on {improvementAreas[0]?.name || 'your weakest area'}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Practice 15-20 questions daily
@@ -474,7 +538,7 @@ const Statistics: React.FC = () => {
               Next Week
             </div>
             <div className="text-gray-800 dark:text-white font-medium mb-1">
-              Review {getImprovementAreas()[1]?.name}
+              Review {improvementAreas[1]?.name || 'another weak area'}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Take 2 practice tests

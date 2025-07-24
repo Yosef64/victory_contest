@@ -201,6 +201,7 @@ const Home: React.FC = () => {
         <LeaderboardModal
           selectedContest={selectedPreviousContest}
           setShowModal={setShowPreviousModal}
+          isActiveContest={true}
         />
       )}
     </div>

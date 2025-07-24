@@ -1,31 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useNotification } from "../context/NotificationContext";
 import {
   Bell,
   X,
-  Trophy,
-  Calendar,
-  Award,
-  TrendingUp,
-  Clock,
-  Users,
   CheckCircle,
-  AlertCircle,
-  Info,
 } from "lucide-react";
-
-interface Notification {
-  id: number;
-  type: "contest" | "achievement" | "reminder" | "leaderboard" | "system";
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  icon?: React.ComponentType<any>;
-  color?: string;
-  actionUrl?: string;
-}
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -130,24 +110,21 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 return (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                      !notification.read
+                    className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${!notification.read
                         ? "bg-blue-50/50 dark:bg-blue-900/10"
                         : ""
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start space-x-3">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          !notification.read
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
                             ? "bg-blue-100 dark:bg-blue-900/20"
                             : "bg-gray-100 dark:bg-gray-700"
-                        }`}
+                          }`}
                       >
                         <IconComponent
-                          className={`w-5 h-5 ${
-                            notification.color || "text-gray-500"
-                          }`}
+                          className={`w-5 h-5 ${notification.color || "text-gray-500"
+                            }`}
                         />
                       </div>
 
@@ -155,11 +132,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4
-                              className={`text-sm font-semibold ${
-                                !notification.read
+                              className={`text-sm font-semibold ${!notification.read
                                   ? "text-gray-900 dark:text-white"
                                   : "text-gray-700 dark:text-gray-300"
-                              }`}
+                                }`}
                             >
                               {notification.title}
                               {!notification.read && (

@@ -158,7 +158,10 @@ export default function LeaderboardModal({
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
                       <p className="font-bold text-lg text-gray-900 dark:text-gray-50">
-                        {entry.score}%
+                        {((entry.score / entry.total_questions) * 100).toFixed(
+                          2
+                        )}
+                        %
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Rank #{entry.rank}

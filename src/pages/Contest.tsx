@@ -199,9 +199,29 @@ const ContestComponent: React.FC = () => {
       });
       return;
     }
-    const correctAnswers = answers.filter((a) => a.is_correct).length;
+    let updatedAnswers = [...answers];
+    if (selectedAnswer !== null) {
+      const currentQuestion = questions[currentQuestionIndex];
+      const isCorrect = selectedAnswer === Number(currentQuestion.answer);
+      const newAnswer: ContestAnswer = {
+        question: currentQuestion,
+        selected_answer: selectedAnswer,
+        is_correct: isCorrect,
+        time_taken: 60,
+      };
+
+      const existingAnswerIndex = updatedAnswers.findIndex(
+        (a) => a.question.id === currentQuestion.id
+      );
+      if (existingAnswerIndex >= 0) {
+        updatedAnswers[existingAnswerIndex] = newAnswer;
+      } else {
+        updatedAnswers.push(newAnswer);
+      }
+    }
+    const correctAnswers = updatedAnswers.filter((a) => a.is_correct).length;
     const score = correctAnswers;
-    const missed_questions = answers.filter((a) => !a.is_correct);
+    const missed_questions = updatedAnswers.filter((a) => !a.is_correct);
     const endTime = Date.now();
     let time_spend = "00:00:00";
     if (contest.start_time) {

@@ -1,30 +1,29 @@
 import { useEffect, useLayoutEffect, useRef, useLayoutEffect, useRef, useState } from "react";
 import { Contest } from "../types";
-import { isAfter, parseISO } from "date-fns";
 import {
+  BarChart3,
   CheckCircle,
   ChevronRight,
   Play,
   PlayCircle,
   Star,
   Timer,
+  XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { isUserRegistered } from "../services/contestApi";
+import { useContestTimer, ContestStatus } from "../hooks/useContestTimer";
+import LeaderboardModal from "./LeaderboardModal";
 
 const ExpandableDescription = ({ text }: { text: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  // useLayoutEffect runs synchronously after all DOM mutations.
-  // This is perfect for measuring DOM elements right after they render.
   useLayoutEffect(() => {
     const element = textRef.current;
     if (element) {
-      // Check if the content's full height is greater than its visible height.
-      // This is a reliable way to detect if text is being clamped.
       if (element.scrollHeight > element.clientHeight) {
         setIsOverflowing(true);
       }
@@ -41,7 +40,6 @@ const ExpandableDescription = ({ text }: { text: string }) => {
       >
         {text}
       </p>
-      {/* Only show the button if the text is actually overflowing */}
       {isOverflowing && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
@@ -60,11 +58,16 @@ export default function ContestCard({
   contest: Contest;
   isStartingSoon: boolean;
 }) {
-  const [timeLeft, setTimeLeft] = useState<string>("");
+  const { timeLeft, status } = useContestTimer(
+    contest.start_time,
+    contest.end_time
+  );
+
   const { hapticFeedback, user } = useTelegram();
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
   const [checkingRegistration, setCheckingRegistration] =
     useState<boolean>(true);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     let ignore = false;
@@ -93,42 +96,32 @@ export default function ContestCard({
     };
   }, [contest.id, user?.id]);
 
-  useEffect(() => {
-    const updateCountdowns = () => {
-      let newTimeLeft = "";
-
-      const startTime = parseISO(contest.start_time);
-      const now = new Date();
-
-      if (isAfter(startTime, now)) {
-        const distance = startTime.getTime() - now.getTime();
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        );
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        if (days > 0) {
-          newTimeLeft = `${days}d ${hours}h ${minutes}m`;
-        } else if (hours > 0) {
-          newTimeLeft = `${hours}h ${minutes}m ${seconds}s`;
-        } else {
-          newTimeLeft = `${minutes}m ${seconds}s`;
-        }
-      } else {
-        newTimeLeft = "Contest Started";
-      }
-      setTimeLeft(newTimeLeft);
-    };
-
-    updateCountdowns();
-    const interval = setInterval(updateCountdowns, 1000);
-    return () => clearInterval(interval);
-  }, [contest?.start_time]);
-
   const handleContestClick = () => {
     hapticFeedback("impact", "light");
+  };
+  const handleCurrentStandingsClick = () => {
+    hapticFeedback("impact", "light");
+    setShowModal(true);
+  };
+
+  const canJoin = status === "ACTIVE" && isRegistered;
+  const isPendingStart = status === "UPCOMING" && isRegistered;
+  const canRegister =
+    (status === "UPCOMING" || status === "ACTIVE") && !isRegistered;
+  const isEnded = status === "ENDED";
+
+  const getTimerLabel = (status: ContestStatus) => {
+    switch (status) {
+      case "UPCOMING":
+        return "Starts in";
+      case "ACTIVE":
+        return "Ends in";
+      case "ENDED":
+        return "Status";
+      case "LOADING":
+      default:
+        return "Status";
+    }
   };
 
   return (
@@ -159,20 +152,17 @@ export default function ContestCard({
           </div>
         </div>
 
-        {/* Countdown Timer */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 mb-4 border border-blue-100 dark:border-blue-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Timer className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                {timeLeft?.includes("Contest Started")
-                  ? "Contest Started"
-                  : "Starts in"}
+                {getTimerLabel(status)}
               </span>
             </div>
             <div className="text-right">
               <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                {timeLeft || "Loading..."}
+                {timeLeft}
               </div>
               <div className="text-xs text-blue-500 dark:text-blue-400">
                 {new Date(contest.start_time).toLocaleDateString("en-US", {
@@ -187,50 +177,87 @@ export default function ContestCard({
           </div>
         </div>
 
-        {/* Action Button */}
-        <Link
-          to={
-            timeLeft?.includes("Contest Started") && isRegistered
-              ? `/contest?con=${contest.id}`
-              : isRegistered
-              ? "#"
-              : `/registration?con=${contest.id}`
-          }
-          onClick={() => {
-            handleContestClick();
-            // if (isRegistered) e.preventDefault();
-          }}
-          className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
-            timeLeft?.includes("Contest Started") && isRegistered
-              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
-              : isRegistered
-              ? "bg-green-500 text-white cursor-not-allowed"
-              : "bg-blue-500 text-white"
-          }`}
-        >
-          {checkingRegistration ? (
-            <span className="flex items-center">
-              <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
-              {"Checking..."}
-            </span>
-          ) : timeLeft?.includes("Contest Started") && isRegistered ? (
-            <>
-              <PlayCircle className="w-5 h-5 mr-2" />
-              Join Contest Now
-            </>
-          ) : isRegistered ? (
-            <>
-              <PlayCircle className="w-5 h-5 mr-2 text-gray-200" />
-              Registered
-            </>
-          ) : (
-            <>
-              <Play className="w-5 h-5 mr-2" />
-              Register Now
-            </>
+        <div className="flex flex-col items-center">
+          <Link
+            to={
+              canJoin
+                ? `/contest?con=${contest.id}`
+                : canRegister
+                ? `/registration?con=${contest.id}`
+                : "#"
+            }
+            onClick={handleContestClick}
+            className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
+              canJoin
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                : isPendingStart
+                ? "bg-green-500 text-white cursor-not-allowed"
+                : canRegister
+                ? "bg-blue-500 text-white"
+                : isEnded
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-blue-500 text-white" // Fallback for loading state
+            }`}
+            aria-disabled={isPendingStart || isEnded || checkingRegistration}
+            tabIndex={
+              isPendingStart || isEnded || checkingRegistration ? -1 : undefined
+            }
+            style={{
+              pointerEvents:
+                isPendingStart || isEnded || checkingRegistration
+                  ? "none"
+                  : "auto",
+            }}
+          >
+            {checkingRegistration ? (
+              <>
+                <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
+                Checking...
+              </>
+            ) : canJoin ? (
+              <>
+                <PlayCircle className="w-5 h-5 mr-2" />
+                Join Contest Now
+              </>
+            ) : isPendingStart ? (
+              <>
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Registered
+              </>
+            ) : canRegister ? (
+              <>
+                <Play className="w-5 h-5 mr-2" />
+                Register Now
+              </>
+            ) : isEnded ? (
+              <>
+                <XCircle className="w-5 h-5 mr-2" />
+                Contest Ended
+              </>
+            ) : (
+              "Register"
+            )}
+            {!checkingRegistration && <ChevronRight className="w-4 h-4 ml-2" />}
+          </Link>
+
+          {status === "ACTIVE" && (
+            <Link
+              to="#"
+              onClick={handleCurrentStandingsClick}
+              className="mt-4 flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Current Standings
+            </Link>
           )}
-          <ChevronRight className="w-4 h-4 ml-2" />
-        </Link>
+        </div>
+        {showModal && (
+          <LeaderboardModal
+            selectedContest={contest}
+            setShowModal={setShowModal}
+            isActiveContest={status === "ACTIVE"}
+          />
+        )}
       </div>
     </div>
   );

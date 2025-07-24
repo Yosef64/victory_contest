@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { Contest, LeaderboardEntry } from "../types";
 import { useTelegram } from "../hooks/useTelegram";
 import { getLeaderboardByContest } from "../services/contestApi";
+import { useNavigate } from "react-router-dom";
 
 export default function LeaderboardModal({
   selectedContest,
@@ -16,6 +17,7 @@ export default function LeaderboardModal({
   const [previousContestLeaderboard, setPreviousContestLeaderboard] =
     React.useState<LeaderboardEntry[]>([]);
   const { user } = useTelegram();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -65,7 +67,14 @@ export default function LeaderboardModal({
             </div>
             <div className="flex items-center gap-2">
               {/* --- REFINED BUTTON: More subtle, professional style --- */}
-              <button className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700/70 px-3 py-2 rounded-lg transition-colors">
+              <button
+                onClick={() =>
+                  navigate(
+                    `/contest-editorial?id=${selectedContest.id}&title=${selectedContest.title}`
+                  )
+                }
+                className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700/70 px-3 py-2 rounded-lg transition-colors"
+              >
                 <BookOpenIcon className="h-5 w-5" />
                 Editorial
               </button>

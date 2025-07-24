@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Contest } from "../types";
-import { isAfter, parseISO } from "date-fns";
 import {
   BarChart3,
   CheckCircle,
@@ -22,13 +21,9 @@ const ExpandableDescription = ({ text }: { text: string }) => {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  // useLayoutEffect runs synchronously after all DOM mutations.
-  // This is perfect for measuring DOM elements right after they render.
   useLayoutEffect(() => {
     const element = textRef.current;
     if (element) {
-      // Check if the content's full height is greater than its visible height.
-      // This is a reliable way to detect if text is being clamped.
       if (element.scrollHeight > element.clientHeight) {
         setIsOverflowing(true);
       }
@@ -45,7 +40,6 @@ const ExpandableDescription = ({ text }: { text: string }) => {
       >
         {text}
       </p>
-      {/* Only show the button if the text is actually overflowing */}
       {isOverflowing && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
@@ -136,14 +130,12 @@ export default function ContestCard({
       className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
     >
       <div className="p-6">
-        {/* ... (Your existing Title and Description sections remain unchanged) ... */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center justify-between space-x-2 mb-2">
               <h3 className="text-lg font-bold text-gray-800 dark:text-white">
                 {contest.title}
               </h3>
-              {/* ... (Premium/Free badge) ... */}
               {contest.type === "free" ? (
                 <div className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/50 dark:text-green-200">
                   <CheckCircle className="mr-1.5 h-4 w-4 fill-current text-green-600 dark:text-green-400" />
@@ -243,7 +235,7 @@ export default function ContestCard({
                 Contest Ended
               </>
             ) : (
-              "Register" // Default loading text
+              "Register"
             )}
             {!checkingRegistration && <ChevronRight className="w-4 h-4 ml-2" />}
           </Link>

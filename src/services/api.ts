@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
- baseURL: "https://victory-contest-backend.vercel.app" + "/api",
-  
+  baseURL: "https://victory-contest-backend.vercel.app" + "/api",
+
   headers: {
     "Content-Type": "application/json",
   },

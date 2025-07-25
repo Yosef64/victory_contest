@@ -144,6 +144,7 @@ export interface LeaderboardEntry {
   total_questions: number;
   time_taken: number;
   rank: number;
+  imgurl?: string;
 }
 
 export interface UserStats {

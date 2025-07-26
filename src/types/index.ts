@@ -137,12 +137,12 @@ export interface Contest {
 }
 
 export interface LeaderboardEntry {
-  user_id: number;
+  user_id: string;
   user_name: string;
   score: number;
   correct_answers: number;
   total_questions: number;
-  time_taken: number;
+  time_taken: string;
   rank: number;
   imgurl?: string;
 }

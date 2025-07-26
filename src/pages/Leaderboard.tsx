@@ -3,6 +3,62 @@ import { useTelegram } from "../hooks/useTelegram";
 import { LeaderboardEntry } from "../types";
 import { Trophy, Medal, Award, Clock, Target } from "lucide-react";
 import api from "../services/api";
+import { LeaderboardSkeleton } from "../components/LeaderboardSkeleton";
+
+const generateMockData = (): LeaderboardEntry[] => {
+  const users = [
+    {
+      name: "FrostWarrior",
+      location: "Dubai, UAE",
+      avatar: "https://i.pravatar.cc/150?u=FrostWarrior",
+    },
+    { name: "Shadowblade", location: "Toronto, Canada", avatar: null }, // No avatar
+    {
+      name: "PhoenixX",
+      location: "Beijing, China",
+      avatar: "https://i.pravatar.cc/150?u=PhoenixX",
+    },
+    { name: "CyberNinja", location: "Tokyo, Japan", avatar: null }, // No avatar
+    {
+      name: "Vortex",
+      location: "Seoul, South Korea",
+      avatar: "https://i.pravatar.cc/150?u=Vortex",
+    },
+    { name: "Quantum", location: "New York, USA", avatar: null }, // No avatar
+    {
+      name: "Blaze",
+      location: "London, UK",
+      avatar: "https://i.pravatar.cc/150?u=Blaze",
+    },
+    {
+      name: "Aqua",
+      location: "Sydney, Australia",
+      avatar: "https://i.pravatar.cc/150?u=Aqua",
+    },
+    { name: "Terra", location: "Berlin, Germany", avatar: null }, // No avatar
+    {
+      name: "Solaris",
+      location: "Paris, France",
+      avatar: "https://i.pravatar.cc/150?u=Solaris",
+    },
+  ];
+
+  return users.map((user, index) => ({
+    user_id: (1001 + index).toString(),
+    rank: index + 1,
+    user_name: user.name,
+    score: 100 - index * 3 - Math.floor(Math.random() * 5),
+    location: user.location,
+    imgurl: user.avatar || undefined,
+    correct_answers: Math.floor(Math.random() * 100),
+    total_questions: 100,
+    time_taken: `${Math.floor(Math.random() * 60)}:${Math.floor(
+      Math.random() * 60
+    )
+      .toString()
+      .padStart(2, "0")}`,
+  }));
+};
 const avatarColors = [
   "bg-red-500",
   "bg-orange-500",
@@ -93,7 +149,7 @@ const CrownIcon: React.FC<{ color: string; className?: string }> = ({
 
 const podiumConfig = {
   1: {
-    crownColor: "#FFD700",
+    crownColor: "violet-100",
     sizeClass: "w-28 h-28",
     elevationClass: "-mt-8 z-10",
     crownSize: "w-10 h-10",
@@ -158,7 +214,8 @@ const Leaderboard: React.FC = () => {
       setError(null);
       try {
         const res = await api.get(`/leaderboard?timeFrame=${timeFrame}`);
-        console.log(res);
+        // console.log(generateMockData());
+        setLeaderboard(generateMockData());
         if (res.data && res.data.leaderboard) {
           setLeaderboard(res.data.leaderboard);
         } else {
@@ -192,13 +249,13 @@ const Leaderboard: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-64">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -224,7 +281,7 @@ const Leaderboard: React.FC = () => {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       {/* Time Frame Filter */}
-      <div className="sticky top-0 z-30 py-4 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-lg">
+      <div className="sticky top-0 z-30 py-4 rounded-lg bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-lg">
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex justify-center space-x-3 px-4 w-max mx-auto">
             {(["today", "week", "month", "all"] as const).map((period) => (
@@ -248,94 +305,102 @@ const Leaderboard: React.FC = () => {
           </div>
         </div>
       </div>
-      <main className="mt-10 pb-4">
-        {/* Top 3 Podium */}
-        {topThree.length === 3 && (
-          <div className="flex justify-center items-end gap-4 md:gap-8 mb-12 px-4">
-            {/* Reorder for visual presentation: 2nd, 1st, 3rd */}
-            {[topThree[1], topThree[0], topThree[2]].map((entry) => (
-              <PodiumItem key={entry.user_id} user={entry} />
-            ))}
-          </div>
-        )}
+      {loading ? (
+        <LeaderboardSkeleton />
+      ) : (
+        <main className="mt-10 pb-4">
+          {/* Top 3 Podium */}
+          {topThree.length === 3 && (
+            <div className="flex justify-center items-end gap-4 md:gap-8 mb-12 px-4">
+              {/* Reorder for visual presentation: 2nd, 1st, 3rd */}
+              {[topThree[1], topThree[0], topThree[2]].map((entry) => (
+                <PodiumItem key={entry.user_id} user={entry} />
+              ))}
+            </div>
+          )}
 
-        {/* Full Leaderboard */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            Full Rankings
-          </h2>
-          <div className="space-y-2">
-            {leaderboard.map((entry) => {
-              const isCurrentUser =
-                entry.user_id.toString() === user?.id?.toString();
+          {/* Full Leaderboard */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+              Full Rankings
+            </h2>
+            <div className="space-y-2">
+              {leaderboard.map((entry) => {
+                const isCurrentUser =
+                  entry.user_id.toString() === user?.id?.toString();
 
-              return (
-                <div
-                  key={entry.user_id}
-                  className={`p-4 rounded-xl shadow-sm transition-all duration-200 ${
-                    isCurrentUser
-                      ? "bg-violet-100 dark:bg-violet-500/30 border-2 border-violet-400 dark:border-violet-500 shadow-lg scale-105"
-                      : "bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {getRankIcon(entry.rank)}
-                      <div>
-                        <div
-                          className={`font-semibold ${
-                            isCurrentUser
-                              ? "text-blue-800 dark:text-blue-300"
-                              : "text-gray-800 dark:text-white"
-                          }`}
-                        >
-                          {entry.user_name}
-                          {isCurrentUser && (
-                            <span className="ml-2 text-sm text-blue-600 dark:text-blue-400">
-                              (You)
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          Rank #{entry.rank}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="text-center">
-                        <div className="flex items-center text-green-600 dark:text-green-400">
-                          <Target className="w-4 h-4 mr-1" />
-                          <span className="font-bold">
-                            {Math.round(
-                              (entry.correct_answers / entry.total_questions) *
-                                100
+                return (
+                  <div
+                    key={entry.user_id}
+                    className={`p-4 rounded-xl shadow-sm transition-all duration-200 ${
+                      isCurrentUser
+                        ? "bg-violet-100 dark:bg-violet-500/30 border-2 border-violet-400 dark:border-violet-500 shadow-lg scale-105"
+                        : "bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {getRankIcon(entry.rank)}
+                        <div>
+                          <div
+                            className={`font-semibold ${
+                              isCurrentUser
+                                ? "text-blue-800 dark:text-blue-300"
+                                : "text-gray-800 dark:text-white"
+                            }`}
+                          >
+                            {entry.user_name}
+                            {isCurrentUser && (
+                              <span className="ml-2 text-sm text-blue-600 dark:text-blue-400">
+                                (You)
+                              </span>
                             )}
-                            %
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {entry.correct_answers}/{entry.total_questions}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            Rank #{entry.rank}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="text-center">
-                        <div className="flex items-center text-blue-600 dark:text-blue-400">
-                          <Clock className="w-4 h-4 mr-1" />
-                          <span className="font-bold">{entry.time_taken}</span>
+                      <div className="flex items-center space-x-4">
+                        <div className="text-center">
+                          <div className="flex items-center text-green-600 dark:text-green-400">
+                            <Target className="w-4 h-4 mr-1" />
+                            <span className="font-bold">
+                              {Math.round(
+                                (entry.correct_answers /
+                                  entry.total_questions) *
+                                  100
+                              )}
+                              %
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {entry.correct_answers}/{entry.total_questions}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          Time
+
+                        <div className="text-center">
+                          <div className="flex items-center text-blue-600 dark:text-blue-400">
+                            <Clock className="w-4 h-4 mr-1" />
+                            <span className="font-bold">
+                              {entry.time_taken}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            Time
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      )}
+
       {/* Your Performance Summary */}
       {user && currentUserEntry && (
         <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl">

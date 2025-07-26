@@ -5,7 +5,7 @@ export function LeaderboardSkeleton() {
     <div>
       <main className="mt-10 pb-4">
         {/* Podium Skeleton */}
-        <div className="flex justify-center items-center gap-4 md:gap-8 mb-12 px-4 animate-pulse dark:bg-gray-900">
+        <div className="flex justify-center items-center gap-4 md:gap-8 mb-12 px-4 animate-pulse">
           {/* 2nd Place */}
           <div className="flex flex-col items-center gap-2 mt-4">
             <div className="relative">
@@ -59,16 +59,16 @@ export function LeaderboardSkeleton() {
       </main>
 
       {/* Your Performance Summary Skeleton */}
-      <div className="mt-8 p-4 rounded-xl bg-card border">
-        <Skeleton className="h-5 w-40 mb-4 rounded-md" />
+      <div className="mt-8 p-4 rounded-xl border">
+        <Skeleton className="h-5 w-40 mb-4 dark:bg-gray-700 rounded-md" />
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center flex flex-col items-center gap-2">
-            <Skeleton className="h-7 w-12 rounded-md" />
-            <Skeleton className="h-4 w-24 rounded-md" />
+            <Skeleton className="h-7 w-12 rounded-md dark:bg-gray-700" />
+            <Skeleton className="h-4 w-24 rounded-md dark:bg-gray-700" />
           </div>
           <div className="text-center flex flex-col items-center gap-2">
-            <Skeleton className="h-7 w-16 rounded-md" />
-            <Skeleton className="h-4 w-16 rounded-md" />
+            <Skeleton className="h-7 w-16 rounded-md dark:bg-gray-700" />
+            <Skeleton className="h-4 w-16 rounded-md dark:bg-gray-700" />
           </div>
         </div>
       </div>

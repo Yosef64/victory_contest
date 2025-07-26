@@ -21,6 +21,12 @@ import {
   Radar,
 } from "recharts";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import {
   BarChart3,
   Target,
   Clock,
@@ -34,8 +40,12 @@ import {
   Award,
   Zap,
   Brain,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import api from "../services/api";
+import { Button } from "../components/ui/button";
+import { cn } from "../lib/utils";
 
 const Statistics: React.FC = () => {
   const { user } = useTelegram();
@@ -211,6 +221,7 @@ const Statistics: React.FC = () => {
   const radarData = getRadarData();
   const improvementAreas = getImprovementAreas();
   const strengths = getStrengths();
+  const filterOptions = ["subjects", "chapters", "grades"] as const;
 
   return (
     <div className="p-4 max-w-6xl mx-auto space-y-6">
@@ -382,21 +393,32 @@ const Statistics: React.FC = () => {
               Performance by{" "}
               {selectedFilter.charAt(0).toUpperCase() + selectedFilter.slice(1)}
             </h3>
-            <div className="flex space-x-2">
-              {(["subjects", "chapters", "grades"] as const).map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setSelectedFilter(filter)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                    selectedFilter === filter
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                </button>
-              ))}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[150px] justify-between">
+                  {/* Display the currently selected filter */}
+                  {selectedFilter.charAt(0).toUpperCase() +
+                    selectedFilter.slice(1)}
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[150px] bg-white dark:bg-gray-800">
+                {filterOptions.map((filter) => (
+                  <DropdownMenuItem
+                    key={filter}
+                    onSelect={() => setSelectedFilter(filter)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedFilter === filter ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">

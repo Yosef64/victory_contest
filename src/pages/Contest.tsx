@@ -221,7 +221,9 @@ const ContestComponent: React.FC = () => {
     }
     const correctAnswers = updatedAnswers.filter((a) => a.is_correct).length;
     const score = correctAnswers;
-    const missed_questions = updatedAnswers.filter((a) => !a.is_correct);
+    const missed_questions = updatedAnswers
+      .filter((a) => !a.is_correct)
+      .map((a) => a.question.id);
     const endTime = Date.now();
     let time_spend = "00:00:00";
     if (contest.start_time) {
@@ -236,7 +238,7 @@ const ContestComponent: React.FC = () => {
         imgurl: user?.photo_url || "",
         name: user?.first_name || "",
       },
-      contest: contest,
+      contest_id: contest.id,
       score,
       missed_questions: missed_questions,
       time_spend,

@@ -395,7 +395,10 @@ const Statistics: React.FC = () => {
             </h3>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[150px] justify-between">
+                <Button
+                  variant="outline"
+                  className="w-[150px] justify-between border-2 bg-white dark:bg-gray-800 "
+                >
                   {/* Display the currently selected filter */}
                   {selectedFilter.charAt(0).toUpperCase() +
                     selectedFilter.slice(1)}

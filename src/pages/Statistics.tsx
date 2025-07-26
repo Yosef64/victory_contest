@@ -397,7 +397,7 @@ const Statistics: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-[150px] justify-between border-2 bg-white dark:bg-gray-800 "
+                  className="justify-between border-2 bg-white hover:bg-gray-700 dark:bg-gray-800 "
                 >
                   {/* Display the currently selected filter */}
                   {selectedFilter.charAt(0).toUpperCase() +

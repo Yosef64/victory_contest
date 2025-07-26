@@ -4,7 +4,17 @@ import { useTelegram } from "../hooks/useTelegram";
 import { Bell, Settings } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
 import { useNotification } from "../context/NotificationContext";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import BotIcon from "../assets/bot-stroke-rounded.svg?react";
+import FeedbackIcon from "../assets/comment-add-01-stroke-rounded.svg?react";
 const TopNavigation: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
   const location = useLocation();
@@ -56,9 +66,14 @@ const TopNavigation: React.FC = () => {
     setShowNotifications(true);
   };
 
-  const handleSettingsClick = () => {
-    hapticFeedback("selection");
-    // Handle settings click
+  const handleAiPracticeClick = () => {
+    console.log("AI Practice session started.");
+    // Add your navigation or modal logic here
+  };
+
+  const handleFeedbackClick = () => {
+    console.log("Feedback form opened.");
+    // Add your navigation or modal logic here
   };
 
   return (
@@ -94,12 +109,38 @@ const TopNavigation: React.FC = () => {
                 </span>
               )}
             </button>
-            <button
-              onClick={handleSettingsClick}
-              className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105"
-            >
-              <Settings size={18} />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {/* This is your exact button, used as the trigger */}
+                <button className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105">
+                  <Settings size={18} />
+                </button>
+              </DropdownMenuTrigger>
+
+              {/* The dropdown content is styled to look professional */}
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">
+                  Advanced Options
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onSelect={handleAiPracticeClick}
+                    className="cursor-pointer"
+                  >
+                    <BotIcon className="mr-2 h-4 w-4" />
+                    <span>AI Practice</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={handleFeedbackClick}
+                    className="cursor-pointer"
+                  >
+                    <FeedbackIcon className="mr-2 h-4 w-4" />
+                    <span>Give Feedback</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

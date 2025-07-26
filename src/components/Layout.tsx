@@ -12,10 +12,7 @@ const Layout: React.FC = () => {
   useEffect(() => {
     if (webApp) {
       const theme = webApp.themeParams;
-      // Check if bg_color is dark (e.g., colors starting with #0, #1, #2 or low brightness)
       const isDark = isDarkColor(theme.bg_color || "#ffffff");
-
-      // Set data-mode and data-theme attributes
       document.documentElement.setAttribute(
         "data-mode",
         isDark ? "dark" : "light"
@@ -25,7 +22,6 @@ const Layout: React.FC = () => {
         isDark ? "dark" : "light"
       );
 
-      // Update CSS custom properties to match Telegram theme
       document.documentElement.style.setProperty(
         "--tg-theme-bg-color",
         theme.bg_color || "#ffffff"
@@ -57,17 +53,12 @@ const Layout: React.FC = () => {
     }
   }, [webApp]);
 
-  // Helper function to determine if a color is dark
   const isDarkColor = (color: string): boolean => {
-    // Remove # from hex color
     const hex = color.replace("#", "");
-    // Convert hex to RGB
     const r = parseInt(hex.slice(0, 2), 16);
     const g = parseInt(hex.slice(2, 4), 16);
     const b = parseInt(hex.slice(4, 6), 16);
-    // Calculate perceived brightness using luminance formula
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    // Consider color dark if brightness is below 128 (out of 255)
     return brightness < 128;
   };
 

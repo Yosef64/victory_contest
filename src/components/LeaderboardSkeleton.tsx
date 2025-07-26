@@ -17,7 +17,7 @@ export function LeaderboardSkeleton() {
           {/* 1st Place */}
           <div className="flex flex-col items-center gap-2 -mt-8 z-10">
             <div className="relative">
-              <Skeleton className="h-24 w-24 mb-1 rounded-full border-4" />
+              <Skeleton className="h-24 w-24 mb-1 rounded-full border-4 dark:bg-gray-700" />
             </div>
             <Skeleton className="h-5 w-36 rounded-md dark:bg-gray-700" />
             <Skeleton className="h-4 w-28 rounded-md dark:bg-gray-700" />
@@ -39,7 +39,7 @@ export function LeaderboardSkeleton() {
             {Array.from({ length: 7 }).map((_, i) => (
               <div
                 key={i}
-                className="p-4 rounded-xl border bg-card text-card-foreground shadow-sm flex items-center justify-between"
+                className="p-4 rounded-xl border bg-card dark:bg-gray-800 text-card-foreground shadow-sm flex items-center justify-between"
               >
                 <div className="flex items-center space-x-3">
                   <Skeleton className="h-6 w-6 dark:bg-gray-700 rounded-full" />

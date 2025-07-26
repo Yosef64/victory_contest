@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTelegram } from "../hooks/useTelegram";
 import { Contest } from "../types";
 import { Calendar } from "lucide-react";
-import { formatDistanceToNow, isAfter, parseISO } from "date-fns";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { getAllContests } from "../services/contestApi";
 import ContestCard from "../components/ContestCard";
 import NoContests from "../components/NoContest";

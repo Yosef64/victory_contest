@@ -5,60 +5,6 @@ import { Trophy, Medal, Award, Clock, Target } from "lucide-react";
 import api from "../services/api";
 import { LeaderboardSkeleton } from "../components/LeaderboardSkeleton";
 
-const generateMockData = (): LeaderboardEntry[] => {
-  const users = [
-    {
-      name: "FrostWarrior",
-      location: "Dubai, UAE",
-      avatar: "https://i.pravatar.cc/150?u=FrostWarrior",
-    },
-    { name: "Shadowblade", location: "Toronto, Canada", avatar: null }, // No avatar
-    {
-      name: "PhoenixX",
-      location: "Beijing, China",
-      avatar: "https://i.pravatar.cc/150?u=PhoenixX",
-    },
-    { name: "CyberNinja", location: "Tokyo, Japan", avatar: null }, // No avatar
-    {
-      name: "Vortex",
-      location: "Seoul, South Korea",
-      avatar: "https://i.pravatar.cc/150?u=Vortex",
-    },
-    { name: "Quantum", location: "New York, USA", avatar: null }, // No avatar
-    {
-      name: "Blaze",
-      location: "London, UK",
-      avatar: "https://i.pravatar.cc/150?u=Blaze",
-    },
-    {
-      name: "Aqua",
-      location: "Sydney, Australia",
-      avatar: "https://i.pravatar.cc/150?u=Aqua",
-    },
-    { name: "Terra", location: "Berlin, Germany", avatar: null }, // No avatar
-    {
-      name: "Solaris",
-      location: "Paris, France",
-      avatar: "https://i.pravatar.cc/150?u=Solaris",
-    },
-  ];
-
-  return users.map((user, index) => ({
-    user_id: (1001 + index).toString(),
-    rank: index + 1,
-    user_name: user.name,
-    score: 100 - index * 3 - Math.floor(Math.random() * 5),
-    location: user.location,
-    imgurl: user.avatar || undefined,
-    correct_answers: Math.floor(Math.random() * 100),
-    total_questions: 100,
-    time_taken: `${Math.floor(Math.random() * 60)}:${Math.floor(
-      Math.random() * 60
-    )
-      .toString()
-      .padStart(2, "0")}`,
-  }));
-};
 const avatarColors = [
   "bg-red-500",
   "bg-orange-500",
@@ -214,8 +160,6 @@ const Leaderboard: React.FC = () => {
       setError(null);
       try {
         const res = await api.get(`/leaderboard?timeFrame=${timeFrame}`);
-        // console.log(generateMockData());
-        setLeaderboard(generateMockData());
         if (res.data && res.data.leaderboard) {
           setLeaderboard(res.data.leaderboard);
         } else {
@@ -281,7 +225,7 @@ const Leaderboard: React.FC = () => {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       {/* Time Frame Filter */}
-      <div className="sticky top-0 z-30 py-4 rounded-lg bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-lg">
+      <div className="sticky top-0 z-30 py-4 rounded-xl bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-lg">
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex justify-center space-x-3 px-4 w-max mx-auto">
             {(["today", "week", "month", "all"] as const).map((period) => (
@@ -418,7 +362,12 @@ const Leaderboard: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                {currentUserEntry.score || 0}%
+                {Math.round(
+                  (currentUserEntry.correct_answers /
+                    currentUserEntry.total_questions) *
+                    100
+                ) || 0}
+                %
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Score

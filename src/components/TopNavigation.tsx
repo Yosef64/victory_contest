@@ -128,14 +128,14 @@ const TopNavigation: React.FC = () => {
                     onSelect={handleAiPracticeClick}
                     className="cursor-pointer"
                   >
-                    <BotIcon className="mr-2 h-4 w-4 dark:text-white" />
+                    <BotIcon className="mr-2 h-6 w-6 dark:text-white" />
                     <span>AI Practice</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={handleFeedbackClick}
                     className="cursor-pointer"
                   >
-                    <FeedbackIcon className="mr-2 h-4 w-4 dark:text-white" />
+                    <FeedbackIcon className="mr-2 h-6 w-6 dark:text-white" />
                     <span>Give Feedback</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

@@ -76,19 +76,7 @@ const Home: React.FC = () => {
         ) : (
           <div className="space-y-4">
             {contests.map((contest) => {
-              const startTime = parseISO(contest.start_time);
-              const now = new Date();
-              const isStartingSoon =
-                isAfter(startTime, now) &&
-                startTime.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
-
-              return (
-                <ContestCard
-                  contest={contest}
-                  key={contest.id}
-                  isStartingSoon={isStartingSoon}
-                />
-              );
+              return <ContestCard contest={contest} key={contest.id} />;
             })}
           </div>
         )}
@@ -201,7 +189,7 @@ const Home: React.FC = () => {
         <LeaderboardModal
           selectedContest={selectedPreviousContest}
           setShowModal={setShowPreviousModal}
-          isActiveContest={true}
+          isActiveContest={false}
         />
       )}
     </div>

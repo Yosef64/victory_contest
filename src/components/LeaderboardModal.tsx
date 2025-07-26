@@ -120,7 +120,7 @@ export default function LeaderboardModal({
           ) : previousContestLeaderboard.length > 0 ? (
             <div className="space-y-3">
               {previousContestLeaderboard.map((entry) => {
-                const isCurrentUser = entry.user_id === user?.id;
+                const isCurrentUser = entry.user_id === user?.id.toString();
 
                 return (
                   <div

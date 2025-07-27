@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  ArrowLeft,
   BarChart,
   Brain,
   BrainCircuit,
@@ -34,6 +33,9 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Label } from "../components/ui/label";
+import { getAiGeneratedQuestions } from "../services/questionServices";
+import { toast } from "sonner";
+import { useTelegram } from "../hooks/useTelegram";
 // import { Skeleton } from "@/components/ui/skeleton";
 // NOTE: QuestionNavigationDropdown is a placeholder for your custom component
 // import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown";
@@ -79,6 +81,7 @@ export function AIPracticePage() {
   const [answers, setAnswers] = React.useState<Answer[]>([]);
   const [timeLeft, setTimeLeft] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
+  const { showBackButton, hideBackButton } = useTelegram();
 
   // --- TIMER LOGIC ---
   React.useEffect(() => {
@@ -88,7 +91,21 @@ export function AIPracticePage() {
     }
   }, [timeLeft, pageState]);
 
-  // --- HELPER FUNCTIONS & DERIVED STATE ---
+  React.useEffect(() => {
+    if (pageState === "PRACTICING") {
+      showBackButton(() => {
+        setPageState("SETTINGS");
+        setQuestions([]);
+        setSettings(initialSettings);
+        setCurrentQuestionIndex(0);
+        setAnswers([]);
+        setTimeLeft(0);
+        setIsLoading(false);
+      });
+    } else {
+      hideBackButton();
+    }
+  }, [pageState]);
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -100,24 +117,30 @@ export function AIPracticePage() {
   const handleGenerateSession = async () => {
     setIsLoading(true);
     // API call would happen here, fetching an array of questions
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    const mockQuestions: AIQuestion[] = Array.from({ length: 5 }).map(
-      (_, i) => ({
-        question_text: `What is the capital of France?`,
-        multiple_choice: ["Berlin", "Madrid", "Paris", "Rome"],
-        answer: 2,
-        explanation: "Paris is the capital of France.",
-        subject: settings.subject,
-        grade: settings.grade,
-        chapter: "Geography",
-      })
-    );
-    setQuestions(mockQuestions);
-    setCurrentQuestionIndex(0);
-    setAnswers([]);
-    setTimeLeft(mockQuestions.length * 60); // 1 minute per question
-    setIsLoading(false);
-    setPageState("PRACTICING");
+    try {
+      const ai_questions = await getAiGeneratedQuestions(settings);
+
+      setQuestions(ai_questions);
+      setCurrentQuestionIndex(0);
+      setAnswers([]);
+      setTimeLeft(ai_questions.length * 60); // 1 minute per question
+      setIsLoading(false);
+      setPageState("PRACTICING");
+    } catch (error) {
+      toast.error("Failed to generate questions. Please try again.", {
+        style: {
+          maxWidth: "400px",
+          margin: "0 auto",
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+          border: "1px solid #f5c6cb",
+          padding: "10px",
+          borderRadius: "8px",
+        },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAnswerSelect = (answerIndex: number) => {
@@ -141,10 +164,6 @@ export function AIPracticePage() {
         },
       ]);
     }
-  };
-
-  const handleQuestionSelect = (index: number) => {
-    setCurrentQuestionIndex(index);
   };
 
   const resetSession = () => {
@@ -172,6 +191,7 @@ export function AIPracticePage() {
   const endSession = () => {
     setPageState("RESULT");
   };
+
   if (pageState === "RESULT") {
     return (
       <AIPracticeResultPage
@@ -187,11 +207,6 @@ export function AIPracticePage() {
 
     return (
       <div className="w-full max-w-3xl mx-auto p-4">
-        <Button variant="ghost" onClick={resetSession} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Settings
-        </Button>
-
         {/* --- Top Bar and Progress --- */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4 space-x-4">
@@ -221,13 +236,13 @@ export function AIPracticePage() {
               <span className="px-2 py-1 bg-primary/10 text-black dark:text-white text-xs font-medium rounded">
                 {currentQuestion.subject}
               </span>
-              <span className="px-2 py-1 bg-muted text-muted-black dark:text-white text-xs font-medium rounded">
+              <span className="px-2 py-1 bg-white dark:bg-gray-700 text-muted-black dark:text-white text-xs font-medium rounded">
                 {currentQuestion.grade}
               </span>
             </div>
           </CardHeader>
           <CardContent>
-            <h3 className="text-lg font-semibold text-black dark:text-white mb-6">
+            <h3 className="text-base font-semibold text-black dark:text-white mb-6">
               {currentQuestion.question_text}
             </h3>
             <div className="space-y-3">
@@ -316,17 +331,17 @@ export function AIPracticePage() {
     <div className="w-full max-w-3xl space-y-8 p-3">
       <header className="text-center">
         <h1 className="text-3xl font-bold tracking-tight flex items-center justify-center">
-          <BrainCircuit className="mr-3 h-8 w-8 text-primary" />
+          <BrainCircuit className="mr-3 h-8 w-8 text-black dark:text-white" />
           AI Practice Session
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-muted-foreground dark:text-gray-400">
           Select your criteria to start a practice session.
         </p>
       </header>
       <Card>
         <CardHeader>
           <CardTitle>Practice Settings</CardTitle>
-          <CardDescription>
+          <CardDescription className="dark:text-gray-400">
             Choose your subject, grade, and difficulty level.
           </CardDescription>
         </CardHeader>

@@ -104,7 +104,7 @@ export function FeedbackPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4 sm:p-6 lg:p-8 bg-muted/20">
+    <div className="flex justify-center items-center min-h-screen p-4 sm:p-6 lg:p-8">
       <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-8">
         <header className="text-center">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -138,7 +138,7 @@ export function FeedbackPage() {
                   key={value}
                   htmlFor={`experience-${value}`}
                   className={cn(
-                    "flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
+                    "flex flex-col dark:bg-gray-700 dark:border-none dark:text-gray-100 hover:dark:bg-gray-600 hover:dark:text-white items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
                     feedback.experience === value && "border-primary"
                   )}
                 >

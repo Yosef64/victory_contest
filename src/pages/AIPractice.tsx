@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   ArrowLeft,
   BarChart,
+  Brain,
   BrainCircuit,
   CheckCircle,
   Clock,
@@ -200,14 +201,14 @@ export function AIPracticePage() {
                 Question {currentQuestionIndex + 1} of {questions.length}
               </p>
             </div>
-            <div className="flex items-center text-primary dark:text-primary bg-card px-3 py-2 rounded-lg border">
+            <div className="flex items-center text-black dark:border-none dark:text-white dark:bg-gray-800 bg-card px-3 py-2 rounded-lg border">
               <Clock className="w-4 h-4 mr-2" />
               <span className="font-mono text-sm">{formatTime(timeLeft)}</span>
             </div>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <div
-              className="bg-primary h-2 rounded-full transition-all duration-300"
+              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -217,16 +218,16 @@ export function AIPracticePage() {
         <Card>
           <CardHeader>
             <div className="flex items-center space-x-2">
-              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+              <span className="px-2 py-1 bg-primary/10 text-black dark:text-white text-xs font-medium rounded">
                 {currentQuestion.subject}
               </span>
-              <span className="px-2 py-1 bg-muted text-muted-foreground text-xs font-medium rounded">
+              <span className="px-2 py-1 bg-muted text-muted-black dark:text-white text-xs font-medium rounded">
                 {currentQuestion.grade}
               </span>
             </div>
           </CardHeader>
           <CardContent>
-            <h3 className="text-lg font-semibold text-card-foreground mb-6">
+            <h3 className="text-lg font-semibold text-black dark:text-white mb-6">
               {currentQuestion.question_text}
             </h3>
             <div className="space-y-3">
@@ -242,10 +243,10 @@ export function AIPracticePage() {
                 if (hasAnswered) {
                   if (isCorrectAnswer) {
                     optionClass =
-                      "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400";
+                      "border-green-500 border-2 bg-green-500/10 text-green-700 dark:text-green-400";
                   } else if (isSelected) {
                     optionClass =
-                      "border-red-500 bg-red-500/10 text-red-700 dark:text-red-400";
+                      "border-red-500 border-2 bg-red-500/10 text-red-700 dark:text-red-400";
                   } else {
                     optionClass = "opacity-60"; // Fade out other options
                   }
@@ -256,7 +257,7 @@ export function AIPracticePage() {
                     key={index}
                     onClick={() => handleAnswerSelect(index)}
                     disabled={hasAnswered} // Disable button after answering
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 flex items-center ${optionClass}`}
+                    className={`w-full text-left p-4 rounded-lg transition-all duration-200 flex items-center ${optionClass}`}
                   >
                     <div
                       className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center flex-shrink-0 ${
@@ -283,12 +284,11 @@ export function AIPracticePage() {
           {selectedAnswer !== undefined && selectedAnswer !== null && (
             <CardFooter className="flex-col items-start gap-4 mt-4 p-4 bg-muted/50 rounded-b-lg">
               <div>
-                <h4 className="font-semibold">
-                  {currentQuestion.answer === selectedAnswer - 1
-                    ? "Correct!"
-                    : "Incorrect"}
+                <h4 className="flex items-center text-base font-bold text-gray-800 dark:text-white mb-2">
+                  <Brain className="w-5 h-5 text-blue-500 mr-2" />
+                  Explanation
                 </h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm dark:text-white">
                   {currentQuestion.explanation}
                 </p>
               </div>

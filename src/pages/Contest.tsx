@@ -223,7 +223,7 @@ const ContestComponent: React.FC = () => {
     const score = correctAnswers;
     const missed_questions = updatedAnswers
       .filter((a) => !a.is_correct)
-      .map((a) => a.question.id);
+      .map((a) => ({ id: a.question.id, selected_answer: a.selected_answer }));
     const endTime = Date.now();
     let time_spend = "00:00:00";
     if (contest.start_time) {

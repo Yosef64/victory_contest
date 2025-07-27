@@ -8,6 +8,8 @@ import Profile from "./pages/Profile";
 import Registration from "./pages/Registration";
 import ContestComponent from "./pages/Contest";
 import ContestEditorial from "./pages/ContestEditorial";
+import { FeedbackPage } from "./pages/FeedBack";
+import { AIPracticePage } from "./pages/AIPractice";
 // import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
@@ -25,20 +27,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           {" "}
-          <Route
-            index
-            element={
-              
-                <Home />
-             
-            }
-          />
+          <Route index element={<Home />} />
           <Route path="contest" element={<ContestComponent />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="statistics" element={<Statistics />} />
           <Route path="profile" element={<Profile />} />
           <Route path="registration" element={<Registration />} />
           <Route path="contest-editorial" element={<ContestEditorial />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="ai-practice" element={<AIPracticePage />} />
         </Route>
       </Routes>
     </Router>

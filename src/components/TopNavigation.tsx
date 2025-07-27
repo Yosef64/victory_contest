@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { Bell, Settings } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
@@ -21,6 +21,7 @@ const TopNavigation: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const { notifications } = useNotification();
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const navigate = useNavigate();
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -67,13 +68,11 @@ const TopNavigation: React.FC = () => {
   };
 
   const handleAiPracticeClick = () => {
-    console.log("AI Practice session started.");
-    // Add your navigation or modal logic here
+    navigate("/ai-practice");
   };
 
   const handleFeedbackClick = () => {
-    console.log("Feedback form opened.");
-    // Add your navigation or modal logic here
+    navigate("/feedback");
   };
 
   return (

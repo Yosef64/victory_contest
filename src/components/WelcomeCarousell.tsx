@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 // Import the new Rafiki style illustrations
-import { ProgrammerRafiki } from "./illustrators/ProgrammerRafiki";
-import { TrophyRafiki } from "./illustrators/TrophyRafiki";
-import { RocketRafiki } from "./illustrators/RocketRafiki";
+import { ProgrammerRafiki } from "../assets/illustrators/ProgrammerRafiki";
+import { TrophyRafiki } from "../assets/illustrators/TrophyRafiki";
+import { RocketRafiki } from "../assets/illustrators/RocketRafiki";
 
 // Type for each message object in the carousel
 type WelcomeMessage = {
@@ -50,7 +50,7 @@ const ProfessionalWelcomeCarousel: React.FC<WelcomeCarouselProps> = ({
     {
       text: `Welcome back, ${user?.first_name || "Student"}!`,
       subtext: "Ready to conquer today's challenges? 👋",
-      illustration: <ProgrammerRafiki className="w-32 h-32" />,
+      illustration: <ProgrammerRafiki className="w-60 h-60" />,
     },
     // --- ILLUSTRATION 2 UPDATED TO RAFIKI STYLE ---
     {

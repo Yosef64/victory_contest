@@ -8,6 +8,7 @@ import { getContestById } from "../services/contestApi";
 import { toast } from "sonner";
 import api from "../services/api";
 import { submitContestResult } from "../services/contestApi";
+import { Button } from "../components/ui/button";
 
 const ContestComponent: React.FC = () => {
   const { hapticFeedback, hideMainButton } = useTelegram();
@@ -436,7 +437,8 @@ const ContestComponent: React.FC = () => {
           </button>
 
           {/* Next/Finish Button */}
-          <button
+          <Button
+            disabled={submitting}
             onClick={
               currentQuestionIndex < questions.length - 1
                 ? handleNextQuestion
@@ -449,7 +451,7 @@ const ContestComponent: React.FC = () => {
               : currentQuestionIndex < questions.length - 1
               ? "Next"
               : "Finish"}
-          </button>
+          </Button>
         </div>
       </div>
 

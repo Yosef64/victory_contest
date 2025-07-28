@@ -184,7 +184,6 @@ export const useScreenshotProtection = () => {
         "mediaDevices" in navigator &&
         "getDisplayMedia" in navigator.mediaDevices
       ) {
-        // Override getDisplayMedia to detect screen recording attempts
         const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
         navigator.mediaDevices.getDisplayMedia = function (...args) {
           createOverlay("Screen recording is not allowed");

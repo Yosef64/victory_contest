@@ -54,7 +54,6 @@ export const useScreenshotProtection = () => {
       }
     };
 
-    // Desktop screenshot shortcuts
     const preventScreenshotShortcuts = (e: KeyboardEvent) => {
       // 1. Correct the key value here
       const forbiddenCombinations = [

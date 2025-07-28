@@ -9,7 +9,6 @@ export const useScreenshotProtection = () => {
   const suspiciousActivityCount = useRef(0);
 
   useEffect(() => {
-    // Create overlay for screenshot protection
     const createOverlay = (message = "Screenshots are not allowed") => {
       if (overlayRef.current || isShowingWarning.current) return;
 

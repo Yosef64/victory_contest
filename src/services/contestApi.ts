@@ -13,13 +13,6 @@ export const getContestById = async (
   return res.data.contest;
 };
 
-export const getActiveContestants = async (
-  contestId: string | number
-): Promise<any[]> => {
-  const res = await api.get(`/contest/active/${contestId}`);
-  return res.data.active_contestants;
-};
-
 export const getLeaderboardByContest = async (
   contestId: string | number
 ): Promise<LeaderboardEntry[]> => {
@@ -33,13 +26,6 @@ export const isUserRegistered = async (
 ): Promise<boolean> => {
   const res = await api.get(`/contest/is_registered/${contestId}/${studentId}`);
   return res.data.registered;
-};
-export const registerUserForContest = async (
-  contestId: string,
-  studentId: string
-): Promise<boolean> => {
-  const res = await api.post(`/contest/register/${contestId}/${studentId}`);
-  return res.data.success;
 };
 
 export const registerForContest = async (

@@ -45,7 +45,6 @@ export default function LeaderboardModal({
           color: "#92400e",
           border: "1px solid #f59e0b",
           borderRadius: "8px",
-          padding: "12px",
           fontSize: "14px",
           fontWeight: "500",
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",

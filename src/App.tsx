@@ -5,11 +5,12 @@ import Home from "./pages/Home";
 import Leaderboard from "./pages/Leaderboard";
 import Statistics from "./pages/Statistics";
 import Profile from "./pages/Profile";
-import Registration from "./pages/Registration";
+import Registration from "./pages/ContestStudentRegistration";
 import ContestComponent from "./pages/Contest";
 import ContestEditorial from "./pages/ContestEditorial";
 import { FeedbackPage } from "./pages/FeedBack";
 import { AIPracticePage } from "./pages/AIPractice";
+import RegistrationForm from "./pages/StudentRegisteration";
 // import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route path="contest-editorial" element={<ContestEditorial />} />
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="ai-practice" element={<AIPracticePage />} />
+          <Route path="register" element={<RegistrationForm />} />
         </Route>
       </Routes>
     </Router>

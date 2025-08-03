@@ -114,12 +114,14 @@ const ContestEditorial: React.FC = () => {
   const getFilteredQuestions = (): EditorialQuestion[] => {
     switch (filter) {
       case "correct":
-        return questions.filter((q) => q.is_correct === true);
+        return questions.filter(
+          (q) => q.is_correct === true && q.user_answer !== -1
+        );
       case "incorrect":
         return questions.filter((q) => q.is_correct === false);
       case "skipped":
         return questions.filter(
-          (q) => q.user_answer === undefined || q.user_answer == null
+          (q) => q.user_answer === -1 || q.user_answer == null
         );
       default:
         return questions;
@@ -136,7 +138,7 @@ const ContestEditorial: React.FC = () => {
   }
 
   const getAnswerStatus = (question: EditorialQuestion): AnswerStatus => {
-    if (question.user_answer === undefined || question.user_answer == null) {
+    if (question.user_answer === -1 || question.user_answer == null) {
       return {
         icon: Clock,
         color: "text-amber-500",
@@ -146,7 +148,7 @@ const ContestEditorial: React.FC = () => {
         gradient: "from-amber-400 to-orange-500",
       };
     }
-    if (question.is_correct) {
+    if (question.is_correct && question.user_answer != -1) {
       return {
         icon: CheckCircle,
         color: "text-emerald-500",
@@ -176,10 +178,12 @@ const ContestEditorial: React.FC = () => {
 
   const getPerformanceStats = (): PerformanceStats => {
     const total = questions.length;
-    const correct = questions.filter((q) => q.is_correct === true).length;
+    const correct = questions.filter(
+      (q) => q.is_correct === true && q.user_answer != -1
+    ).length;
     const incorrect = questions.filter((q) => q.is_correct === false).length;
     const skipped = questions.filter(
-      (q) => q.user_answer === undefined || q.user_answer == null
+      (q) => q.user_answer === -1 || q.user_answer == null
     ).length;
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
     return { total, correct, incorrect, skipped, accuracy };

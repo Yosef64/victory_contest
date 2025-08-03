@@ -37,6 +37,14 @@ const TopNavigation: React.FC = () => {
         return "Contest";
       case "/registration":
         return "Registration";
+      case "/register":
+        return "Student Registration";
+      case "/contest-editorial":
+        return "Contest Editorial";
+      case "/ai-practice":
+        return "Ai";
+      case "/feedback":
+        return "Feedback";
       default:
         return "Contest App";
     }

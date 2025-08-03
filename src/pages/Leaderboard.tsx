@@ -159,7 +159,9 @@ const Leaderboard: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/leaderboard?timeFrame=${timeFrame}`);
+        const res = await api.get(
+          `/submission/leaderboard?timeFrame=${timeFrame}`
+        );
         if (res.data && res.data.leaderboard) {
           setLeaderboard(res.data.leaderboard);
         } else {

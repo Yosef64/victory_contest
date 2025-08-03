@@ -32,6 +32,7 @@ import {
 import { toast } from "sonner";
 import { CheckCircle, X, XCircle } from "lucide-react";
 import { studentRegister } from "../services/studentServices";
+import { useTelegram } from "../hooks/useTelegram";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -48,6 +49,7 @@ const formSchema = z.object({
   paid: z.boolean().default(false),
   city: z.string().min(2, { message: "City must be at least 2 characters." }),
   region: z.string({ error: "Please select a region." }),
+  gender: z.string({ error: "Please select a gender" }),
   imgUrl: z
     .string()
     .url({ message: "Please enter a valid URL." })
@@ -61,6 +63,7 @@ const formSchema = z.object({
 });
 
 export default function RegistrationForm() {
+  const { user } = useTelegram();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
@@ -74,6 +77,7 @@ export default function RegistrationForm() {
       imgUrl: "",
       isSuspended: false,
       phoneNumber: "",
+      gender: "",
     },
   });
 
@@ -81,7 +85,12 @@ export default function RegistrationForm() {
     let message;
     let success;
     try {
-      await studentRegister(values);
+      await studentRegister({
+        ...values,
+        imgurl: user?.photo_url,
+        telegram_id: user?.id,
+        id: user?.id,
+      });
       message = "Registration Submitted!";
       success = true;
     } catch (error) {
@@ -142,6 +151,30 @@ export default function RegistrationForm() {
                         Notice: The Number must be 12 digit and starts with +251
                         or 09|07
                       </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -16,7 +16,7 @@ export const getContestById = async (
 export const getLeaderboardByContest = async (
   contestId: string | number
 ): Promise<LeaderboardEntry[]> => {
-  const res = await api.get(`/student/rank/${contestId}`);
+  const res = await api.get(`/submission/rank/${contestId}`);
   return res.data.rankings;
 };
 
@@ -48,7 +48,7 @@ export const getEditorial = async (
   contest_id: string
 ): Promise<any> => {
   const res = await api.get(
-    `/student/editorial/${student_id}?contest_id=${contest_id}`
+    `/submission/editorial/${student_id}?contest_id=${contest_id}`
   );
   return res.data.editorial;
 };

@@ -15,6 +15,7 @@ import {
 } from "../components/ui/dropdown-menu";
 import BotIcon from "../assets/bot-stroke-rounded.svg?react";
 import FeedbackIcon from "../assets/comment-add-01-stroke-rounded.svg?react";
+import UpgradeIcon from "../assets/sparkles-stroke-rounded.svg?react";
 const TopNavigation: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
   const location = useLocation();
@@ -22,6 +23,10 @@ const TopNavigation: React.FC = () => {
   const { notifications } = useNotification();
   const unreadCount = notifications.filter((n) => !n.read).length;
   const navigate = useNavigate();
+
+  // useEffect(()=>{
+  //   const checkUser
+  // })
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -77,6 +82,9 @@ const TopNavigation: React.FC = () => {
 
   const handleAiPracticeClick = () => {
     navigate("/ai-practice");
+  };
+  const handleUpgradeClick = () => {
+    navigate("/payment");
   };
 
   const handleFeedbackClick = () => {
@@ -137,6 +145,14 @@ const TopNavigation: React.FC = () => {
                   >
                     <BotIcon className="mr-2 h-6 w-6 dark:text-white" />
                     <span>AI Practice</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    // disabled={true}
+                    onSelect={handleUpgradeClick}
+                    className="cursor-pointer"
+                  >
+                    <UpgradeIcon className="mr-2 h-6 w-6 dark:text-white text-yellow-500" />
+                    <span>Upgrade</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={handleFeedbackClick}

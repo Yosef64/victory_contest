@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle, X, XCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
 

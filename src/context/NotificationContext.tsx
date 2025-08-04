@@ -9,7 +9,7 @@ import { useTelegram } from "../hooks/useTelegram";
 import { getNotification } from "../services/notificationService";
 
 export interface Notification {
-  id: number;
+  id: string;
   type: string;
   title: string;
   message: string;
@@ -48,14 +48,29 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       setNotificationLoading(true);
       try {
         const res = await getNotification(user.id);
-        setNotifications(res);
+        // Transform backend response to match frontend interface
+        const transformedNotifications = res.map((notification: any) => ({
+          id: notification.id,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          timestamp: notification.sent_at,
+          read: notification.is_read,
+        }));
+        setNotifications(transformedNotifications);
       } catch (e) {
         setNotifications([]);
       } finally {
         setNotificationLoading(false);
       }
     };
+
     fetchNotification();
+
+    // Set up periodic refresh every 30 seconds
+    const interval = setInterval(fetchNotification, 30000);
+
+    return () => clearInterval(interval);
   }, [user?.id]);
 
   return (

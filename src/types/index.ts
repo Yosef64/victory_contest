@@ -188,3 +188,19 @@ declare global {
     };
   }
 }
+
+export type PaymentStatus = "Approved" | "Pending" | "Rejected" | "Expired";
+
+// This now matches the interface you provided
+export interface PaymentRequest {
+  id: string;
+  userId: string;
+  fullName: string;
+  bankName: string;
+  billScreenshotUrl: string;
+  status: PaymentStatus;
+  rejectionReason?: string;
+  createdAt: string; // ISO String
+  updatedAt: string;
+  expirationDate?: string;
+}

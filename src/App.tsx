@@ -11,6 +11,8 @@ import ContestEditorial from "./pages/ContestEditorial";
 import { FeedbackPage } from "./pages/FeedBack";
 import { AIPracticePage } from "./pages/AIPractice";
 import RegistrationForm from "./pages/StudentRegisteration";
+import Payment from "./pages/Payment";
+import { UserPaymentHistoryPage } from "./pages/UserPaymentHistoryPage";
 // import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="ai-practice" element={<AIPracticePage />} />
           <Route path="register" element={<RegistrationForm />} />
+          <Route path="payment" element={<Payment />} />
+          <Route path="payment-history" element={<UserPaymentHistoryPage />} />
         </Route>
       </Routes>
     </Router>

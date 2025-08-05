@@ -1,10 +1,13 @@
 import React from "react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useNotification } from "../context/NotificationContext";
+import { markNotificationAsRead, deleteNotification } from "../services/notificationService";
 import {
   Bell,
   X,
   CheckCircle,
+  Trophy,
+  MessageSquare,
 } from "lucide-react";
 
 interface NotificationCenterProps {
@@ -20,21 +23,37 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const { notifications, setNotifications, notificationLoading } =
     useNotification();
 
-  const markAsRead = (id: number) => {
-    setNotifications((prev) =>
-      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
-    );
-    hapticFeedback("selection");
+  const markAsRead = async (id: string) => {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications((prev) =>
+        prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
+      );
+      hapticFeedback("selection");
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
-    hapticFeedback("impact", "light");
+  const markAllAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter((n) => !n.read);
+      await Promise.all(unreadNotifications.map((n) => markNotificationAsRead(n.id.toString())));
+      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+      hapticFeedback("impact", "light");
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
   };
 
-  const deleteNotification = (id: number) => {
-    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-    hapticFeedback("impact", "medium");
+  const deleteNotificationHandler = async (id: string) => {
+    try {
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+      hapticFeedback("impact", "medium");
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    }
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -48,6 +67,28 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "contest_announcement":
+        return Trophy;
+      case "feedback_question":
+        return MessageSquare;
+      default:
+        return Bell;
+    }
+  };
+
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case "contest_announcement":
+        return "text-yellow-500";
+      case "feedback_question":
+        return "text-blue-500";
+      default:
+        return "text-gray-500";
+    }
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -106,25 +147,25 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {notifications.map((notification) => {
-                const IconComponent = notification.icon || Bell;
+                const IconComponent = getNotificationIcon(notification.type);
+                const iconColor = getNotificationColor(notification.type);
                 return (
                   <div
                     key={notification.id}
                     className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${!notification.read
-                        ? "bg-blue-50/50 dark:bg-blue-900/10"
-                        : ""
+                      ? "bg-blue-50/50 dark:bg-blue-900/10"
+                      : ""
                       }`}
                   >
                     <div className="flex items-start space-x-3">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
-                            ? "bg-blue-100 dark:bg-blue-900/20"
-                            : "bg-gray-100 dark:bg-gray-700"
+                          ? "bg-blue-100 dark:bg-blue-900/20"
+                          : "bg-gray-100 dark:bg-gray-700"
                           }`}
                       >
                         <IconComponent
-                          className={`w-5 h-5 ${notification.color || "text-gray-500"
-                            }`}
+                          className={`w-5 h-5 ${iconColor}`}
                         />
                       </div>
 
@@ -133,8 +174,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                           <div className="flex-1">
                             <h4
                               className={`text-sm font-semibold ${!notification.read
-                                  ? "text-gray-900 dark:text-white"
-                                  : "text-gray-700 dark:text-gray-300"
+                                ? "text-gray-900 dark:text-white"
+                                : "text-gray-700 dark:text-gray-300"
                                 }`}
                             >
                               {notification.title}
@@ -162,7 +203,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             )}
                             <button
                               onClick={() =>
-                                deleteNotification(notification.id)
+                                deleteNotificationHandler(notification.id)
                               }
                               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
                               title="Delete"

@@ -16,6 +16,7 @@ import {
 import BotIcon from "../assets/bot-stroke-rounded.svg?react";
 import FeedbackIcon from "../assets/comment-add-01-stroke-rounded.svg?react";
 import UpgradeIcon from "../assets/sparkles-stroke-rounded.svg?react";
+import PaymentHistoryIcon from "../assets/document-validation-stroke-rounded.svg?react";
 const TopNavigation: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
   const location = useLocation();
@@ -78,6 +79,9 @@ const TopNavigation: React.FC = () => {
   const handleNotificationClick = () => {
     hapticFeedback("selection");
     setShowNotifications(true);
+  };
+  const handlePaymentsClick = () => {
+    navigate("/payment-history");
   };
 
   const handleAiPracticeClick = () => {
@@ -155,10 +159,18 @@ const TopNavigation: React.FC = () => {
                     <span>Upgrade</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
+                    // disabled={true}
+                    onSelect={handlePaymentsClick}
+                    className="cursor-pointer"
+                  >
+                    <PaymentHistoryIcon className="mr-2 h-5 w-5 dark:text-white text-yellow-500" />
+                    <span>Payments</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     onSelect={handleFeedbackClick}
                     className="cursor-pointer"
                   >
-                    <FeedbackIcon className="mr-2 h-6 w-6 dark:text-white" />
+                    <FeedbackIcon className="mr-2 h-5 w-5 dark:text-white" />
                     <span>Give Feedback</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

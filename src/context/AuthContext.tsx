@@ -1,144 +1,117 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+// src/contexts/AuthContext.tsx
+
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { useLocation, Navigate } from "react-router-dom";
 import { getStudentById } from "../services/studentServices";
 import { AuthStudent } from "../types";
 import { useTelegram } from "../hooks/useTelegram";
 import Loader from "../components/Loader";
-import ErrorView from "../components/ErrorView";
-import { RefreshCw, UserPlus } from "lucide-react";
 import ErrorState from "../components/ErrorState";
 
 interface AuthContextType {
   user: AuthStudent | null;
-  loading: boolean;
+  isLoading: boolean;
   error: string | null;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  error: null,
-  refreshUser: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<AuthStudent | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
-  const [userDetermined, setUserDetermined] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [status, setStatus] = useState<"pending" | "success" | "error">(
+    "pending"
+  );
+  const [error, setError] = useState<string | null>(null);
   const { user: tgUser } = useTelegram();
+  const location = useLocation();
 
-  const refreshUser = async () => {
-    if (!tgUser?.id) return;
-
-    setLoading(true);
-    seterror(null);
-    try {
-      const student = await getStudentById(tgUser.id.toString());
-      if (!student) {
-        setUser(null);
-        navigate("/register");
-      } else {
-        setUser(student);
-      }
-    } catch (err) {
-      setUser(null);
-      if (err && typeof err === "object" && "data" in err) {
-        const errorData = err as any;
-        if (errorData.data?.response?.error) {
-          seterror(errorData.data.response.error);
-        } else {
-          seterror("Failed to fetch user data");
-        }
-      } else {
-        seterror("An unexpected error occurred");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Only fetch user once per session
-    if (hasFetched || !tgUser?.id) {
-      if (!tgUser?.id) {
-        setLoading(false);
-        setUserDetermined(true);
-        navigate("/register");
-      }
+  // 1. Use useCallback to create a stable fetch function
+  const fetchUser = useCallback(async () => {
+    // Don't do anything if we don't have the telegram user ID yet
+    if (!tgUser?.id) {
+      setStatus("error");
+      setError(
+        "Telegram user not found. Please open this app through Telegram."
+      );
       return;
     }
 
-    const fetchUser = async () => {
-      setLoading(true);
-      setHasFetched(true);
-      try {
-        console.log("getting the student");
-        const student = await getStudentById(tgUser?.id.toString()!);
-        console.log(student);
-        if (!student) {
-          setUser(null);
-          setUserDetermined(true);
-          navigate("/register");
-        } else {
-          setUser(student);
-          setUserDetermined(true);
-        }
-      } catch (err) {
-        setUser(null);
-        // Proper error handling with type checking
-        if (err && typeof err === "object" && "data" in err) {
-          const errorData = err as any;
-          if (errorData.data?.response?.error) {
-            seterror(errorData.data.response.error);
-          } else {
-            seterror("Failed to fetch user data");
-          }
-        } else {
-          seterror("An unexpected error occurred");
-        }
-        setUserDetermined(true);
-        // navigate("/register");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-    // Only run on mount or when tgUser changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setStatus("pending");
+    setError(null);
+
+    try {
+      // 2. CRITICAL FIX: Use the actual Telegram user ID, not a hardcoded one
+      const student = await getStudentById(tgUser.id.toString());
+      setUser(student); // Can be a user object or null
+      setStatus("success");
+    } catch (err) {
+      // More robust error message handling
+      const message =
+        (err as any)?.message ||
+        "An unexpected error occurred while fetching your data.";
+      setError(message);
+      setStatus("error");
+    }
   }, [tgUser]);
 
-  // Don't render children until we've determined if user exists or not
-  if (loading || !userDetermined) {
+  // Initial fetch when the component mounts or tgUser changes
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  const isLoading = status === "pending";
+
+  // Show a full-page loader during the initial pending state
+  if (isLoading) {
     return <Loader />;
   }
 
-  if (error) {
+  // Show a full-page, actionable error state if fetching fails
+  if (status === "error") {
     return (
       <ErrorState
-        retryText="Try again"
-        onRetry={() => setLoading(true)}
-        description={error}
+        title="Authentication Failed"
+        description={error || "We couldn't verify your identity."}
+        onRetry={fetchUser} // The retry button now correctly re-triggers the fetch
+        retryText="Try Again"
       />
     );
   }
 
-  // Only render children if user exists (for all other pages)
+  // 3. Use declarative navigation for better stability (no flicker)
+  // If the fetch is successful but no user was found, and we're not on the register page, redirect.
   if (!user && location.pathname !== "/register") {
-    return null; // Don't render anything while navigating to register
+    return <Navigate to="/register" replace />;
   }
 
+  // If a user exists but they somehow land on the register page, send them to the dashboard.
+  if (user && location.pathname === "/register") {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // If all checks pass, provide the context and render the app
   return (
-    <AuthContext.Provider value={{ user, loading, error, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, error, refreshUser: fetchUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

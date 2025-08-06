@@ -92,8 +92,8 @@ export default function RegistrationForm() {
         ...values,
         age: values.age.toString(),
         imgurl: user?.photo_url,
-        telegram_id: user?.id ?? "12",
-        id: user?.id ?? "12",
+        telegram_id: user?.id.toString() ?? "12",
+        id: user?.id.toString() ?? "12",
       });
       message = "Registration Submitted!";
       success = true;

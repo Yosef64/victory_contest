@@ -73,6 +73,8 @@ export interface TelegramWebApp {
   openLink: (url: string) => void;
   openTelegramLink: (url: string) => void;
   openInvoice: (url: string, callback?: (status: string) => void) => void;
+  setHeaderColor: (color: string) => void;
+  setBackgroundColor: (color: string) => void;
 }
 
 export interface Question {
@@ -105,6 +107,9 @@ export interface Student {
   grade: string;
   imgurl?: string;
   isSuspended?: boolean;
+}
+export interface AuthStudent extends Student {
+  is_premium: boolean;
 }
 export interface Achievement {
   name: string;

@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "../context/NotificationContext";
-import { getStudentById } from "../services/studentServices";
+import { AuthProvider } from "../context/AuthContext";
 
 const Layout: React.FC = () => {
-  const { webApp, user } = useTelegram();
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const { webApp, setHeaderColor } = useTelegram();
   const location = useLocation();
 
   useEffect(() => {
@@ -54,26 +52,8 @@ const Layout: React.FC = () => {
         "--tg-theme-secondary-bg-color",
         theme.secondary_bg_color || "#f5f5f5"
       );
+      setHeaderColor("#8b5cf6"); // Purple
     }
-
-    if (!webApp) {
-      return;
-    }
-
-    const getStudent = async () => {
-      setLoading(true);
-      try {
-        const student = await getStudentById(user?.id.toString()!);
-        if (!student) {
-          navigate("/register");
-          return;
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    };
-    getStudent();
   }, [webApp]);
 
   const isDarkColor = (color: string): boolean => {
@@ -99,28 +79,23 @@ const Layout: React.FC = () => {
       "--link-color": theme.link_color || "#0088cc",
     } as React.CSSProperties;
   };
-  if (loading) {
-    return (
-      <div className="flex justify-center dark:bg-gray-800 items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div
       className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900"
       style={getThemeStyles()}
     >
-      <NotificationProvider>
-        <TopNavigation />
-      </NotificationProvider>
-      <main className="flex-1 pt-16 pb-20 overflow-y-auto">
-        <Outlet />
-        <Toaster />
-      </main>
-
-      {location.pathname !== "/register" && <BottomNavigation />}
+      {" "}
+      <AuthProvider>
+        <NotificationProvider>
+          <TopNavigation />
+        </NotificationProvider>
+        <main className="flex-1 pt-16 pb-20 overflow-y-auto">
+          <Outlet />
+          <Toaster />
+        </main>
+        {location.pathname !== "/register" && <BottomNavigation />}
+      </AuthProvider>
     </div>
   );
 };

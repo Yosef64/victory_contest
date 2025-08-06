@@ -9,7 +9,6 @@ export const useScreenshotProtection = () => {
   const suspiciousActivityCount = useRef(0);
 
   useEffect(() => {
-    // Create overlay for screenshot protection
     const createOverlay = (message = "Screenshots are not allowed") => {
       if (overlayRef.current || isShowingWarning.current) return;
 
@@ -55,7 +54,6 @@ export const useScreenshotProtection = () => {
       }
     };
 
-    // Desktop screenshot shortcuts
     const preventScreenshotShortcuts = (e: KeyboardEvent) => {
       // 1. Correct the key value here
       const forbiddenCombinations = [
@@ -186,7 +184,6 @@ export const useScreenshotProtection = () => {
         "mediaDevices" in navigator &&
         "getDisplayMedia" in navigator.mediaDevices
       ) {
-        // Override getDisplayMedia to detect screen recording attempts
         const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
         navigator.mediaDevices.getDisplayMedia = function (...args) {
           createOverlay("Screen recording is not allowed");

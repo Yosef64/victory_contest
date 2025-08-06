@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -30,9 +28,11 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, X, XCircle } from "lucide-react";
 import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -63,7 +63,9 @@ const formSchema = z.object({
 });
 
 export default function RegistrationForm() {
-  const { user } = useTelegram();
+  const { user, showMainButton, hideMainButton } = useTelegram();
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
@@ -85,17 +87,21 @@ export default function RegistrationForm() {
     let message;
     let success;
     try {
+      setSubmitting(true);
       await studentRegister({
         ...values,
+        age: values.age.toString(),
         imgurl: user?.photo_url,
-        telegram_id: user?.id,
-        id: user?.id,
+        telegram_id: user?.id ?? "12",
+        id: user?.id ?? "12",
       });
       message = "Registration Submitted!";
       success = true;
     } catch (error) {
       message = "Something went wrong";
       success = false;
+    } finally {
+      setSubmitting(false);
     }
     toast(message, {
       icon: success ? <CheckCircle /> : <XCircle />,
@@ -104,16 +110,20 @@ export default function RegistrationForm() {
         color: success ? "white" : "#721c24",
       },
     });
+    if (success) {
+      navigate("/");
+      return;
+    }
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen sm:p-6 lg:p-8">
+    <div className="sm:p-6 lg:p-8">
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold tracking-tight">
             Student Registration
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="dark:bg-gray-500">
             Fill out the form to register a new student. All fields marked with
             * are required.
           </CardDescription>
@@ -305,9 +315,12 @@ export default function RegistrationForm() {
                 />
               </div>
 
-              <div className="flex justify-end pt-4">
-                <Button type="submit" size="lg">
-                  Register Student
+              <div className="w-full">
+                <Button disabled={submitting} type="submit" size="lg">
+                  {submitting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {submitting ? "Processing" : "Register Student"}
                 </Button>
               </div>
             </form>

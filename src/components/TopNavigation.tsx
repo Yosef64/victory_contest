@@ -116,67 +116,69 @@ const TopNavigation: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleNotificationClick}
-              className="relative p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105"
-            >
-              <Bell size={18} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                {/* This is your exact button, used as the trigger */}
-                <button className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105">
-                  <Settings size={18} />
-                </button>
-              </DropdownMenuTrigger>
+          {location.pathname !== "/register" && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleNotificationClick}
+                className="relative p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  {/* This is your exact button, used as the trigger */}
+                  <button className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105">
+                    <Settings size={18} />
+                  </button>
+                </DropdownMenuTrigger>
 
-              {/* The dropdown content is styled to look professional */}
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">
-                  Advanced Options
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onSelect={handleAiPracticeClick}
-                    className="cursor-pointer"
-                  >
-                    <BotIcon className="mr-2 h-6 w-6 dark:text-white" />
-                    <span>AI Practice</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    // disabled={true}
-                    onSelect={handleUpgradeClick}
-                    className="cursor-pointer"
-                  >
-                    <UpgradeIcon className="mr-2 h-6 w-6 dark:text-white text-yellow-500" />
-                    <span>Upgrade</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    // disabled={true}
-                    onSelect={handlePaymentsClick}
-                    className="cursor-pointer"
-                  >
-                    <PaymentHistoryIcon className="mr-2 h-5 w-5 dark:text-white text-yellow-500" />
-                    <span>Payments</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={handleFeedbackClick}
-                    className="cursor-pointer"
-                  >
-                    <FeedbackIcon className="mr-2 h-5 w-5 dark:text-white" />
-                    <span>Give Feedback</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                {/* The dropdown content is styled to look professional */}
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">
+                    Advanced Options
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      onSelect={handleAiPracticeClick}
+                      className="cursor-pointer"
+                    >
+                      <BotIcon className="mr-2 h-6 w-6 dark:text-white" />
+                      <span>AI Practice</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      // disabled={true}
+                      onSelect={handleUpgradeClick}
+                      className="cursor-pointer"
+                    >
+                      <UpgradeIcon className="mr-2 h-6 w-6 dark:text-white text-yellow-500" />
+                      <span>Upgrade</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      // disabled={true}
+                      onSelect={handlePaymentsClick}
+                      className="cursor-pointer"
+                    >
+                      <PaymentHistoryIcon className="mr-2 h-6 w-6 dark:text-white text-black" />
+                      <span>Payments</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={handleFeedbackClick}
+                      className="cursor-pointer"
+                    >
+                      <FeedbackIcon className="mr-2 h-6 w-6 dark:text-white" />
+                      <span>Give Feedback</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,13 +1,17 @@
-import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "../context/NotificationContext";
+import { getStudentById } from "../services/studentServices";
 
 const Layout: React.FC = () => {
-  const { webApp } = useTelegram();
+  const { webApp, user } = useTelegram();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (webApp) {
@@ -51,6 +55,25 @@ const Layout: React.FC = () => {
         theme.secondary_bg_color || "#f5f5f5"
       );
     }
+
+    if (!webApp) {
+      return;
+    }
+
+    const getStudent = async () => {
+      setLoading(true);
+      try {
+        const student = await getStudentById(user?.id.toString()!);
+        if (!student) {
+          navigate("/register");
+          return;
+        }
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+    getStudent();
   }, [webApp]);
 
   const isDarkColor = (color: string): boolean => {
@@ -76,6 +99,13 @@ const Layout: React.FC = () => {
       "--link-color": theme.link_color || "#0088cc",
     } as React.CSSProperties;
   };
+  if (loading) {
+    return (
+      <div className="flex justify-center dark:bg-gray-800 items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -90,7 +120,7 @@ const Layout: React.FC = () => {
         <Toaster />
       </main>
 
-      <BottomNavigation />
+      {location.pathname !== "/register" && <BottomNavigation />}
     </div>
   );
 };

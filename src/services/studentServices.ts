@@ -14,6 +14,11 @@ export async function getUserBadge(user_id: string) {
   return res.data.submissions;
 }
 export async function studentRegister(values: any) {
-  const res = await api.post("/student/add", values);
+  const res = await api.post("/student/", values);
   return res.data;
+}
+
+export async function getStudentById(id: string) {
+  const res = await api.get(`/student/${id}`);
+  return res.data.student;
 }

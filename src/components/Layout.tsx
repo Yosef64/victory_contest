@@ -86,16 +86,14 @@ const Layout: React.FC = () => {
       style={getThemeStyles()}
     >
       {" "}
-      <AuthProvider>
-        <NotificationProvider>
-          <TopNavigation />
-        </NotificationProvider>
-        <main className="flex-1 pt-16 pb-20 overflow-y-auto">
-          <Outlet />
-          <Toaster />
-        </main>
-        {location.pathname !== "/register" && <BottomNavigation />}
-      </AuthProvider>
+      <NotificationProvider>
+        <TopNavigation />
+      </NotificationProvider>
+      <main className="flex-1 pt-16 pb-20 overflow-y-auto">
+        <Outlet />
+        <Toaster />
+      </main>
+      {location.pathname !== "/register" && <BottomNavigation />}
     </div>
   );
 };

@@ -13,6 +13,7 @@ import { AIPracticePage } from "./pages/AIPractice";
 import RegistrationForm from "./pages/StudentRegisteration";
 import Payment from "./pages/Payment";
 import { UserPaymentHistoryPage } from "./pages/UserPaymentHistoryPage";
+import { AuthProvider } from "./context/AuthContext";
 // import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
@@ -28,7 +29,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            <AuthProvider>
+              <Layout />
+            </AuthProvider>
+          }
+        >
           {" "}
           <Route index element={<Home />} />
           <Route path="contest" element={<ContestComponent />} />

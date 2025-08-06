@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { TelegramWebApp, TelegramUser } from '../types';
+import { useEffect, useState } from "react";
+import { TelegramWebApp, TelegramUser } from "../types";
 
 export const useTelegram = () => {
   const [webApp, setWebApp] = useState<TelegramWebApp | null>(null);
@@ -50,16 +50,21 @@ export const useTelegram = () => {
     }
   };
 
-  const hapticFeedback = (type: 'impact' | 'notification' | 'selection', style?: string) => {
+  const hapticFeedback = (
+    type: "impact" | "notification" | "selection",
+    style?: string
+  ) => {
     if (webApp) {
       switch (type) {
-        case 'impact':
-          webApp.HapticFeedback.impactOccurred(style as any || 'medium');
+        case "impact":
+          webApp.HapticFeedback.impactOccurred((style as any) || "medium");
           break;
-        case 'notification':
-          webApp.HapticFeedback.notificationOccurred(style as any || 'success');
+        case "notification":
+          webApp.HapticFeedback.notificationOccurred(
+            (style as any) || "success"
+          );
           break;
-        case 'selection':
+        case "selection":
           webApp.HapticFeedback.selectionChanged();
           break;
       }
@@ -69,6 +74,18 @@ export const useTelegram = () => {
   const close = () => {
     if (webApp) {
       webApp.close();
+    }
+  };
+
+  const setHeaderColor = (color: string) => {
+    if (webApp) {
+      webApp.setHeaderColor(color);
+    }
+  };
+
+  const setBackgroundColor = (color: string) => {
+    if (webApp) {
+      webApp.setBackgroundColor(color);
     }
   };
 
@@ -82,6 +99,8 @@ export const useTelegram = () => {
     showBackButton,
     hideBackButton,
     hapticFeedback,
-    close
+    close,
+    setHeaderColor,
+    setBackgroundColor,
   };
 };

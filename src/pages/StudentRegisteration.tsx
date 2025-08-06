@@ -63,7 +63,7 @@ const formSchema = z.object({
 });
 
 export default function RegistrationForm() {
-  const { user, showMainButton, hideMainButton } = useTelegram();
+  const { user } = useTelegram();
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -123,7 +123,7 @@ export default function RegistrationForm() {
           <CardTitle className="text-2xl font-bold tracking-tight">
             Student Registration
           </CardTitle>
-          <CardDescription className="dark:bg-gray-500">
+          <CardDescription className="dark:text-gray-400">
             Fill out the form to register a new student. All fields marked with
             * are required.
           </CardDescription>
@@ -157,7 +157,7 @@ export default function RegistrationForm() {
                       <FormControl>
                         <Input placeholder="+251" {...field} />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="dark:text-gray-400">
                         Notice: The Number must be 12 digit and starts with +251
                         or 09|07
                       </FormDescription>
@@ -315,12 +315,17 @@ export default function RegistrationForm() {
                 />
               </div>
 
-              <div className="w-full">
-                <Button disabled={submitting} type="submit" size="lg">
+              <div className="w-full flex items-center justify-center">
+                <Button
+                  disabled={submitting}
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                >
                   {submitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {submitting ? "Processing" : "Register Student"}
+                  {submitting ? "Processing" : "Register"}
                 </Button>
               </div>
             </form>

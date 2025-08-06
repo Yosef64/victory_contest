@@ -9,6 +9,7 @@ import {
 import { fetchUserPaymentRequests } from "../services/paymentServices"; // Updated import
 import { PaymentRequest } from "../types/index"; // Updated import
 import { PaymentTimelineItem } from "../components/payment-history/payment-timeline-item";
+import { useTelegram } from "../hooks/useTelegram";
 
 // This is a simple update to the timeline component props
 function UpdatedPaymentTimeline({ requests }: { requests: PaymentRequest[] }) {
@@ -32,8 +33,7 @@ export function UserPaymentHistoryPage() {
   const [requests, setRequests] = useState<PaymentRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const userId = "112pay";
+  const { user } = useTelegram();
 
   useEffect(() => {
     // ... fetching logic remains the same ...
@@ -41,7 +41,7 @@ export function UserPaymentHistoryPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await fetchUserPaymentRequests(userId);
+        const data = await fetchUserPaymentRequests(user?.id.toString() || "");
         setRequests(data);
       } catch (err) {
         setError("Failed to load payment history. Please try again later.");
@@ -50,7 +50,7 @@ export function UserPaymentHistoryPage() {
       }
     };
     loadData();
-  }, [userId]);
+  }, [user]);
 
   const renderContent = () => {
     // ... render logic remains the same ...

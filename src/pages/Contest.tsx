@@ -56,7 +56,7 @@ const ContestComponent: React.FC = () => {
     const fetchAndSetupContest = async () => {
       try {
         // Check if user is already active in the contest
-        await api.get(`/contest/is_active/${conId}/${user?.id}`);
+        await api.get(`/contest-registration/isActive/${conId}/${user?.id}`);
 
         const contestData = await getContestById(conId);
         setContest(contestData);

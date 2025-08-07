@@ -24,7 +24,9 @@ export const isUserRegistered = async (
   contestId: string,
   studentId: string
 ): Promise<boolean> => {
-  const res = await api.get(`/contest/is_registered/${contestId}/${studentId}`);
+  const res = await api.get(
+    `/contest-registration/check/${studentId}/${contestId}`
+  );
   return res.data.registered;
 };
 

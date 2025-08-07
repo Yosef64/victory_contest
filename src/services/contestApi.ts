@@ -32,7 +32,7 @@ export const registerForContest = async (
   contestId: string,
   studentId: string
 ): Promise<any> => {
-  const res = await api.post(`/contest/register`, {
+  const res = await api.post(`/contest-registration/`, {
     contest_id: contestId,
     tele_id: studentId,
   });

@@ -27,7 +27,7 @@ export const isUserRegistered = async (
   const res = await api.get(
     `/contest-registration/check/${studentId}/${contestId}`
   );
-  return res.data.registered;
+  return res.data.is_registered;
 };
 
 export const registerForContest = async (

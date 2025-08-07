@@ -195,12 +195,7 @@ const ContestComponent: React.FC = () => {
   const endContest = async () => {
     // Organize submission data
     let updatedAnswers = [...answers];
-    if (updatedAnswers.length === 0) {
-      toast.error("No answers submitted!", {
-        description: "Please answer at least one question before submitting.",
-      });
-      return;
-    }
+
     if (selectedAnswer !== null) {
       const currentQuestion = questions[currentQuestionIndex];
       const isCorrect = selectedAnswer === Number(currentQuestion.answer);
@@ -219,6 +214,13 @@ const ContestComponent: React.FC = () => {
       } else {
         updatedAnswers.push(newAnswer);
       }
+    }
+
+    if (updatedAnswers.length === 0) {
+      toast.error("No answers submitted!", {
+        description: "Please answer at least one question before submitting.",
+      });
+      return;
     }
 
     const correctAnswers = updatedAnswers.filter((a) => a.is_correct).length;

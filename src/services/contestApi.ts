@@ -36,7 +36,7 @@ export const registerForContest = async (
 ): Promise<any> => {
   const res = await api.post(`/contest-registration/`, {
     contest_id: contestId,
-    tele_id: studentId,
+    student_id: studentId,
   });
   return res.data;
 };

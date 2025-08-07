@@ -4,7 +4,6 @@ import { useTelegram } from "../hooks/useTelegram";
 import {
   CheckCircle,
   AlertCircle,
-  User,
   BookOpen,
   Clock,
   Trophy,
@@ -26,7 +25,7 @@ const Registration: React.FC = () => {
     experience: "",
     terms: false,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, _] = useState(false);
   const [registering, setRegistering] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const contest_id = searchParams.get("con");

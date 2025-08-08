@@ -56,7 +56,7 @@ const ContestComponent: React.FC = () => {
     const fetchAndSetupContest = async () => {
       try {
         // Check if user is already active in the contest
-        await api.get(`/contest/is_active/${conId}/${user?.id}`);
+        await api.get(`/contest-registration/isActive/${conId}/${user?.id}`);
 
         const contestData = await getContestById(conId);
         setContest(contestData);
@@ -194,13 +194,8 @@ const ContestComponent: React.FC = () => {
   };
   const endContest = async () => {
     // Organize submission data
-    if (answers.length === 0) {
-      toast.error("No answers submitted!", {
-        description: "Please answer at least one question before submitting.",
-      });
-      return;
-    }
     let updatedAnswers = [...answers];
+
     if (selectedAnswer !== null) {
       const currentQuestion = questions[currentQuestionIndex];
       const isCorrect = selectedAnswer === Number(currentQuestion.answer);
@@ -220,6 +215,14 @@ const ContestComponent: React.FC = () => {
         updatedAnswers.push(newAnswer);
       }
     }
+
+    if (updatedAnswers.length === 0) {
+      toast.error("No answers submitted!", {
+        description: "Please answer at least one question before submitting.",
+      });
+      return;
+    }
+
     const correctAnswers = updatedAnswers.filter((a) => a.is_correct).length;
     const score = correctAnswers;
     const missed_questions = updatedAnswers
@@ -235,7 +238,7 @@ const ContestComponent: React.FC = () => {
     }
     const submission = {
       student: {
-        telegram_id: user?.id?.toString() || "",
+        id: user?.id?.toString() || "",
         imgurl: user?.photo_url || "",
         name: user?.first_name || "",
       },

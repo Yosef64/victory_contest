@@ -24,17 +24,19 @@ export const isUserRegistered = async (
   contestId: string,
   studentId: string
 ): Promise<boolean> => {
-  const res = await api.get(`/contest/is_registered/${contestId}/${studentId}`);
-  return res.data.registered;
+  const res = await api.get(
+    `/contest-registration/check/${studentId}/${contestId}`
+  );
+  return res.data.is_registered;
 };
 
 export const registerForContest = async (
   contestId: string,
   studentId: string
 ): Promise<any> => {
-  const res = await api.post(`/contest/register`, {
+  const res = await api.post(`/contest-registration/`, {
     contest_id: contestId,
-    tele_id: studentId,
+    student_id: studentId,
   });
   return res.data;
 };

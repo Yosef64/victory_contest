@@ -42,10 +42,15 @@ import {
   Brain,
   ChevronDown,
   Check,
+  Sparkles,
+  Loader2,
+  MessageSquare,
+  Play,
 } from "lucide-react";
 import api from "../services/api";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
+import { getAiRecommendationsFromApi } from "../services/aiService";
 
 const Statistics: React.FC = () => {
   const { user } = useTelegram();
@@ -55,6 +60,26 @@ const Statistics: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<
     "subjects" | "chapters" | "grades"
   >("subjects");
+  const [aiRecommendations, setAiRecommendations] = useState<{
+    [key: string]: {
+      loading: boolean;
+      recommendations: string[];
+      strategies: string[];
+      resources: Array<{
+        name: string;
+        topic: string;
+        type: string;
+        platform: string;
+      }>;
+      practicePlan: Array<{
+        timeframe: string;
+        focus: string;
+      }>;
+    };
+  }>({});
+  const [showRecommendations, setShowRecommendations] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     if (!user?.id) {
@@ -65,12 +90,88 @@ const Statistics: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/statistics/${user.id}`);
-        if (res.data && res.data.data) {
-          setStats(res.data.data);
+        const res = await api.get(`/submission/statistics/${user.id}`);
+        if (res.data && res.data.statistics) {
+          setStats(res.data.statistics);
         } else {
           setError("Invalid statistics data format");
         }
+        // const mockStat = {
+        //   total_contests: 15,
+        //   total_questions: 350,
+        //   correct_answers: 280,
+        //   accuracy: 0.8,
+        //   average_time: 45.5,
+        //   subjects: {
+        //     Mathematics: {
+        //       total: 150,
+        //       correct: 110,
+        //       accuracy: 0.733,
+        //     },
+        //     Physics: {
+        //       total: 100,
+        //       correct: 90,
+        //       accuracy: 0.9,
+        //     },
+        //     Chemistry: {
+        //       total: 100,
+        //       correct: 80,
+        //       accuracy: 0.8,
+        //     },
+        //   },
+        //   chapters: {
+        //     Algebra: {
+        //       total: 75,
+        //       correct: 50,
+        //       accuracy: 0.667,
+        //     },
+        //     Kinematics: {
+        //       total: 50,
+        //       correct: 48,
+        //       accuracy: 0.96,
+        //     },
+        //     Stoichiometry: {
+        //       total: 60,
+        //       correct: 45,
+        //       accuracy: 0.75,
+        //     },
+        //   },
+        //   grades: {
+        //     "Grade 9": {
+        //       total: 100,
+        //       correct: 85,
+        //       accuracy: 0.85,
+        //     },
+        //     "Grade 10": {
+        //       total: 120,
+        //       correct: 95,
+        //       accuracy: 0.792,
+        //     },
+        //     "Grade 11": {
+        //       total: 130,
+        //       correct: 100,
+        //       accuracy: 0.769,
+        //     },
+        //   },
+        //   performance_trend: [
+        //     {
+        //       month: "May",
+        //       accuracy: 0.75,
+        //       questions: 100,
+        //     },
+        //     {
+        //       month: "June",
+        //       accuracy: 0.82,
+        //       questions: 120,
+        //     },
+        //     {
+        //       month: "July",
+        //       accuracy: 0.81,
+        //       questions: 130,
+        //     },
+        //   ],
+        // };
+        // setStats(mockStat);
       } catch (err) {
         setError("Failed to fetch statistics");
         console.error("Error fetching statistics:", err);
@@ -137,13 +238,7 @@ const Statistics: React.FC = () => {
   const getRadarData = () => {
     if (!stats) return [];
 
-    const mainSubjects = [
-      "Mathematics",
-      "Science",
-      "English",
-      "History",
-      "Geography",
-    ];
+    const mainSubjects = Object.keys(stats.subjects);
 
     return mainSubjects.map((subject) => ({
       subject,
@@ -180,6 +275,57 @@ const Statistics: React.FC = () => {
       value: item.accuracy,
       color: getAccuracyColor(item.accuracy),
     }));
+  };
+
+  const getAiRecommendations = async (subjectName: string) => {
+    if (aiRecommendations[subjectName]?.recommendations.length > 0) {
+      setShowRecommendations((prev) => ({
+        ...prev,
+        [subjectName]: !prev[subjectName],
+      }));
+      return;
+    }
+
+    setAiRecommendations((prev) => ({
+      ...prev,
+      [subjectName]: {
+        ...prev[subjectName],
+        loading: true,
+      },
+    }));
+
+    try {
+      const recommendation = await getAiRecommendationsFromApi({
+        subject: subjectName,
+        chapters: stats?.chapters,
+      });
+      setAiRecommendations((prev) => ({
+        ...prev,
+        [subjectName]: {
+          loading: false,
+          ...recommendation,
+        },
+      }));
+
+      setShowRecommendations((prev) => ({
+        ...prev,
+        [subjectName]: true,
+      }));
+    } catch (error) {
+      console.error("Error fetching AI recommendations:", error);
+      setAiRecommendations((prev) => ({
+        ...prev,
+        [subjectName]: {
+          loading: false,
+          recommendations: [
+            "Failed to load recommendations. Please try again.",
+          ],
+          strategies: [],
+          resources: [],
+          practicePlan: [],
+        },
+      }));
+    }
   };
 
   if (loading) {
@@ -504,7 +650,7 @@ const Statistics: React.FC = () => {
 
       {/* Areas for Improvement*/}
       <div className="grid md:grid-cols-2 gap-6">
-        {improvementAreas.length > 0 && (
+        {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
               <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
@@ -514,29 +660,176 @@ const Statistics: React.FC = () => {
               {improvementAreas.map((area, index) => (
                 <div
                   key={area.name}
-                  className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl"
+                  className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                      <span className="text-orange-600 dark:text-orange-400 font-bold text-sm">
-                        {index + 1}
-                      </span>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                        <span className="text-orange-600 dark:text-orange-400 font-bold text-sm">
+                          {index + 1}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-800 dark:text-white">
+                          {area.name}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {area.correct}/{area.total} correct • {area.type}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium text-gray-800 dark:text-white">
-                        {area.name}
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                        {area.accuracy}%
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {area.correct}/{area.total} correct • {area.type}
-                      </div>
+                      <div className="text-xs text-gray-500">Accuracy</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                      {area.accuracy}%
-                    </div>
-                    <div className="text-xs text-gray-500">Accuracy</div>
+
+                  {/* AI Recommendation Button */}
+                  <div className="mt-3">
+                    <Button
+                      onClick={() => getAiRecommendations(area.name)}
+                      disabled={aiRecommendations[area.name]?.loading}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
+                    >
+                      {aiRecommendations[area.name]?.loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Getting AI Recommendations...
+                        </>
+                      ) : showRecommendations[area.name] ? (
+                        <>
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Hide AI Recommendations
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Get AI Recommendations
+                        </>
+                      )}
+                    </Button>
                   </div>
+
+                  {/* AI Recommendations Display */}
+                  {showRecommendations[area.name] &&
+                    aiRecommendations[area.name] && (
+                      <div className="mt-4 space-y-4">
+                        {/* Recommendations */}
+                        <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
+                            <Lightbulb className="w-4 h-4 mr-2 text-yellow-500" />
+                            Key Recommendations
+                          </h4>
+                          <ul className="space-y-2">
+                            {aiRecommendations[area.name].recommendations.map(
+                              (rec, idx) => (
+                                <li
+                                  key={idx}
+                                  className="flex items-start space-x-2 text-sm text-gray-700 dark:text-gray-300"
+                                >
+                                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                                  <span>{rec}</span>
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+
+                        {/* Strategies */}
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
+                            <Brain className="w-4 h-4 mr-2 text-blue-500" />
+                            Study Strategies
+                          </h4>
+                          <ul className="space-y-2">
+                            {aiRecommendations[area.name].strategies.map(
+                              (strategy, idx) => (
+                                <li
+                                  key={idx}
+                                  className="flex items-start space-x-2 text-sm text-gray-700 dark:text-gray-300"
+                                >
+                                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                  <span>{strategy}</span>
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+
+                        {/* Resources */}
+                        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
+                            <BookOpen className="w-4 h-4 mr-2 text-green-500" />
+                            Recommended Resources
+                          </h4>
+                          <div className="space-y-3">
+                            {aiRecommendations[area.name].resources.map(
+                              (resource, idx) => (
+                                <div
+                                  key={idx}
+                                  className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="font-medium text-gray-800 dark:text-white text-sm">
+                                        {resource.name}
+                                      </div>
+                                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                        Topic: {resource.topic} • Type:{" "}
+                                        {resource.type}
+                                      </div>
+                                    </div>
+                                    <div className="ml-2">
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                        {resource.platform}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Practice Plan */}
+                        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
+                            <Play className="w-4 h-4 mr-2 text-purple-500" />
+                            Practice Plan
+                          </h4>
+                          <div className="space-y-3">
+                            {aiRecommendations[area.name].practicePlan.map(
+                              (step, idx) => (
+                                <div
+                                  key={idx}
+                                  className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3"
+                                >
+                                  <div className="flex items-start space-x-3">
+                                    <div className="flex-shrink-0">
+                                      <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                        <span className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                                          {idx + 1}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className="font-medium text-purple-800 dark:text-purple-300 text-sm">
+                                        {step.timeframe}
+                                      </div>
+                                      <div className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                                        {step.focus}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
@@ -556,7 +849,7 @@ const Statistics: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        }
 
         {strengths.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">

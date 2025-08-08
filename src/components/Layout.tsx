@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "../context/NotificationContext";
+import { AuthProvider } from "../context/AuthContext";
 
 const Layout: React.FC = () => {
-  const { webApp } = useTelegram();
+  const { webApp, setHeaderColor } = useTelegram();
+  const location = useLocation();
 
   useEffect(() => {
     if (webApp) {
@@ -50,6 +52,7 @@ const Layout: React.FC = () => {
         "--tg-theme-secondary-bg-color",
         theme.secondary_bg_color || "#f5f5f5"
       );
+      setHeaderColor("#8b5cf6"); // Purple
     }
   }, [webApp]);
 
@@ -82,6 +85,7 @@ const Layout: React.FC = () => {
       className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900"
       style={getThemeStyles()}
     >
+      {" "}
       <NotificationProvider>
         <TopNavigation />
       </NotificationProvider>
@@ -89,8 +93,7 @@ const Layout: React.FC = () => {
         <Outlet />
         <Toaster />
       </main>
-
-      <BottomNavigation />
+      {location.pathname !== "/register" && <BottomNavigation />}
     </div>
   );
 };

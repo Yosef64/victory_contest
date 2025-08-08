@@ -238,7 +238,7 @@ const ContestComponent: React.FC = () => {
     }
     const submission = {
       student: {
-        telegram_id: user?.id?.toString() || "",
+        id: user?.id?.toString() || "",
         imgurl: user?.photo_url || "",
         name: user?.first_name || "",
       },

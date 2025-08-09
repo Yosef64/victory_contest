@@ -87,7 +87,7 @@ export interface Question {
   chapter: string;
   multiple_choice: string[];
   difficulty?: "easy" | "medium" | "hard";
-  question_image?: string;
+  question_img?: string;
 }
 
 export interface ContestAnswer {
@@ -107,6 +107,8 @@ export interface Student {
   grade: string;
   imgurl?: string;
   isSuspended?: boolean;
+  badge?: string[];
+  is_premium: boolean;
 }
 export interface AuthStudent extends Student {
   is_premium: boolean;
@@ -208,4 +210,13 @@ export interface PaymentRequest {
   createdAt: string; // ISO String
   updatedAt: string;
   expirationDate?: string;
+}
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
+  earned: boolean;
+  earnedDate: string;
 }

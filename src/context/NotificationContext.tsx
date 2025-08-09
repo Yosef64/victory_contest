@@ -47,17 +47,17 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       if (!user?.id) return;
       setNotificationLoading(true);
       try {
-        const res = await getNotification(user.id);
-        // Transform backend response to match frontend interface
-        const transformedNotifications = res.map((notification: any) => ({
-          id: notification.id,
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          timestamp: notification.sent_at,
-          read: notification.is_read,
-        }));
-        setNotifications(transformedNotifications);
+        // const res = await getNotification(user.id);
+        // // Transform backend response to match frontend interface
+        // const transformedNotifications = res.map((notification: any) => ({
+        //   id: notification.id,
+        //   type: notification.type,
+        //   title: notification.title,
+        //   message: notification.message,
+        //   timestamp: notification.sent_at,
+        //   read: notification.is_read,
+        // }));
+        // setNotifications(transformedNotifications);
       } catch (e) {
         setNotifications([]);
       } finally {

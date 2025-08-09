@@ -85,15 +85,16 @@ const Layout: React.FC = () => {
       className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900"
       style={getThemeStyles()}
     >
-      {" "}
-      <NotificationProvider>
-        <TopNavigation />
-      </NotificationProvider>
-      <main className="flex-1 pt-16 pb-20 overflow-y-auto">
-        <Outlet />
-        <Toaster />
-      </main>
-      {location.pathname !== "/register" && <BottomNavigation />}
+      <AuthProvider>
+        <NotificationProvider>
+          <TopNavigation />
+        </NotificationProvider>
+        <main className="flex-1 pt-16 pb-20 overflow-y-auto">
+          <Outlet />
+          <Toaster />
+        </main>
+        {location.pathname !== "/register" && <BottomNavigation />}
+      </AuthProvider>{" "}
     </div>
   );
 };

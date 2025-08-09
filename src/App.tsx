@@ -29,14 +29,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <AuthProvider>
-              <Layout />
-            </AuthProvider>
-          }
-        >
+        <Route path="/" element={<Layout />}>
           {" "}
           <Route index element={<Home />} />
           <Route path="contest" element={<ContestComponent />} />

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import api from "../services/api";
 import { submitContestResult } from "../services/contestApi";
 import { Button } from "../components/ui/button";
+import axios from "axios";
 
 const ContestComponent: React.FC = () => {
   const { hapticFeedback, hideMainButton } = useTelegram();
@@ -65,11 +66,19 @@ const ContestComponent: React.FC = () => {
         const diffInSeconds = Math.floor((endTime - now) / 1000);
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
       } catch (err: any) {
-        const apiError =
-          err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          err?.response?.data?.detail;
-        toast.error(apiError || "An unexpected error occurred.", {
+        let apiError: string;
+        if (axios.isAxiosError(err)) {
+          apiError =
+            (typeof err.response?.data === "string"
+              ? err.response.data
+              : err.response?.data?.error ||
+                err.response?.data?.message ||
+                err.response?.data?.detail) || err.message;
+        } else {
+          apiError = err?.message || "An unexpected error occurred.";
+        }
+
+        toast.error(apiError, {
           description: "Please try again later or contact support.",
           icon: <XCircle className="w-6 h-6 text-red-500" />,
         });
@@ -379,10 +388,10 @@ const ContestComponent: React.FC = () => {
         </h3>
 
         {/* --- START: Image Display Logic --- */}
-        {currentQuestion.question_image && (
+        {currentQuestion.question_img && (
           <div className="my-6" onClick={() => setIsImageModalOpen(true)}>
             <img
-              src={currentQuestion.question_image}
+              src={currentQuestion.question_img}
               alt={`Illustration for question ${currentQuestionIndex + 1}`}
               className="w-full max-h-64 object-contain rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
               onError={(e) => {
@@ -459,7 +468,7 @@ const ContestComponent: React.FC = () => {
       </div>
 
       {/* --- START: Image Modal --- */}
-      {isImageModalOpen && currentQuestion.question_image && (
+      {isImageModalOpen && currentQuestion.question_img && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 animate-fade-in"
           onClick={() => setIsImageModalOpen(false)}
@@ -471,7 +480,7 @@ const ContestComponent: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={currentQuestion.question_image}
+              src={currentQuestion.question_img}
               alt="Enlarged view of the question illustration"
               className="w-auto h-auto max-w-full max-h-[90vh] object-contain rounded-lg"
             />

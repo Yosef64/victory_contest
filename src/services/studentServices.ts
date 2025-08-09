@@ -1,8 +1,8 @@
 import api from "./api";
 
 export async function getUserStat(user_id: string) {
-  const res = await api.get(`/submission/statistics/${user_id}`);
-  return res.data.message;
+  const res = await api.get(`/submission/statistics-profile/${user_id}`);
+  return res.data.stat;
 }
 
 export async function getUserProfile(user_id: string) {

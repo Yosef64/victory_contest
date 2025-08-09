@@ -115,19 +115,19 @@ const Profile = () => {
     age: "",
     is_premium: false,
   });
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const [userStats, setUserStats] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
   //Debugger
-  if (user) {
-    toast.error(`use is ${JSON.stringify(user)}`, {
-      style: {
-        backgroundColor: "red",
-        color: "white",
-      },
-    });
-  }
+  // if (user) {
+  //   toast.error(`use is ${JSON.stringify(user)}`, {
+  //     style: {
+  //       backgroundColor: "red",
+  //       color: "white",
+  //     },
+  //   });
+  // }
 
   useEffect(() => {
     let isMounted = true;
@@ -140,9 +140,9 @@ const Profile = () => {
 
       try {
         setProfileLoading(true);
-        const [stat, prof] = await Promise.all([
+        const [stat] = await Promise.all([
           getUserStat(tgUser?.id.toString()!),
-          getUserProfile(tgUser?.id.toString()!),
+          // getUserProfile(tgUser?.id.toString()!),
         ]);
 
         if (isMounted) {
@@ -152,25 +152,6 @@ const Profile = () => {
             throw new Error("Invalid stats response");
           }
           setUserStats(stat);
-
-          // Validate profile
-          if (!prof || typeof prof !== "object") {
-            console.error("Invalid profile response:", prof);
-            throw new Error("Invalid profile response");
-          }
-          setEditedProfile({
-            name: prof.name || tgUser?.first_name || "",
-            grade: prof.grade || "11th Grade",
-            city: prof.city || "",
-            region: prof.region || "",
-            school: prof.school || "",
-            imgurl: prof.imgurl || tgUser?.photo_url || "",
-            isSuspended: prof.isSuspended ?? false,
-            telegram_id: prof.telegram_id || tgUser?.id.toString() || "",
-            id: prof.id || tgUser?.id.toString() || "",
-            age: prof.age || "",
-            is_premium: prof.is_premium,
-          });
         }
       } catch (e) {
         let message = "Unknown error";

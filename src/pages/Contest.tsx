@@ -66,8 +66,8 @@ const ContestComponent: React.FC = () => {
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
       } catch (err: any) {
         const apiError =
-          err?.response?.data?.message ||
           err?.response?.data?.error ||
+          err?.response?.data?.message ||
           err?.response?.data?.detail;
         toast.error(apiError || "An unexpected error occurred.", {
           description: "Please try again later or contact support.",

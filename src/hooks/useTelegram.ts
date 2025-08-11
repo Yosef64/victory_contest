@@ -89,6 +89,92 @@ export const useTelegram = () => {
     }
   };
 
+  const showPopup = (
+    title: string,
+    message: string,
+    buttons?: Array<{ id: string; type?: string; text: string }>
+  ) => {
+    if (webApp) {
+      webApp.showPopup(
+        {
+          title,
+          message,
+          buttons: buttons || [{ id: "ok", type: "ok", text: "OK" }],
+        },
+        (buttonId) => {
+          console.log("Popup button clicked:", buttonId);
+        }
+      );
+    }
+  };
+
+  const showAlert = (message: string) => {
+    if (webApp) {
+      webApp.showAlert(message);
+    }
+  };
+
+  const showConfirm = (
+    message: string,
+    callback: (confirmed: boolean) => void
+  ) => {
+    if (webApp) {
+      webApp.showConfirm(message, callback);
+    }
+  };
+
+  const openLink = (url: string) => {
+    if (webApp) {
+      webApp.openLink(url);
+    }
+  };
+
+  const openTelegramLink = (url: string) => {
+    if (webApp) {
+      webApp.openTelegramLink(url);
+    }
+  };
+
+  const requestWriteAccess = () => {
+    if (webApp) {
+      webApp.requestWriteAccess((granted) => {
+        console.log("Write access:", granted);
+      });
+    }
+  };
+
+  const requestContact = () => {
+    if (webApp) {
+      webApp.requestContact((shared) => {
+        console.log("Contact shared:", shared);
+      });
+    }
+  };
+
+  const enableClosingConfirmation = () => {
+    if (webApp) {
+      webApp.enableClosingConfirmation();
+    }
+  };
+
+  const disableClosingConfirmation = () => {
+    if (webApp) {
+      webApp.disableClosingConfirmation();
+    }
+  };
+
+  const switchInlineQuery = (query: string, chatTypes?: string[]) => {
+    if (webApp) {
+      webApp.switchInlineQuery(query, chatTypes);
+    }
+  };
+
+  const readTextFromClipboard = () => {
+    if (webApp) {
+      return webApp.readTextFromClipboard();
+    }
+    return null;
+  };
   return {
     webApp,
     user,
@@ -102,5 +188,16 @@ export const useTelegram = () => {
     close,
     setHeaderColor,
     setBackgroundColor,
+    showPopup,
+    showAlert,
+    showConfirm,
+    openLink,
+    openTelegramLink,
+    requestWriteAccess,
+    requestContact,
+    enableClosingConfirmation,
+    disableClosingConfirmation,
+    switchInlineQuery,
+    readTextFromClipboard,
   };
 };

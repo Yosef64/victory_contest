@@ -1,14 +1,11 @@
 import React from "react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useNotification } from "../context/NotificationContext";
-import { markNotificationAsRead, deleteNotification } from "../services/notificationService";
-import {
-  Bell,
-  X,
-  CheckCircle,
-  Trophy,
-  MessageSquare,
-} from "lucide-react";
+import { markNotificationAsRead } from "../services/notificationService";
+import { Bell, X, CheckCircle, Trophy, MessageSquare } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { updateUserInfo } from "../services/studentServices";
+import { toast } from "sonner";
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -22,13 +19,16 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const { hapticFeedback } = useTelegram();
   const { notifications, setNotifications, notificationLoading } =
     useNotification();
+  const { user, setUser } = useAuth();
 
   const markAsRead = async (id: string) => {
     try {
-      await markNotificationAsRead(id);
       setNotifications((prev) =>
-        prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
+        prev.map((notif) =>
+          notif.id === id ? { ...notif, is_read: true } : notif
+        )
       );
+      await markNotificationAsRead(id);
       hapticFeedback("selection");
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
@@ -37,9 +37,27 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const markAllAsRead = async () => {
     try {
-      const unreadNotifications = notifications.filter((n) => !n.read);
-      await Promise.all(unreadNotifications.map((n) => markNotificationAsRead(n.id.toString())));
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+      interface NotificationMap {
+        [id: string]: { id: string; is_deleted: boolean };
+      }
+
+      const uns: NotificationMap = {};
+      const unreadNotifications = notifications.filter((n) => !n.is_read);
+      unreadNotifications.forEach((element) => {
+        uns[element.id] = { id: element.id, is_deleted: false };
+      });
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, read: true }))
+      );
+      setUser((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          read_notifications: uns,
+        };
+      });
+      await updateUserInfo({ ...user!, read_notifications: uns });
+
       hapticFeedback("impact", "light");
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error);
@@ -48,11 +66,27 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const deleteNotificationHandler = async (id: string) => {
     try {
-      await deleteNotification(id);
       setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+      let resultedReads = user?.read_notifications[id];
+      if (!resultedReads) {
+        resultedReads = { id: id, is_deleted: true };
+      }
+      resultedReads.is_deleted = true;
+      await updateUserInfo({
+        ...user!,
+        read_notifications: {
+          ...user?.read_notifications,
+          [id]: resultedReads,
+        },
+      });
       hapticFeedback("impact", "medium");
     } catch (error) {
-      console.error("Failed to delete notification:", error);
+      toast.error("Unable to delete the notification", {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
+      });
     }
   };
 
@@ -91,7 +125,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   if (!isOpen) return null;
 
@@ -152,34 +186,35 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 return (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${!notification.read
-                      ? "bg-blue-50/50 dark:bg-blue-900/10"
-                      : ""
-                      }`}
+                    className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      !notification.is_read
+                        ? "bg-blue-50/50 dark:bg-blue-900/10"
+                        : ""
+                    }`}
                   >
                     <div className="flex items-start space-x-3">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
-                          ? "bg-blue-100 dark:bg-blue-900/20"
-                          : "bg-gray-100 dark:bg-gray-700"
-                          }`}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          !notification.is_read
+                            ? "bg-blue-100 dark:bg-blue-900/20"
+                            : "bg-gray-100 dark:bg-gray-700"
+                        }`}
                       >
-                        <IconComponent
-                          className={`w-5 h-5 ${iconColor}`}
-                        />
+                        <IconComponent className={`w-5 h-5 ${iconColor}`} />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4
-                              className={`text-sm font-semibold ${!notification.read
-                                ? "text-gray-900 dark:text-white"
-                                : "text-gray-700 dark:text-gray-300"
-                                }`}
+                              className={`text-sm font-semibold ${
+                                !notification.is_read
+                                  ? "text-gray-900 dark:text-white"
+                                  : "text-gray-700 dark:text-gray-300"
+                              }`}
                             >
                               {notification.title}
-                              {!notification.read && (
+                              {!notification.is_read && (
                                 <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full inline-block"></span>
                               )}
                             </h4>
@@ -187,12 +222,12 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                              {formatTimestamp(notification.timestamp)}
+                              {formatTimestamp(notification.sent_at)}
                             </p>
                           </div>
 
                           <div className="flex items-center space-x-1 ml-2">
-                            {!notification.read && (
+                            {!notification.is_read && (
                               <button
                                 onClick={() => markAsRead(notification.id)}
                                 className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"

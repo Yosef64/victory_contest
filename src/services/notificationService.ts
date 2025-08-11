@@ -8,7 +8,7 @@ export async function getNotification(userId: string | number) {
 
 export async function markNotificationAsRead(notificationId: string) {
   const res = await api.patch(`/notification/${notificationId}`, {
-    is_read: true
+    is_read: true,
   });
   return res.data;
 }

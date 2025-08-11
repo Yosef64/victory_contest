@@ -75,6 +75,25 @@ export interface TelegramWebApp {
   openInvoice: (url: string, callback?: (status: string) => void) => void;
   setHeaderColor: (color: string) => void;
   setBackgroundColor: (color: string) => void;
+  showPopup: (
+    params: {
+      title?: string;
+      message: string;
+      buttons?: Array<{ id: string; type?: string; text: string }>;
+    },
+    callback?: (buttonId: string) => void
+  ) => void;
+  showAlert: (message: string, callback?: () => void) => void;
+  showConfirm: (
+    message: string,
+    callback?: (confirmed: boolean) => void
+  ) => void;
+  requestWriteAccess: (callback?: (granted: boolean) => void) => void;
+  requestContact: (callback?: (shared: boolean) => void) => void;
+  enableClosingConfirmation: () => void;
+  disableClosingConfirmation: () => void;
+  switchInlineQuery: (query: string, chatTypes?: string[]) => void;
+  readTextFromClipboard: () => string | null;
 }
 
 export interface Question {
@@ -112,7 +131,9 @@ export interface Student {
 }
 export interface AuthStudent extends Student {
   is_premium: boolean;
+  read_notifications: { [key: string]: { id: string; is_deleted: boolean } };
 }
+
 export interface Achievement {
   name: string;
   description: string;

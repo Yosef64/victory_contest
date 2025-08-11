@@ -19,6 +19,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   refreshUser: () => void;
+  setUser: React.Dispatch<React.SetStateAction<AuthStudent | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, error, refreshUser: fetchUser }}
+      value={{ user, isLoading, error, refreshUser: fetchUser, setUser }}
     >
       {content}
     </AuthContext.Provider>

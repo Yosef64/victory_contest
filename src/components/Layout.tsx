@@ -8,7 +8,7 @@ import { NotificationProvider } from "../context/NotificationContext";
 import { AuthProvider } from "../context/AuthContext";
 
 const Layout: React.FC = () => {
-  const { webApp, setHeaderColor } = useTelegram();
+  const { webApp, setHeaderColor, enableClosingConfirmation } = useTelegram();
   const location = useLocation();
 
   useEffect(() => {
@@ -52,7 +52,8 @@ const Layout: React.FC = () => {
         "--tg-theme-secondary-bg-color",
         theme.secondary_bg_color || "#f5f5f5"
       );
-      setHeaderColor("#8b5cf6"); // Purple
+      setHeaderColor("#8b5cf6");
+      enableClosingConfirmation();
     }
   }, [webApp]);
 
@@ -89,6 +90,8 @@ const Layout: React.FC = () => {
         <NotificationProvider>
           <TopNavigation />
         </NotificationProvider>
+        {/* <AdTrigger /> */}
+
         <main className="flex-1 pt-16 pb-20 overflow-y-auto">
           <Outlet />
           <Toaster />

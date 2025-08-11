@@ -12,7 +12,8 @@ import { Button } from "../components/ui/button";
 import axios from "axios";
 
 const ContestComponent: React.FC = () => {
-  const { hapticFeedback, hideMainButton } = useTelegram();
+  const { hapticFeedback, hideMainButton, showConfirm, showPopup } =
+    useTelegram();
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -203,95 +204,108 @@ const ContestComponent: React.FC = () => {
   };
   const endContest = async () => {
     // Organize submission data
-    let updatedAnswers = [...answers];
+    showConfirm(
+      "Are you sure you want to end the contest?",
+      async (confirmed) => {
+        if (confirmed) {
+          let updatedAnswers = [...answers];
 
-    if (selectedAnswer !== null) {
-      const currentQuestion = questions[currentQuestionIndex];
-      const isCorrect = selectedAnswer === Number(currentQuestion.answer);
-      const newAnswer: ContestAnswer = {
-        question: currentQuestion,
-        selected_answer: selectedAnswer,
-        is_correct: isCorrect,
-        time_taken: 60,
-      };
+          if (selectedAnswer !== null) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedAnswer === Number(currentQuestion.answer);
+            const newAnswer: ContestAnswer = {
+              question: currentQuestion,
+              selected_answer: selectedAnswer,
+              is_correct: isCorrect,
+              time_taken: 60,
+            };
 
-      const existingAnswerIndex = updatedAnswers.findIndex(
-        (a) => a.question.id === currentQuestion.id
-      );
-      if (existingAnswerIndex >= 0) {
-        updatedAnswers[existingAnswerIndex] = newAnswer;
-      } else {
-        updatedAnswers.push(newAnswer);
+            const existingAnswerIndex = updatedAnswers.findIndex(
+              (a) => a.question.id === currentQuestion.id
+            );
+            if (existingAnswerIndex >= 0) {
+              updatedAnswers[existingAnswerIndex] = newAnswer;
+            } else {
+              updatedAnswers.push(newAnswer);
+            }
+          }
+
+          if (updatedAnswers.length === 0) {
+            toast.error("No answers submitted!", {
+              description:
+                "Please answer at least one question before submitting.",
+            });
+            return;
+          }
+
+          const correctAnswers = updatedAnswers.filter(
+            (a) => a.is_correct
+          ).length;
+          const score = correctAnswers;
+          const missed_questions = updatedAnswers
+            .filter((a) => !a.is_correct)
+            .map((a) => ({
+              id: a.question.id,
+              selected_answer: a.selected_answer,
+            }));
+          const endTime = Date.now();
+          let time_spend = "00:00:00";
+          if (contest.start_time) {
+            const seconds = Math.round(
+              (endTime - new Date(contest.start_time).getTime()) / 1000
+            );
+            time_spend = formatTime(seconds); // hh:mm:ss
+          }
+          const submission = {
+            student: {
+              id: user?.id?.toString() || "",
+              imgurl: user?.photo_url || "",
+              name: user?.first_name || "",
+            },
+            contest_id: contest.id,
+            score,
+            missed_questions: missed_questions,
+            time_spend,
+          };
+          try {
+            setSubmitting(true);
+            await submitContestResult(submission);
+            toast.success("Submission successful!", {
+              description:
+                "Your contest answers have been submitted successfully.",
+              icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+              position: "bottom-right",
+              style: {
+                backgroundColor: "#d4edda",
+                color: "#155724",
+              },
+            });
+            setContestEnded(true);
+            hideMainButton();
+            hapticFeedback("notification", "success");
+          } catch (e) {
+            // Optionally handle error
+            toast.error("Submission failed!", {
+              description:
+                "Failed to submit your contest answers. Please try again.",
+              icon: <XCircle className="w-6 h-6 text-red-500" />,
+              position: "bottom-right",
+              style: {
+                backgroundColor: "#f8d7da",
+                color: "#721c24",
+              },
+            });
+          } finally {
+            setSubmitting(false);
+            setContestEnded(true);
+          }
+
+          setTimeout(() => {
+            navigate("/");
+          }, 10000);
+        }
       }
-    }
-
-    if (updatedAnswers.length === 0) {
-      toast.error("No answers submitted!", {
-        description: "Please answer at least one question before submitting.",
-      });
-      return;
-    }
-
-    const correctAnswers = updatedAnswers.filter((a) => a.is_correct).length;
-    const score = correctAnswers;
-    const missed_questions = updatedAnswers
-      .filter((a) => !a.is_correct)
-      .map((a) => ({ id: a.question.id, selected_answer: a.selected_answer }));
-    const endTime = Date.now();
-    let time_spend = "00:00:00";
-    if (contest.start_time) {
-      const seconds = Math.round(
-        (endTime - new Date(contest.start_time).getTime()) / 1000
-      );
-      time_spend = formatTime(seconds); // hh:mm:ss
-    }
-    const submission = {
-      student: {
-        id: user?.id?.toString() || "",
-        imgurl: user?.photo_url || "",
-        name: user?.first_name || "",
-      },
-      contest_id: contest.id,
-      score,
-      missed_questions: missed_questions,
-      time_spend,
-    };
-    try {
-      setSubmitting(true);
-      await submitContestResult(submission);
-      toast.success("Submission successful!", {
-        description: "Your contest answers have been submitted successfully.",
-        icon: <CheckCircle className="w-6 h-6 text-green-500" />,
-        position: "bottom-right",
-        style: {
-          backgroundColor: "#d4edda",
-          color: "#155724",
-        },
-      });
-      setContestEnded(true);
-      hideMainButton();
-      hapticFeedback("notification", "success");
-    } catch (e) {
-      // Optionally handle error
-      toast.error("Submission failed!", {
-        description: "Failed to submit your contest answers. Please try again.",
-        icon: <XCircle className="w-6 h-6 text-red-500" />,
-        position: "bottom-right",
-        style: {
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-        },
-      });
-    } finally {
-      setSubmitting(false);
-      setContestEnded(true);
-    }
-
-    // Navigate to results after a short delay
-
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+    );
   };
 
   if (loading) {

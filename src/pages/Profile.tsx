@@ -101,21 +101,22 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 
 const Profile = () => {
   const { user: tgUser, hapticFeedback } = useTelegram();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Student>({
     name: tgUser?.first_name || "",
-    grade: "11th Grade",
-    city: "",
-    region: "",
-    school: "",
+    grade: user?.grade || "",
+    city: user?.city || "",
+    region: user?.region || "",
+    school: user?.school || "",
     imgurl: tgUser?.photo_url || "",
-    isSuspended: false,
+    isSuspended: user?.isSuspended || false,
     telegram_id: tgUser?.id.toString() || "",
     id: tgUser?.id.toString() || "",
-    age: "",
+    age: user?.age || "5",
     is_premium: false,
   });
-  const { user } = useAuth();
+
   const [userStats, setUserStats] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -190,13 +191,11 @@ const Profile = () => {
     hapticFeedback("notification", "success");
     setIsEditing(false);
   };
-  const achievements = badges.filter((b: Achievement) => {
-    return user?.badge?.includes(b.id);
+  const achievements = badges.map((b: Achievement) => {
+    return { ...b, earned: user?.badge?.includes(b.id) };
   });
-  const earnedAchievements = achievements.filter((a: Achievement) => a.earned);
-  const unlockedAchievements = achievements.filter(
-    (a: Achievement) => !a.earned
-  );
+  const earnedAchievements = achievements.filter((a) => a.earned === true);
+  const unlockedAchievements = achievements.filter((a) => a.earned !== true);
 
   if (profileLoading) {
     return (
@@ -349,7 +348,7 @@ const Profile = () => {
 
               {!isEditing ? (
                 <div className="text-sm font-bold text-gray-800 dark:text-white">
-                  {editedProfile?.city || "Not provided"}
+                  {user?.city || "Not provided"}
                 </div>
               ) : (
                 <input
@@ -373,7 +372,7 @@ const Profile = () => {
 
               {!isEditing ? (
                 <div className="text-sm font-bold text-gray-600 dark:text-green-400">
-                  {editedProfile?.region || "Not provided"}
+                  {user?.region || "Not provided"}
                 </div>
               ) : (
                 <input
@@ -397,7 +396,7 @@ const Profile = () => {
 
               {!isEditing ? (
                 <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                  {editedProfile?.age || "Not provided"} years old
+                  {user?.age || "Not provided"} years old
                 </div>
               ) : (
                 <input
@@ -508,7 +507,7 @@ const Profile = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {earnedAchievements.map((achievement: Achievement) => {
+            {earnedAchievements.map((achievement) => {
               const {
                 icon: IconComponent,
                 color,
@@ -562,7 +561,7 @@ const Profile = () => {
             Locked Achievements ({unlockedAchievements.length})
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {unlockedAchievements.map((achievement: Achievement) => {
+            {unlockedAchievements.map((achievement) => {
               const { icon: IconComponent } =
                 achievementStyles[achievement.type];
               return (

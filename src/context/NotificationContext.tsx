@@ -7,14 +7,15 @@ import React, {
 } from "react";
 import { useTelegram } from "../hooks/useTelegram";
 import { getNotification } from "../services/notificationService";
+import { useAuth } from "./AuthContext";
 
 export interface Notification {
   id: string;
   type: string;
   title: string;
   message: string;
-  timestamp: string;
-  read: boolean;
+  sent_at: string;
+  is_read: boolean;
   icon?: React.ComponentType<any>;
   color?: string;
   actionUrl?: string;
@@ -41,23 +42,28 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const { user } = useTelegram();
+  const { user: userInfo } = useAuth();
 
   useEffect(() => {
     const fetchNotification = async () => {
       if (!user?.id) return;
       setNotificationLoading(true);
       try {
-        // const res = await getNotification(user.id);
-        // // Transform backend response to match frontend interface
-        // const transformedNotifications = res.map((notification: any) => ({
-        //   id: notification.id,
-        //   type: notification.type,
-        //   title: notification.title,
-        //   message: notification.message,
-        //   timestamp: notification.sent_at,
-        //   read: notification.is_read,
-        // }));
-        // setNotifications(transformedNotifications);
+        const res: Notification[] = await getNotification(user.id);
+        const n = res.filter((no) => {
+          if (!userInfo?.read_notifications[no.id]) {
+            return true;
+          }
+          return !userInfo.read_notifications[no.id].is_deleted;
+        });
+        const transformedNotifications = n.map((notification: Notification) => {
+          if (!userInfo?.read_notifications[notification.id]) {
+            return notification;
+          }
+
+          return { ...notification, is_read: true };
+        });
+        setNotifications(transformedNotifications);
       } catch (e) {
         setNotifications([]);
       } finally {
@@ -66,11 +72,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchNotification();
-
-    // Set up periodic refresh every 30 seconds
-    const interval = setInterval(fetchNotification, 30000);
-
-    return () => clearInterval(interval);
   }, [user?.id]);
 
   return (

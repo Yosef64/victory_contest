@@ -2,7 +2,7 @@ import api from "./api";
 
 interface PracticeSettings {
   subject: string;
-  grade: string;
+  topic: string;
   difficulty: "easy" | "medium" | "hard" | "";
 }
 export async function getAiGeneratedQuestions(setting: PracticeSettings) {

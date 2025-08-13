@@ -36,6 +36,7 @@ import { Label } from "../components/ui/label";
 import { getAiGeneratedQuestions } from "../services/questionServices";
 import { toast } from "sonner";
 import { useTelegram } from "../hooks/useTelegram";
+import { Input } from "../components/ui/input";
 // import { Skeleton } from "@/components/ui/skeleton";
 // NOTE: QuestionNavigationDropdown is a placeholder for your custom component
 // import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown";
@@ -45,7 +46,7 @@ type PageState = "SETTINGS" | "PRACTICING" | "RESULT";
 
 interface PracticeSettings {
   subject: string;
-  grade: string;
+  topic: string;
   difficulty: "easy" | "medium" | "hard" | "";
 }
 
@@ -68,7 +69,7 @@ interface Answer {
 // --- INITIAL STATES ---
 const initialSettings: PracticeSettings = {
   subject: "",
-  grade: "",
+  topic: "",
   difficulty: "",
 };
 
@@ -175,7 +176,7 @@ export function AIPracticePage() {
   const selectedAnswer = answers.find(
     (a) => a.questionIndex === currentQuestionIndex
   )?.selectedAnswer;
-  const canGenerate = settings.subject && settings.grade && settings.difficulty;
+  const canGenerate = settings.subject && settings.topic && settings.difficulty;
   const totalSessionTime = questions.length * 60; // Assuming 1 min per question
   const timeSpent = totalSessionTime - timeLeft;
   const handleNextQuestion = () => {
@@ -362,21 +363,13 @@ export function AIPracticePage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="grade">Grade</Label>
-            <Select
-              value={settings.grade}
-              onValueChange={(val) =>
-                setSettings((s) => ({ ...s, grade: val }))
+            <Label htmlFor="grade">Topic</Label>
+            <Input
+              onChange={(e) =>
+                setSettings((prev) => ({ ...prev, topic: e.target.value }))
               }
-            >
-              <SelectTrigger id="grade">
-                <SelectValue placeholder="Select..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">Grade 10</SelectItem>
-                <SelectItem value="11">Grade 11</SelectItem>
-              </SelectContent>
-            </Select>
+              placeholder="e.g., Algebra"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="difficulty">Difficulty</Label>

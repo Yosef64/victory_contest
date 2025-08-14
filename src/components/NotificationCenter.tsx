@@ -202,11 +202,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   >
                     <div className="flex items-start space-x-3">
                       <div
-<<<<<<< HEAD
-                        className={`flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center ${iconColor}`}
-                      >
-                        <IconComponent className="w-5 h-5" />
-=======
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
                           !notification.is_read
                             ? "bg-blue-100 dark:bg-blue-900/20"
@@ -214,21 +209,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         }`}
                       >
                         <IconComponent className={`w-5 h-5 ${iconColor}`} />
->>>>>>> 6d98c560a1883ee1c06e8637a49a849053bb6988
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
-<<<<<<< HEAD
-                          <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">
-                            {notification.title}
-                          </p>
-                          <div className="flex items-center space-x-2 ml-2">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {formatTimestamp(notification.created_at)}
-                            </span>
-                            {!notification.read && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-=======
                           <div className="flex-1">
                             <h4
                               className={`text-sm font-semibold ${
@@ -259,7 +242,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                               >
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                               </button>
->>>>>>> 6d98c560a1883ee1c06e8637a49a849053bb6988
                             )}
                           </div>
                         </div>

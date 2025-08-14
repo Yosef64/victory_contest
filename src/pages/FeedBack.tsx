@@ -91,15 +91,15 @@ const calculateProgress = (feedback: FeedbackState, questions: FeedbackQuestion[
   total += activeQuestions.length;
   completed += activeQuestions.filter(q => feedback.questionResponses[q.id]).length;
   
-  // Count poll response
+  // Count poll response (including skip option)
   if (pollOptions.length > 0) {
     total += 1;
-    if (feedback.pollResponse) completed += 1;
+    if (feedback.pollResponse) completed += 1; // This includes both score ranges and "skip"
   }
   
-  // Count contact info if required
+  // Count contact info if required (only for actual score ranges, not skip)
   const selectedPoll = pollOptions.find(opt => opt.label === feedback.pollResponse);
-  if (selectedPoll?.requiresContact) {
+  if (selectedPoll?.requiresContact && feedback.pollResponse !== "skip") {
     total += 2; // phone + score
     if (feedback.contactInfo?.phoneNumber) completed += 1;
     if (feedback.contactInfo?.score) completed += 1;
@@ -232,17 +232,26 @@ export function FeedbackPage() {
     }));
   };
 
-  const handlePollResponse = (pollOption: PollOption) => {
-    setSelectedPollOption(pollOption);
-    setFeedback(prev => ({
-      ...prev,
-      pollResponse: pollOption.label
-    }));
-
-    if (pollOption.requiresContact) {
-      setShowContactForm(true);
-    } else {
+  const handlePollResponse = (pollOption: PollOption | 'skip') => {
+    if (pollOption === 'skip') {
+      setSelectedPollOption(null);
+      setFeedback(prev => ({
+        ...prev,
+        pollResponse: 'skip'
+      }));
       setShowContactForm(false);
+    } else {
+      setSelectedPollOption(pollOption);
+      setFeedback(prev => ({
+        ...prev,
+        pollResponse: pollOption.label
+      }));
+
+      if (pollOption.requiresContact) {
+        setShowContactForm(true);
+      } else {
+        setShowContactForm(false);
+      }
     }
   };
 
@@ -315,8 +324,8 @@ export function FeedbackPage() {
       });
 
       if (response.ok) {
-        // Save the score range as the student's permanent default
-        if (feedback.pollResponse && user?.id) {
+        // Save the score range as the student's permanent default (only if not skipped)
+        if (feedback.pollResponse && feedback.pollResponse !== "skip" && user?.id) {
           try {
             await updateStudentDefaultScoreRange(user.id.toString(), feedback.pollResponse);
             console.log('Score range saved as default for student');
@@ -352,15 +361,18 @@ export function FeedbackPage() {
       .filter(q => q.isActive)
       .every(q => feedback.questionResponses[q.id]);
 
-    // Check if poll response is selected
-    const pollAnswered = feedback.pollResponse !== "";
+    // Score range selection is now optional for most students
+    // Only required if:
+    // 1. Student explicitly selects a score range that requires contact, OR
+    // 2. Student is a Grade 12 entrance exam taker or remedial student (to be determined by backend)
+    const scoreRangeValid = true; // Always valid since it's optional
 
     // If poll requires contact, check if contact info is provided
     const contactInfoValid = selectedPollOption?.requiresContact
       ? feedback.contactInfo?.phoneNumber && feedback.contactInfo?.score
       : true;
 
-    return allQuestionsAnswered && pollAnswered && contactInfoValid;
+    return allQuestionsAnswered && scoreRangeValid && contactInfoValid;
   };
 
   if (loading) {
@@ -417,18 +429,25 @@ export function FeedbackPage() {
               <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
                 <div className="flex items-center space-x-3 mb-3">
                   <Target className="w-5 h-5 text-green-600" />
-                  <h3 className="font-semibold text-green-800 dark:text-green-200">Score Range Selected</h3>
+                  <h3 className="font-semibold text-green-800 dark:text-green-200">
+                    {existingFeedback.pollResponse === "skip" ? "Score Range Status" : "Score Range Selected"}
+                  </h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
-                    {existingFeedback.pollResponse}
+                    {existingFeedback.pollResponse === "skip" ? "Skipped" : existingFeedback.pollResponse}
                   </Badge>
-                  {existingFeedback.contactInfo && (
+                  {existingFeedback.contactInfo && existingFeedback.pollResponse !== "skip" && (
                     <Badge variant="outline" className="text-green-600 border-green-300">
                       Contact Info Provided
                     </Badge>
                   )}
                 </div>
+                {existingFeedback.pollResponse === "skip" && (
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-2">
+                    You chose not to provide a score range at this time.
+                  </p>
+                )}
               </div>
 
               {/* Contact Information (if provided) */}
@@ -469,8 +488,10 @@ export function FeedbackPage() {
                   <div>
                     <h3 className="font-semibold text-amber-800 dark:text-amber-200">Important Notice</h3>
                     <p className="text-amber-700 dark:text-amber-300 text-sm">
-                      Score range selection can only be done once per student. This ensures fair assessment 
-                      as entrance exams are typically taken only once in a student's academic journey.
+                      {existingFeedback.pollResponse === "skip" 
+                        ? "You chose not to provide a score range. You can still submit feedback without it."
+                        : "Score range selection can only be done once per student. This ensures fair assessment as entrance exams are typically taken only once in a student's academic journey."
+                      }
                     </p>
                   </div>
                 </div>
@@ -716,16 +737,17 @@ export function FeedbackPage() {
             {pollOptions.length > 0 && (
               <>
                 {/* Warning Notice for Score Range Selection */}
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
                   <div className="flex items-start space-x-3">
-                    <div className="w-5 h-5 text-red-600 mt-0.5">🚨</div>
+                    <div className="w-5 h-5 text-blue-600 mt-0.5">ℹ️</div>
                     <div>
-                      <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">
-                        Critical: One-Time Selection
+                      <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                        Score Range Selection (Optional)
                       </h3>
-                      <p className="text-red-700 dark:text-red-300 text-sm">
-                        <strong>This score range selection can only be made ONCE and cannot be changed later.</strong> 
-                        Choose carefully as this will be your permanent record for entrance exam assessment.
+                      <p className="text-blue-700 dark:text-blue-300 text-sm">
+                        <strong>This score range selection is optional for most students.</strong> 
+                        It's primarily for Grade 12 entrance exam takers or remedial students who need to provide their performance data.
+                        If you select a score range, it becomes permanent and cannot be changed later.
                       </p>
                     </div>
                   </div>
@@ -774,7 +796,7 @@ export function FeedbackPage() {
                     )}
                   </div>
                   <CardDescription className="text-base text-gray-700 dark:text-gray-300">
-                    Please select the score range that best applies to your recent performance.
+                    Select a score range if you're a Grade 12 entrance exam taker or remedial student. This is optional for other students.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -784,6 +806,8 @@ export function FeedbackPage() {
                       const option = pollOptions.find(opt => opt.label === value);
                       if (option) {
                         handlePollResponse(option);
+                      } else if (value === 'skip') {
+                        handlePollResponse('skip');
                       }
                     }}
                     className="space-y-3"
@@ -825,6 +849,29 @@ export function FeedbackPage() {
                         </div>
                       </div>
                     ))}
+                    
+                    {/* Skip Score Range Option */}
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-gray-200 hover:border-gray-300 dark:border-gray-600 dark:hover:border-gray-500 transition-all group">
+                        <RadioGroupItem 
+                          value="skip" 
+                          id="poll-skip"
+                          className="text-gray-600"
+                          disabled={feedback.pollResponse !== ""}
+                        />
+                        <div className="flex-1">
+                          <Label 
+                            htmlFor="poll-skip" 
+                            className="text-sm font-medium cursor-pointer text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors"
+                          >
+                            Skip Score Range Selection
+                          </Label>
+                          <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                            I don't need to provide a score range at this time
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </RadioGroup>
                 </CardContent>
               </Card>
@@ -967,7 +1014,7 @@ export function FeedbackPage() {
                 ) : (
                   <div className="flex items-center space-x-2">
                     <Send className="w-5 h-5" />
-                    <span>{feedback.pollResponse !== "" ? "Submit Feedback with Default Score Range" : "Submit Feedback"}</span>
+                    <span>{feedback.pollResponse !== "" && feedback.pollResponse !== "skip" ? "Submit with Score Range" : "Submit Feedback"}</span>
                   </div>
                 )}
               </Button>

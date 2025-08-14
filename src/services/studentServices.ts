@@ -20,13 +20,12 @@ export async function getStudentById(id: string) {
   const res = await api.get(`/student/${id}`);
   return res.data.student;
 }
-<<<<<<< HEAD
+export async function updateUserInfo(user: AuthStudent) {
+  const res = await api.put(`/student/${user.id}`, user);
+  return res.data;
+}
 
 export async function updateStudentDefaultScoreRange(studentId: string, scoreRange: string) {
   const res = await api.put(`/student/${studentId}/score-range`, { defaultScoreRange: scoreRange });
-=======
-export async function updateUserInfo(user: AuthStudent) {
-  const res = await api.put(`/student/${user.id}`, user);
->>>>>>> 6d98c560a1883ee1c06e8637a49a849053bb6988
   return res.data;
 }

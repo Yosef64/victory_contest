@@ -93,9 +93,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return <Navigate to="/register" replace />;
   }
 
-  // If a user exists but they somehow land on the register page, send them to the dashboard.
+  // If a user exists but they somehow land on the register page, send them to the home page.
   if (user && location.pathname === "/register") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // If all checks pass, provide the context and render the app

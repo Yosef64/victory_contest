@@ -22,3 +22,8 @@ export async function getStudentById(id: string) {
   const res = await api.get(`/student/${id}`);
   return res.data.student;
 }
+
+export async function updateStudentDefaultScoreRange(studentId: string, scoreRange: string) {
+  const res = await api.put(`/student/${studentId}/score-range`, { defaultScoreRange: scoreRange });
+  return res.data;
+}

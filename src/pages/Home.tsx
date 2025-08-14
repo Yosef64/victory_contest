@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useTelegram } from "../hooks/useTelegram";
 import { Contest } from "../types";
 import { Calendar } from "lucide-react";
-import { formatDistanceToNow, parseISO } from "date-fns";
 import { getAllContests } from "../services/contestApi";
 import ContestCard from "../components/ContestCard";
 import NoContests from "../components/NoContest";
@@ -10,6 +9,7 @@ import { Link } from "react-router-dom";
 import { ContestCardSkeleton } from "../components/ContestCardSkeleton";
 import WelcomeCarousel from "../components/WelcomeCarousell";
 import LeaderboardModal from "../components/LeaderboardModal";
+import { safeFormatDistanceToNow, safeParseDate, safeQuestionsLength } from "../lib/utils";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
@@ -31,9 +31,16 @@ const Home: React.FC = () => {
         const active: Contest[] = [];
         const previous: Contest[] = [];
         contests.forEach((contest) => {
-          if (new Date(contest.end_time) > now) {
-            active.push(contest);
-          } else {
+          try {
+            const endTime = contest.end_time ? new Date(contest.end_time) : null;
+            if (endTime && !isNaN(endTime.getTime()) && endTime > now) {
+              active.push(contest);
+            } else {
+              previous.push(contest);
+            }
+          } catch (error) {
+            console.warn('Error parsing contest end_time:', contest.id, contest.end_time, error);
+            // Default to previous contests if date parsing fails
             previous.push(contest);
           }
         });
@@ -96,10 +103,14 @@ const Home: React.FC = () => {
           <div className="space-y-3">
             {previousContests
               .sort((a, b) => {
-                return (
-                  new Date(b.start_time).getTime() -
-                  new Date(a.start_time).getTime()
-                );
+                try {
+                  const aTime = safeParseDate(a.start_time, new Date(0)).getTime();
+                  const bTime = safeParseDate(b.start_time, new Date(0)).getTime();
+                  return bTime - aTime;
+                } catch (error) {
+                  console.warn('Error sorting contests by date:', error);
+                  return 0; // Keep original order on error
+                }
               })
               .map((contest) => (
                 <div
@@ -114,11 +125,10 @@ const Home: React.FC = () => {
                       </h3>
                       <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                         <span>
-                          {formatDistanceToNow(parseISO(contest.start_time))}{" "}
-                          ago
+                          {safeFormatDistanceToNow(contest.start_time, 'No start time')} ago
                         </span>
                         <span>•</span>
-                        <span>{contest.questions.length} questions</span>
+                        <span>{safeQuestionsLength(contest.questions)} questions</span>
                       </div>
                     </div>
                     <Link

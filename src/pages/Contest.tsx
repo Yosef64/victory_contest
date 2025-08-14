@@ -60,7 +60,24 @@ const ContestComponent: React.FC = () => {
 
         const contestData = await getContestById(conId);
         setContest(contestData);
-        const endTime = new Date(contestData.end_time).getTime();
+        
+        let endTime: number;
+        try {
+          if (!contestData.end_time) {
+            endTime = Date.now();
+          } else {
+            const endTimeDate = new Date(contestData.end_time);
+            if (isNaN(endTimeDate.getTime())) {
+              endTime = Date.now();
+            } else {
+              endTime = endTimeDate.getTime();
+            }
+          }
+        } catch (error) {
+          console.warn('Error parsing end_time:', error);
+          endTime = Date.now();
+        }
+        
         const now = Date.now();
         const diffInSeconds = Math.floor((endTime - now) / 1000);
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
@@ -231,10 +248,18 @@ const ContestComponent: React.FC = () => {
     const endTime = Date.now();
     let time_spend = "00:00:00";
     if (contest.start_time) {
-      const seconds = Math.round(
-        (endTime - new Date(contest.start_time).getTime()) / 1000
-      );
-      time_spend = formatTime(seconds); // hh:mm:ss
+      try {
+        const startTimeDate = new Date(contest.start_time);
+        if (!isNaN(startTimeDate.getTime())) {
+          const seconds = Math.round(
+            (endTime - startTimeDate.getTime()) / 1000
+          );
+          time_spend = formatTime(seconds); // hh:mm:ss
+        }
+      } catch (error) {
+        console.warn('Error parsing start_time:', error);
+        time_spend = "00:00:00";
+      }
     }
     const submission = {
       student: {

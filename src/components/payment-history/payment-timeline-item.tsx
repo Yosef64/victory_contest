@@ -46,10 +46,20 @@ export function PaymentTimelineItem({ request }: { request: PaymentRequest }) {
             {request.bankName}
           </span>
           <time className="text-xs font-normal text-gray-400">
-            {new Date(request.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            })}
+            {(() => {
+              try {
+                if (!request.createdAt) return 'Unknown date';
+                const date = new Date(request.createdAt);
+                if (isNaN(date.getTime())) return 'Invalid date';
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              } catch (error) {
+                console.warn('Error formatting createdAt date:', error);
+                return 'Unknown date';
+              }
+            })()}
           </time>
         </div>
         <div className="flex justify-between items-center">

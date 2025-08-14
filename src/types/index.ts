@@ -107,6 +107,7 @@ export interface Student {
   grade: string;
   imgurl?: string;
   isSuspended?: boolean;
+  defaultScoreRange?: string; // Stores the student's permanent score range selection
 }
 export interface AuthStudent extends Student {
   is_premium: boolean;

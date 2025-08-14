@@ -160,13 +160,23 @@ export default function ContestCard({ contest }: { contest: Contest }) {
                 {timeLeft}
               </div>
               <div className="text-xs text-blue-500 dark:text-blue-400">
-                {new Date(contest.start_time).toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {(() => {
+                  try {
+                    if (!contest.start_time) return 'No date';
+                    const date = new Date(contest.start_time);
+                    if (isNaN(date.getTime())) return 'Invalid date';
+                    return date.toLocaleDateString("en-US", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                  } catch (error) {
+                    console.warn('Error formatting start_time date:', error);
+                    return 'Invalid date';
+                  }
+                })()}
               </div>
             </div>
           </div>

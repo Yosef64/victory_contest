@@ -46,17 +46,22 @@ import {
   Loader2,
   MessageSquare,
   Play,
+  Lock,
 } from "lucide-react";
 import api from "../services/api";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
 import { getAiRecommendationsFromApi } from "../services/aiService";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Statistics: React.FC = () => {
-  const { user } = useTelegram();
+  const { user: tgUser } = useTelegram();
+  const { user } = useAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState<
     "subjects" | "chapters" | "grades"
   >("subjects");
@@ -82,7 +87,7 @@ const Statistics: React.FC = () => {
   }>({});
 
   useEffect(() => {
-    if (!user?.id) {
+    if (!tgUser?.id) {
       return;
     }
 
@@ -90,7 +95,7 @@ const Statistics: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/submission/statistics/${user.id}`);
+        const res = await api.get(`/submission/statistics/${tgUser.id}`);
         if (res.data && res.data.statistics) {
           setStats(res.data.statistics);
         } else {
@@ -181,7 +186,7 @@ const Statistics: React.FC = () => {
     };
 
     fetchStats();
-  }, [user]);
+  }, [tgUser]);
 
   const getAccuracyColor = (accuracy: number) => {
     if (accuracy >= 90) return "#10b981"; // green
@@ -688,28 +693,38 @@ const Statistics: React.FC = () => {
 
                   {/* AI Recommendation Button */}
                   <div className="mt-3">
-                    <Button
-                      onClick={() => getAiRecommendations(area.name)}
-                      disabled={aiRecommendations[area.name]?.loading}
-                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
-                    >
-                      {aiRecommendations[area.name]?.loading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Getting AI Recommendations...
-                        </>
-                      ) : showRecommendations[area.name] ? (
-                        <>
-                          <MessageSquare className="w-4 h-4 mr-2" />
-                          Hide AI Recommendations
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          Get AI Recommendations
-                        </>
-                      )}
-                    </Button>
+                    {!user?.is_premium ? (
+                      <Button
+                        onClick={() => navigate("/payment")}
+                        className="w-full bg-gradient-to-r from-orange-300 to-red-400 hover:from-orange-600 hover:to-red-600 text-white border-0"
+                      >
+                        <Lock className="w-4 h-4 mr-2 " />
+                        Upgrade
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => getAiRecommendations(area.name)}
+                        disabled={aiRecommendations[area.name]?.loading}
+                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0"
+                      >
+                        {aiRecommendations[area.name]?.loading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Getting AI Recommendations...
+                          </>
+                        ) : showRecommendations[area.name] ? (
+                          <>
+                            <MessageSquare className="w-4 h-4 mr-2" />
+                            Hide AI Recommendations
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Get AI Recommendations
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </div>
 
                   {/* AI Recommendations Display */}

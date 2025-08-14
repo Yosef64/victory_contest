@@ -9,9 +9,11 @@ import { toast } from "sonner";
 import api from "../services/api";
 import { submitContestResult } from "../services/contestApi";
 import { Button } from "../components/ui/button";
+import axios from "axios";
 
 const ContestComponent: React.FC = () => {
-  const { hapticFeedback, hideMainButton } = useTelegram();
+  const { hapticFeedback, hideMainButton, showConfirm, showPopup } =
+    useTelegram();
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -82,11 +84,19 @@ const ContestComponent: React.FC = () => {
         const diffInSeconds = Math.floor((endTime - now) / 1000);
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
       } catch (err: any) {
-        const apiError =
-          err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err?.response?.data?.detail;
-        toast.error(apiError || "An unexpected error occurred.", {
+        let apiError: string;
+        if (axios.isAxiosError(err)) {
+          apiError =
+            (typeof err.response?.data === "string"
+              ? err.response.data
+              : err.response?.data?.error ||
+                err.response?.data?.message ||
+                err.response?.data?.detail) || err.message;
+        } else {
+          apiError = err?.message || "An unexpected error occurred.";
+        }
+
+        toast.error(apiError, {
           description: "Please try again later or contact support.",
           icon: <XCircle className="w-6 h-6 text-red-500" />,
         });
@@ -211,103 +221,108 @@ const ContestComponent: React.FC = () => {
   };
   const endContest = async () => {
     // Organize submission data
-    let updatedAnswers = [...answers];
+    showConfirm(
+      "Are you sure you want to end the contest?",
+      async (confirmed) => {
+        if (confirmed) {
+          let updatedAnswers = [...answers];
 
-    if (selectedAnswer !== null) {
-      const currentQuestion = questions[currentQuestionIndex];
-      const isCorrect = selectedAnswer === Number(currentQuestion.answer);
-      const newAnswer: ContestAnswer = {
-        question: currentQuestion,
-        selected_answer: selectedAnswer,
-        is_correct: isCorrect,
-        time_taken: 60,
-      };
+          if (selectedAnswer !== null) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedAnswer === Number(currentQuestion.answer);
+            const newAnswer: ContestAnswer = {
+              question: currentQuestion,
+              selected_answer: selectedAnswer,
+              is_correct: isCorrect,
+              time_taken: 60,
+            };
 
-      const existingAnswerIndex = updatedAnswers.findIndex(
-        (a) => a.question.id === currentQuestion.id
-      );
-      if (existingAnswerIndex >= 0) {
-        updatedAnswers[existingAnswerIndex] = newAnswer;
-      } else {
-        updatedAnswers.push(newAnswer);
-      }
-    }
+            const existingAnswerIndex = updatedAnswers.findIndex(
+              (a) => a.question.id === currentQuestion.id
+            );
+            if (existingAnswerIndex >= 0) {
+              updatedAnswers[existingAnswerIndex] = newAnswer;
+            } else {
+              updatedAnswers.push(newAnswer);
+            }
+          }
 
-    if (updatedAnswers.length === 0) {
-      toast.error("No answers submitted!", {
-        description: "Please answer at least one question before submitting.",
-      });
-      return;
-    }
+          if (updatedAnswers.length === 0) {
+            toast.error("No answers submitted!", {
+              description:
+                "Please answer at least one question before submitting.",
+            });
+            return;
+          }
 
-    const correctAnswers = updatedAnswers.filter((a) => a.is_correct).length;
-    const score = correctAnswers;
-    const missed_questions = updatedAnswers
-      .filter((a) => !a.is_correct)
-      .map((a) => ({ id: a.question.id, selected_answer: a.selected_answer }));
-    const endTime = Date.now();
-    let time_spend = "00:00:00";
-    if (contest.start_time) {
-      try {
-        const startTimeDate = new Date(contest.start_time);
-        if (!isNaN(startTimeDate.getTime())) {
-          const seconds = Math.round(
-            (endTime - startTimeDate.getTime()) / 1000
-          );
-          time_spend = formatTime(seconds); // hh:mm:ss
+          const correctAnswers = updatedAnswers.filter(
+            (a) => a.is_correct
+          ).length;
+          const score = correctAnswers;
+          const missed_questions = updatedAnswers
+            .filter((a) => !a.is_correct)
+            .map((a) => ({
+              id: a.question.id,
+              selected_answer: a.selected_answer,
+            }));
+          const endTime = Date.now();
+          let time_spend = "00:00:00";
+          if (contest.start_time) {
+            const seconds = Math.round(
+              (endTime - new Date(contest.start_time).getTime()) / 1000
+            );
+            time_spend = formatTime(seconds); // hh:mm:ss
+          }
+          const submission = {
+            student: {
+              id: user?.id?.toString() || "",
+              imgurl: user?.photo_url || "",
+              name: user?.first_name || "",
+            },
+            contest_id: contest.id,
+            score,
+            missed_questions: missed_questions,
+            time_spend,
+          };
+          try {
+            setSubmitting(true);
+            await submitContestResult(submission);
+            toast.success("Submission successful!", {
+              description:
+                "Your contest answers have been submitted successfully.",
+              icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+              position: "bottom-right",
+              style: {
+                backgroundColor: "#d4edda",
+                color: "#155724",
+              },
+            });
+            setContestEnded(true);
+            hideMainButton();
+            hapticFeedback("notification", "success");
+          } catch (e) {
+            // Optionally handle error
+            toast.error("Submission failed!", {
+              description:
+                "Failed to submit your contest answers. Please try again.",
+              icon: <XCircle className="w-6 h-6 text-red-500" />,
+              position: "bottom-right",
+              style: {
+                backgroundColor: "#f8d7da",
+                color: "#721c24",
+              },
+            });
+          } finally {
+            setSubmitting(false);
+            setContestEnded(true);
+          }
+
+          setTimeout(() => {
+            navigate("/");
+          }, 10000);
         }
-      } catch (error) {
-        console.warn('Error parsing start_time:', error);
-        time_spend = "00:00:00";
       }
-    }
-    const submission = {
-      student: {
-        id: user?.id?.toString() || "",
-        imgurl: user?.photo_url || "",
-        name: user?.first_name || "",
-      },
-      contest_id: contest.id,
-      score,
-      missed_questions: missed_questions,
-      time_spend,
-    };
-    try {
-      setSubmitting(true);
-      await submitContestResult(submission);
-      toast.success("Submission successful!", {
-        description: "Your contest answers have been submitted successfully.",
-        icon: <CheckCircle className="w-6 h-6 text-green-500" />,
-        position: "bottom-right",
-        style: {
-          backgroundColor: "#d4edda",
-          color: "#155724",
-        },
-      });
-      setContestEnded(true);
-      hideMainButton();
-      hapticFeedback("notification", "success");
-    } catch (e) {
-      // Optionally handle error
-      toast.error("Submission failed!", {
-        description: "Failed to submit your contest answers. Please try again.",
-        icon: <XCircle className="w-6 h-6 text-red-500" />,
-        position: "bottom-right",
-        style: {
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-        },
-      });
-    } finally {
-      setSubmitting(false);
-      setContestEnded(true);
-    }
-
-    // Navigate to results after a short delay
-
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+    );
   };
 
   if (loading) {
@@ -404,10 +419,10 @@ const ContestComponent: React.FC = () => {
         </h3>
 
         {/* --- START: Image Display Logic --- */}
-        {currentQuestion.question_image && (
+        {currentQuestion.question_img && (
           <div className="my-6" onClick={() => setIsImageModalOpen(true)}>
             <img
-              src={currentQuestion.question_image}
+              src={currentQuestion.question_img}
               alt={`Illustration for question ${currentQuestionIndex + 1}`}
               className="w-full max-h-64 object-contain rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
               onError={(e) => {
@@ -484,7 +499,7 @@ const ContestComponent: React.FC = () => {
       </div>
 
       {/* --- START: Image Modal --- */}
-      {isImageModalOpen && currentQuestion.question_image && (
+      {isImageModalOpen && currentQuestion.question_img && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 animate-fade-in"
           onClick={() => setIsImageModalOpen(false)}
@@ -496,7 +511,7 @@ const ContestComponent: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={currentQuestion.question_image}
+              src={currentQuestion.question_img}
               alt="Enlarged view of the question illustration"
               className="w-auto h-auto max-w-full max-h-[90vh] object-contain rounded-lg"
             />

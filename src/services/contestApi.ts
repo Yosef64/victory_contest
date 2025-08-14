@@ -42,7 +42,7 @@ export const registerForContest = async (
 };
 
 export const submitContestResult = async (submission: any): Promise<any> => {
-  const res = await api.post(`/submission/`, { submission });
+  const res = await api.post(`/submission/`, submission);
   return res.data;
 };
 export const getEditorial = async (

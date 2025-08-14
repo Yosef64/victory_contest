@@ -26,17 +26,16 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
-import {
-  getUserBadge,
-  getUserProfile,
-  getUserStat,
-} from "../services/studentServices";
+import { getUserProfile, getUserStat } from "../services/studentServices";
 import { toast } from "sonner";
 // import homeIcon from "../assets/contest.svg?react";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
 import TimeIcon from "../assets/time-01-stroke-rounded.svg?react";
 import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?react";
 import CollapseText from "../components/ui/Collapse";
+import { useAuth } from "../context/AuthContext";
+import { badges } from "../lib/data";
+import Loader from "../components/Loader";
 
 const achievementStyles: any = {
   first: {
@@ -101,39 +100,50 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 };
 
 const Profile = () => {
-  const { user, hapticFeedback } = useTelegram();
+  const { user: tgUser, hapticFeedback } = useTelegram();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Student>({
-    name: user?.first_name || "",
-    grade: "11th Grade",
-    city: "",
-    region: "",
-    school: "",
-    imgurl: user?.photo_url || "",
-    isSuspended: false,
-    telegram_id: user?.id.toString() || "",
-    id: user?.id.toString() || "",
-    age: "",
+    name: tgUser?.first_name || "",
+    grade: user?.grade || "",
+    city: user?.city || "",
+    region: user?.region || "",
+    school: user?.school || "",
+    imgurl: tgUser?.photo_url || "",
+    isSuspended: user?.isSuspended || false,
+    telegram_id: tgUser?.id.toString() || "",
+    id: tgUser?.id.toString() || "",
+    age: user?.age || "5",
+    is_premium: false,
   });
+
   const [userStats, setUserStats] = useState<any>(null);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [profileLoading, setProfileLoading] = useState(true);
+
+  //Debugger
+  // if (user) {
+  //   toast.error(`use is ${JSON.stringify(user)}`, {
+  //     style: {
+  //       backgroundColor: "red",
+  //       color: "white",
+  //     },
+  //   });
+  // }
 
   useEffect(() => {
     let isMounted = true;
 
     async function fetchStats() {
-      if (!user?.id) {
+      if (!tgUser?.id) {
         if (isMounted) setProfileLoading(false);
         return;
       }
 
       try {
         setProfileLoading(true);
-        const [stat, prof, achies] = await Promise.all([
-          getUserStat(user.id.toString()),
-          getUserProfile(user.id.toString()),
-          getUserBadge(user.id.toString()),
+        const [stat] = await Promise.all([
+          getUserStat(tgUser?.id.toString()!),
+          // getUserProfile(tgUser?.id.toString()!),
         ]);
 
         if (isMounted) {
@@ -143,43 +153,6 @@ const Profile = () => {
             throw new Error("Invalid stats response");
           }
           setUserStats(stat);
-
-          // Validate profile
-          if (!prof || typeof prof !== "object") {
-            console.error("Invalid profile response:", prof);
-            throw new Error("Invalid profile response");
-          }
-          setEditedProfile({
-            name: prof.name || user?.first_name || "",
-            grade: prof.grade || "11th Grade",
-            city: prof.city || "",
-            region: prof.region || "",
-            school: prof.school || "",
-            imgurl: prof.imgurl || user?.photo_url || "",
-            isSuspended: prof.isSuspended ?? false,
-            telegram_id: prof.telegram_id || user?.id.toString() || "",
-            id: prof.id || user?.id.toString() || "",
-            age: prof.age || "",
-          });
-
-          // Validate achievements
-          if (!Array.isArray(achies)) {
-            console.error("Invalid achievements response:", achies);
-            throw new Error("Invalid achievements response");
-          }
-          setAchievements(
-            achies
-              .filter(
-                (a) =>
-                  a.name && a.type && a.rarity && typeof a.earned === "boolean"
-              )
-              .map((a) => ({
-                ...a,
-                earnedDate: a.earnedDate || undefined,
-                progress:
-                  typeof a.progress === "number" ? a.progress : undefined,
-              }))
-          );
         }
       } catch (e) {
         let message = "Unknown error";
@@ -212,15 +185,17 @@ const Profile = () => {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [tgUser]);
 
   const handleSave = () => {
     hapticFeedback("notification", "success");
     setIsEditing(false);
   };
-
-  const earnedAchievements = achievements.filter((a) => a.earned);
-  const unlockedAchievements = achievements.filter((a) => !a.earned);
+  const achievements = badges.map((b: Achievement) => {
+    return { ...b, earned: user?.badge?.includes(b.id) };
+  });
+  const earnedAchievements = achievements.filter((a) => a.earned === true);
+  const unlockedAchievements = achievements.filter((a) => a.earned !== true);
 
   if (profileLoading) {
     return (
@@ -234,16 +209,17 @@ const Profile = () => {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6">
         <div className="flex items-center justify-between mb-6 relative">
           <div className="flex items-center space-x-4">
-            {user?.photo_url ? (
+            {tgUser?.photo_url ? (
               <img
-                src={user.photo_url}
-                alt={user.first_name}
+                src={tgUser.photo_url}
+                alt={tgUser.first_name}
                 className="w-20 h-20 rounded-full object-cover border-4 border-blue-100 dark:border-blue-900 shadow-lg"
               />
             ) : (
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-4 border-blue-100 dark:border-blue-900 shadow-lg">
                 <span className="text-white text-2xl font-bold">
-                  {user?.first_name?.charAt(0) || "U"}
+                  {tgUser?.first_name?.charAt(0) || "U"}
+                  {user?.name}
                 </span>
               </div>
             )}
@@ -262,27 +238,23 @@ const Profile = () => {
                 />
               ) : (
                 <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                  {user?.first_name || "Student"}
-                  {user?.last_name && ` ${user.last_name}`}
+                  {tgUser?.first_name || "Student"}
+                  {tgUser?.last_name && ` ${tgUser.last_name}`}
                 </h2>
               )}
               <div className="flex items-center space-x-2 mb-2">
                 <p className="text-gray-600 dark:text-gray-400">
-                  @{user?.username || "student"}
+                  @{tgUser?.username || "student"}
                 </p>
-                {user?.is_premium && (
+                {tgUser?.is_premium && (
                   <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-medium rounded-full">
                     Premium
                   </span>
                 )}
               </div>
               <div className="flex items-center space-x-3">
-                <Badge
-                  variant={
-                    editedProfile.isSuspended ? "destructive" : "success"
-                  }
-                >
-                  {editedProfile.isSuspended ? "Suspended" : "Active"}
+                <Badge variant={user?.isSuspended ? "destructive" : "success"}>
+                  {user?.isSuspended ? "Suspended" : "Active"}
                 </Badge>
               </div>
             </div>
@@ -324,9 +296,7 @@ const Profile = () => {
                 </SelectContent>
               </Select>
             ) : (
-              <div className="text-gray-800 dark:text-white">
-                {editedProfile.grade}
-              </div>
+              <div className="text-gray-800 dark:text-white">{user?.grade}</div>
             )}
           </div>
           <div>
@@ -354,12 +324,12 @@ const Profile = () => {
               </div>
               {!isEditing ? (
                 <div className="text-sm font-bold text-gray-800 dark:text-white">
-                  {editedProfile.school || "Not provided"}
+                  {user?.school || "Not provided"}
                 </div>
               ) : (
                 <input
                   type="text"
-                  value={editedProfile.school}
+                  value={user?.school}
                   onChange={(e) =>
                     setEditedProfile((prev) => ({
                       ...prev,
@@ -378,7 +348,7 @@ const Profile = () => {
 
               {!isEditing ? (
                 <div className="text-sm font-bold text-gray-800 dark:text-white">
-                  {editedProfile?.city || "Not provided"}
+                  {user?.city || "Not provided"}
                 </div>
               ) : (
                 <input
@@ -402,7 +372,7 @@ const Profile = () => {
 
               {!isEditing ? (
                 <div className="text-sm font-bold text-gray-600 dark:text-green-400">
-                  {editedProfile?.region || "Not provided"}
+                  {user?.region || "Not provided"}
                 </div>
               ) : (
                 <input
@@ -426,7 +396,7 @@ const Profile = () => {
 
               {!isEditing ? (
                 <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                  {editedProfile?.age || "Not provided"} years old
+                  {user?.age || "Not provided"} years old
                 </div>
               ) : (
                 <input
@@ -633,12 +603,12 @@ const Profile = () => {
                         <div className="mt-2">
                           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                             <span>Progress</span>
-                            <span>{achievement.progress}%</span>
+                            <span>{achievement.progress ?? 0}%</span>
                           </div>
                           <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                             <div
                               className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${achievement.progress}%` }}
+                              style={{ width: `${0}%` }}
                             ></div>
                           </div>
                         </div>

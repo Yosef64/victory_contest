@@ -17,16 +17,18 @@ import BotIcon from "../assets/bot-stroke-rounded.svg?react";
 import FeedbackIcon from "../assets/comment-add-01-stroke-rounded.svg?react";
 import UpgradeIcon from "../assets/sparkles-stroke-rounded.svg?react";
 import PaymentHistoryIcon from "../assets/document-validation-stroke-rounded.svg?react";
+import { useAuth } from "../context/AuthContext";
 const TopNavigation: React.FC = () => {
-  const { user, hapticFeedback } = useTelegram();
+  const { user: tgUser, hapticFeedback } = useTelegram();
+  const { user } = useAuth();
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const { notifications } = useNotification();
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
   const navigate = useNavigate();
 
   // useEffect(()=>{
-  //   const checkUser
+  //   const checktgUser
   // })
 
   const getPageTitle = () => {
@@ -57,11 +59,11 @@ const TopNavigation: React.FC = () => {
   };
 
   const getProfileImage = () => {
-    if (user?.photo_url) {
+    if (tgUser?.photo_url) {
       return (
         <img
-          src={user.photo_url}
-          alt={user.first_name}
+          src={tgUser.photo_url}
+          alt={tgUser.first_name}
           className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-lg ring-2 ring-blue-100 dark:ring-blue-900"
         />
       );
@@ -70,7 +72,7 @@ const TopNavigation: React.FC = () => {
     return (
       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-2 border-white shadow-lg ring-2 ring-blue-100 dark:ring-blue-900">
         <span className="text-white text-sm font-bold">
-          {user?.first_name?.charAt(0) || "U"}
+          {tgUser?.first_name?.charAt(0) || "U"}
         </span>
       </div>
     );
@@ -106,8 +108,8 @@ const TopNavigation: React.FC = () => {
                 {getPageTitle()}
               </h1>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Welcome back, {user?.first_name || "Student"}
-                {user?.is_premium && (
+                Welcome back, {tgUser?.first_name || "Student"}
+                {tgUser?.is_premium && (
                   <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-medium rounded-full">
                     Premium
                   </span>
@@ -145,20 +147,22 @@ const TopNavigation: React.FC = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
+                      disabled={!user?.is_premium}
                       onSelect={handleAiPracticeClick}
                       className="cursor-pointer"
                     >
                       <BotIcon className="mr-2 h-6 w-6 dark:text-white" />
                       <span>AI Practice</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      // disabled={true}
-                      onSelect={handleUpgradeClick}
-                      className="cursor-pointer"
-                    >
-                      <UpgradeIcon className="mr-2 h-6 w-6 dark:text-white text-yellow-500" />
-                      <span>Upgrade</span>
-                    </DropdownMenuItem>
+                    {!user?.is_premium && (
+                      <DropdownMenuItem
+                        onSelect={handleUpgradeClick}
+                        className="cursor-pointer"
+                      >
+                        <UpgradeIcon className="mr-2 h-6 w-6 dark:text-white text-yellow-500" />
+                        <span>Upgrade</span>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                       // disabled={true}
                       onSelect={handlePaymentsClick}

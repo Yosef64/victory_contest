@@ -118,7 +118,7 @@ export default function LeaderboardModal({
             </div>
           ) : previousContestLeaderboard.length > 0 ? (
             <div className="space-y-3">
-              {previousContestLeaderboard.map((entry) => {
+              {previousContestLeaderboard.map((entry, index) => {
                 const isCurrentUser = entry.user_id === user?.id.toString();
 
                 return (
@@ -131,7 +131,7 @@ export default function LeaderboardModal({
                     }`}
                   >
                     <div className="flex items-center space-x-4">
-                      {getRankIcon(entry.rank)}
+                      {getRankIcon(index + 1)}
                       <div>
                         <div className="flex items-center">
                           <p
@@ -163,7 +163,7 @@ export default function LeaderboardModal({
                         %
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Rank #{entry.rank}
+                        Rank #{index + 1}
                       </p>
                     </div>
                   </div>

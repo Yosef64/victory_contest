@@ -75,6 +75,25 @@ export interface TelegramWebApp {
   openInvoice: (url: string, callback?: (status: string) => void) => void;
   setHeaderColor: (color: string) => void;
   setBackgroundColor: (color: string) => void;
+  showPopup: (
+    params: {
+      title?: string;
+      message: string;
+      buttons?: Array<{ id: string; type?: string; text: string }>;
+    },
+    callback?: (buttonId: string) => void
+  ) => void;
+  showAlert: (message: string, callback?: () => void) => void;
+  showConfirm: (
+    message: string,
+    callback?: (confirmed: boolean) => void
+  ) => void;
+  requestWriteAccess: (callback?: (granted: boolean) => void) => void;
+  requestContact: (callback?: (shared: boolean) => void) => void;
+  enableClosingConfirmation: () => void;
+  disableClosingConfirmation: () => void;
+  switchInlineQuery: (query: string, chatTypes?: string[]) => void;
+  readTextFromClipboard: () => string | null;
 }
 
 export interface Question {
@@ -87,7 +106,7 @@ export interface Question {
   chapter: string;
   multiple_choice: string[];
   difficulty?: "easy" | "medium" | "hard";
-  question_image?: string;
+  question_img?: string;
 }
 
 export interface ContestAnswer {
@@ -107,11 +126,18 @@ export interface Student {
   grade: string;
   imgurl?: string;
   isSuspended?: boolean;
+<<<<<<< HEAD
   defaultScoreRange?: string; // Stores the student's permanent score range selection
+=======
+  badge?: string[];
+  is_premium: boolean;
+>>>>>>> 6d98c560a1883ee1c06e8637a49a849053bb6988
 }
 export interface AuthStudent extends Student {
   is_premium: boolean;
+  read_notifications: { [key: string]: { id: string; is_deleted: boolean } };
 }
+
 export interface Achievement {
   name: string;
   description: string;
@@ -209,4 +235,13 @@ export interface PaymentRequest {
   createdAt: string; // ISO String
   updatedAt: string;
   expirationDate?: string;
+}
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
+  earned: boolean;
+  earnedDate: string;
 }

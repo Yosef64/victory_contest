@@ -197,13 +197,13 @@ const Payment: FC = () => {
                   <div className="space-y-4">
                     <div>
                       <p className="font-semibold">American Bank</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         Account Number: 300-303-884-591
                       </p>
                     </div>
                     <div>
                       <p className="font-semibold">Suisse Bank</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         Account Number: 771-CH-91283-001
                       </p>
                     </div>
@@ -211,7 +211,7 @@ const Payment: FC = () => {
                       <p className="font-semibold">
                         Commercial Bank of Ethiopia
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         Account Number: 1000123456789
                       </p>
                     </div>

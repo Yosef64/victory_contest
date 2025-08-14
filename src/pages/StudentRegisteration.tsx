@@ -28,9 +28,10 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle, Loader2, X, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
+import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -64,6 +65,7 @@ const formSchema = z.object({
 
 export default function RegistrationForm() {
   const { user } = useTelegram();
+  const { refreshUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -111,6 +113,7 @@ export default function RegistrationForm() {
       },
     });
     if (success) {
+      refreshUser();
       navigate("/");
       return;
     }

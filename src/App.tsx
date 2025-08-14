@@ -28,23 +28,25 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {" "}
-          <Route index element={<Home />} />
-          <Route path="contest" element={<ContestComponent />} />
-          <Route path="leaderboard" element={<Leaderboard />} />
-          <Route path="statistics" element={<Statistics />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="registration" element={<Registration />} />
-          <Route path="contest-editorial" element={<ContestEditorial />} />
-          <Route path="feedback" element={<FeedbackPage />} />
-          <Route path="ai-practice" element={<AIPracticePage />} />
-          <Route path="register" element={<RegistrationForm />} />
-          <Route path="payment" element={<Payment />} />
-          <Route path="payment-history" element={<UserPaymentHistoryPage />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            {" "}
+            <Route index element={<Home />} />
+            <Route path="contest" element={<ContestComponent />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="statistics" element={<Statistics />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="registration" element={<Registration />} />
+            <Route path="contest-editorial" element={<ContestEditorial />} />
+            <Route path="feedback" element={<FeedbackPage />} />
+            <Route path="ai-practice" element={<AIPracticePage />} />
+            <Route path="register" element={<RegistrationForm />} />
+            <Route path="payment" element={<Payment />} />
+            <Route path="payment-history" element={<UserPaymentHistoryPage />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

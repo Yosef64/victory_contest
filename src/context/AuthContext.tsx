@@ -69,9 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       />
     );
   } else if (!user && location.pathname !== "/register") {
+    // Redirect unregistered users to registration
     content = <Navigate to="/register" replace />;
   } else if (user && location.pathname === "/register") {
-    content = <Navigate to="/dashboard" replace />;
+    // Redirect registered users away from registration page
+    content = <Navigate to="/" replace />;
   }
 
   return (

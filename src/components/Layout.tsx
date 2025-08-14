@@ -5,7 +5,6 @@ import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "../context/NotificationContext";
-import { AuthProvider } from "../context/AuthContext";
 
 const Layout: React.FC = () => {
   const {
@@ -98,10 +97,9 @@ const Layout: React.FC = () => {
       className="min-h-screen flex flex-col bg-gray-50"
       // style={getThemeStyles()}
     >
-      <AuthProvider>
-        <NotificationProvider>
-          <TopNavigation />
-        </NotificationProvider>
+      <NotificationProvider>
+        <TopNavigation />
+      </NotificationProvider>
         {/* <AdTrigger /> */}
 
         <main className="flex-1 pt-16 pb-20 overflow-y-auto">
@@ -109,7 +107,6 @@ const Layout: React.FC = () => {
           <Toaster />
         </main>
         {location.pathname !== "/register" && <BottomNavigation />}
-      </AuthProvider>{" "}
     </div>
   );
 };

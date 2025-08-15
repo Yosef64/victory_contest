@@ -576,7 +576,11 @@ export function FeedbackPage() {
               {/* Action button */}
               <Button
                 onClick={() => {
-                  setFeedback(initialFeedbackState);
+                  setFeedback(prev => ({
+                    ...initialFeedbackState,
+                    // Preserve previously selected score range so it remains permanent and disabled
+                    pollResponse: prev.pollResponse
+                  }));
                   setIsSubmitted(false);
                   setShowContactForm(false);
                   setSelectedPollOption(null);

@@ -189,6 +189,23 @@ const Profile = () => {
 
     fetchStats();
 
+    if (user || tgUser) {
+      setEditedProfile({
+        name: user?.name || "",
+        grade: user?.grade || "",
+        city: user?.city || "",
+        region: user?.region || "",
+        school: user?.school || "",
+        imgurl: tgUser?.photo_url || "",
+        isSuspended: user?.isSuspended || false,
+        telegram_id: tgUser?.id.toString() || "",
+        id: user?.id || tgUser?.id.toString() || "", // Prioritize your backend user ID
+        age: user?.age || "5",
+        is_premium: user?.is_premium || false,
+        read_notifications: user?.read_notifications || {},
+      });
+    }
+
     return () => {
       isMounted = false;
     };

@@ -12,7 +12,7 @@ import WelcomeCarousel from "../components/WelcomeCarousell";
 import LeaderboardModal from "../components/LeaderboardModal";
 
 const Home: React.FC = () => {
-  const { user, hapticFeedback } = useTelegram();
+  const { user, hapticFeedback, hideBackButton } = useTelegram();
   const [contests, setContests] = useState<Contest[]>([]);
   const [previousContests, setPreviousContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +21,7 @@ const Home: React.FC = () => {
 
   const [showPreviousModal, setShowPreviousModal] = useState(false);
 
+  hideBackButton();
   useEffect(() => {
     const fetchContests = async () => {
       setLoading(true);

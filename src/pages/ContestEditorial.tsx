@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   BookOpen,
@@ -38,7 +38,7 @@ interface EditorialQuestion extends Question {
 }
 
 const ContestEditorial: React.FC = () => {
-  const { hapticFeedback } = useTelegram();
+  const { hapticFeedback, showBackButton } = useTelegram();
   const [searchParams] = useSearchParams();
   const contestId = searchParams.get("id");
   const contestTitle = searchParams.get("title") || "Contest Editorial";
@@ -52,6 +52,7 @@ const ContestEditorial: React.FC = () => {
     "all" | "correct" | "incorrect" | "skipped"
   >("all");
   const { user } = useTelegram();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let isMounted = true;
@@ -136,6 +137,9 @@ const ContestEditorial: React.FC = () => {
     text: string;
     gradient: string;
   }
+  showBackButton(() => {
+    navigate(-1);
+  });
 
   const getAnswerStatus = (question: EditorialQuestion): AnswerStatus => {
     if (question.user_answer === -1 || question.user_answer == null) {
@@ -216,16 +220,6 @@ const ContestEditorial: React.FC = () => {
       <div className="p-3 max-w-full mx-auto space-y-4">
         {/* Header */}
         <div className="relative">
-          <button
-            onClick={() => console.log("Navigate back")} // Mock navigation for Telegram Mini App
-            className="flex items-center text-blue-600 dark:text-blue-400 mb-4"
-          >
-            <div className="p-1 rounded-full bg-blue-100 dark:bg-blue-900/30 mr-2">
-              <ArrowLeft className="w-4 h-4" />
-            </div>
-            <span className="text-sm font-medium">Back</span>
-          </button>
-
           <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 border border-white/20 dark:border-gray-700/50">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-2">

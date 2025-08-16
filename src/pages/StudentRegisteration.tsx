@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle, Loader2, X, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
 import { useState } from "react";

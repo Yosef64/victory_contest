@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const location = useLocation();
 
   const fetchUser = useCallback(async () => {
-    // if (!tgUser?.id) return;
+    if (!tgUser?.id) return;
     setStatus("pending");
     setError(null);
     try {

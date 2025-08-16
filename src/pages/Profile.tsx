@@ -127,16 +127,6 @@ const Profile = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  //Debugger
-  // if (user) {
-  //   toast.error(`use is ${JSON.stringify(user)}`, {
-  //     style: {
-  //       backgroundColor: "red",
-  //       color: "white",
-  //     },
-  //   });
-  // }
-
   useEffect(() => {
     let isMounted = true;
 
@@ -479,7 +469,7 @@ const Profile = () => {
             <Button
               disabled={
                 saving ||
-                !Object.keys(editedProfile).some((k) => {
+                Object.keys(editedProfile).some((k) => {
                   const key = k as keyof AuthStudent;
                   return user && editedProfile[key] === user[key];
                 })

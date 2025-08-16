@@ -12,8 +12,7 @@ import { Button } from "../components/ui/button";
 import axios from "axios";
 
 const ContestComponent: React.FC = () => {
-  const { hapticFeedback, hideMainButton, showConfirm, showPopup } =
-    useTelegram();
+  const { hapticFeedback, hideMainButton, showConfirm } = useTelegram();
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -210,7 +209,6 @@ const ContestComponent: React.FC = () => {
     // Navigate to selected question
     setCurrentQuestionIndex(questionIndex);
 
-    // Check if this question was already answered
     const targetQuestion = questions[questionIndex];
     const existingAnswer = answers.find(
       (a) => a.question.id === targetQuestion.id
@@ -220,13 +218,11 @@ const ContestComponent: React.FC = () => {
     hapticFeedback("selection");
   };
   const endContest = async () => {
-    // Organize submission data
     showConfirm(
       "Are you sure you want to end the contest?",
       async (confirmed) => {
         if (confirmed) {
           let updatedAnswers = [...answers];
-
           if (selectedAnswer !== null) {
             const currentQuestion = questions[currentQuestionIndex];
             const isCorrect = selectedAnswer === Number(currentQuestion.answer);
@@ -234,7 +230,7 @@ const ContestComponent: React.FC = () => {
               question: currentQuestion,
               selected_answer: selectedAnswer,
               is_correct: isCorrect,
-              time_taken: 60,
+              time_taken: 60, // Or your actual timer value
             };
 
             const existingAnswerIndex = updatedAnswers.findIndex(
@@ -247,6 +243,24 @@ const ContestComponent: React.FC = () => {
             }
           }
 
+          const answeredQuestionIds = new Set(
+            updatedAnswers.map((a) => a.question.id)
+          );
+
+          // 2. Iterate through ALL contest questions
+          questions.forEach((question) => {
+            // 3. If a question was not answered, add it to our submission list
+            if (!answeredQuestionIds.has(question.id)) {
+              const unansweredEntry: ContestAnswer = {
+                question: question,
+                selected_answer: -1, // As requested for unanswered
+                is_correct: false, // Unanswered is always incorrect
+                time_taken: 0, // No time was spent on it
+              };
+              updatedAnswers.push(unansweredEntry);
+            }
+          });
+
           if (updatedAnswers.length === 0) {
             toast.error("No answers submitted!", {
               description:
@@ -255,6 +269,8 @@ const ContestComponent: React.FC = () => {
             return;
           }
 
+          // The rest of your function now works correctly because `updatedAnswers`
+          // contains entries for ALL questions (answered and unanswered).
           const correctAnswers = updatedAnswers.filter(
             (a) => a.is_correct
           ).length;
@@ -471,13 +487,13 @@ const ContestComponent: React.FC = () => {
       <div className="">
         <div className="flex w-full max-w-2xl mx-auto gap-3">
           {/* Previous Button */}
-          <button
+          <Button
             onClick={handlePreviousQuestion}
             disabled={currentQuestionIndex === 0}
             className="w-1/2 bg-gray-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
-          </button>
+          </Button>
 
           {/* Next/Finish Button */}
           <Button

@@ -14,10 +14,11 @@ import {
   Globe,
   Building2,
   User,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "../components/ui/button";
-import { Achievement, Student } from "../types";
+import { Achievement, AuthStudent } from "../types";
 import {
   Select,
   SelectContent,
@@ -26,7 +27,10 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
-import { getUserStat, updateUserInfo } from "../services/studentServices";
+import {
+  getUserStat,
+  updateUserInfo,
+} from "../services/studentServices";
 import { toast } from "sonner";
 // import homeIcon from "../assets/contest.svg?react";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
@@ -99,11 +103,11 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 };
 
 const Profile = () => {
-  const { user: tgUser, hapticFeedback } = useTelegram();
-  const { user, refreshUser } = useAuth();
+  const { user: tgUser } = useTelegram();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Student>({
-    name: tgUser?.first_name || "",
+  const [editedProfile, setEditedProfile] = useState<AuthStudent>({
+    name: user?.name || "",
     grade: user?.grade || "",
     city: user?.city || "",
     region: user?.region || "",
@@ -114,47 +118,12 @@ const Profile = () => {
     id: tgUser?.id?.toString() || "",
     age: user?.age || "5",
     is_premium: user?.is_premium || false,
-    badge: user?.badge || [],
-    phoneNumber: user?.phoneNumber || "",
     read_notifications: user?.read_notifications || {},
   });
 
   const [userStats, setUserStats] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  //Debugger
-  // if (user) {
-  //   toast.error(`use is ${JSON.stringify(user)}`, {
-  //     style: {
-  //       backgroundColor: "red",
-  //       color: "white",
-  //     },
-  //   });
-  // }
-
-  // Update editedProfile when user data changes
-  useEffect(() => {
-    if (tgUser?.id || user) {
-      setEditedProfile(prev => ({
-        ...prev,
-        name: tgUser?.first_name || prev.name,
-        grade: user?.grade || prev.grade,
-        city: user?.city || prev.city,
-        region: user?.region || prev.region,
-        school: user?.school || prev.school,
-        imgurl: tgUser?.photo_url || prev.imgurl,
-        isSuspended: user?.isSuspended || prev.isSuspended,
-        telegram_id: tgUser?.id?.toString() || prev.telegram_id,
-        id: tgUser?.id?.toString() || user?.id || prev.id,
-        age: user?.age || prev.age,
-        is_premium: user?.is_premium || prev.is_premium,
-        badge: user?.badge || prev.badge,
-        phoneNumber: user?.phoneNumber || prev.phoneNumber,
-        read_notifications: user?.read_notifications || prev.read_notifications,
-      }));
-    }
-  }, [tgUser, user]);
 
   useEffect(() => {
     let isMounted = true;
@@ -208,6 +177,23 @@ const Profile = () => {
 
     fetchStats();
 
+    if (user || tgUser) {
+      setEditedProfile({
+        name: user?.name || "",
+        grade: user?.grade || "",
+        city: user?.city || "",
+        region: user?.region || "",
+        school: user?.school || "",
+        imgurl: tgUser?.photo_url || "",
+        isSuspended: user?.isSuspended || false,
+        telegram_id: tgUser?.id.toString() || "",
+        id: user?.id || tgUser?.id.toString() || "", // Prioritize your backend user ID
+        age: user?.age || "5",
+        is_premium: user?.is_premium || false,
+        read_notifications: user?.read_notifications || {},
+      });
+    }
+
     return () => {
       isMounted = false;
     };
@@ -215,54 +201,33 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
-      setSaving(true);
-      hapticFeedback("notification", "success");
-      
-      // Validate that we have a valid user ID
-      if (!editedProfile.id || editedProfile.id.trim() === "") {
-        throw new Error("Invalid user ID. Please ensure you're properly logged in.");
+      if (editedProfile.id === "") {
+        toast.error("User id is null", {
+          style: {
+            backgroundColor: "red",
+            color: "white",
+          },
+        });
+        return;
       }
-      
-      // Call the update service with correct structure
-      await updateUserInfo({
-        id: editedProfile.id,
-        name: editedProfile.name,
-        grade: editedProfile.grade,
-        city: editedProfile.city,
-        region: editedProfile.region,
-        school: editedProfile.school,
-        age: editedProfile.age,
-        telegram_id: editedProfile.telegram_id,
-        imgurl: editedProfile.imgurl,
-        isSuspended: editedProfile.isSuspended,
-        is_premium: user?.is_premium || false,
-        badge: user?.badge || [],
-        phoneNumber: user?.phoneNumber || "",
-        read_notifications: user?.read_notifications || {},
-      });
-
-      // Show success message
-      toast.success("Profile updated successfully!", {
-        description: "Your profile information has been saved.",
-        duration: 3000,
+      setSaving(true);
+      await updateUserInfo(editedProfile);
+      toast.success("Changes saved!", {
+        style: {
+          backgroundColor: "green",
+          color: "white",
+        },
         position: "top-center",
       });
-
-      // Refresh the user data to show updated information
-      await refreshUser();
-
       setIsEditing(false);
     } catch (error) {
-      console.error("Error updating profile:", error);
-      
-      // Show error message
-      toast.error("Failed to update profile", {
-        description: "Please try again. If the problem persists, contact support.",
-        duration: 5000,
+      toast.error("Unable to save changes", {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
         position: "top-center",
       });
-      
-      hapticFeedback("notification", "error");
     } finally {
       setSaving(false);
     }
@@ -500,11 +465,17 @@ const Profile = () => {
               Cancel
             </Button>
             <Button
+              disabled={
+                saving ||
+                Object.keys(editedProfile).some((k) => {
+                  const key = k as keyof AuthStudent;
+                  return user && editedProfile[key] === user[key];
+                })
+              }
               onClick={handleSave}
-              disabled={saving}
               className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50 disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save
             </Button>
           </div>
         )}

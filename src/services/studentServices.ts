@@ -13,7 +13,7 @@ export async function getUserProfile(user_id: string) {
 
 export async function studentRegister(values: any) {
   const res = await api.post("/student/", values);
-  return res.data;
+  return res.data.student;
 }
 
 export async function getStudentById(id: string) {

@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setStatus("pending");
     setError(null);
     try {
-      const student = await getStudentById(tgUser.id.toString());
+      const student = await getStudentById(tgUser?.id.toString()!);
       setUser(student);
       setStatus("success");
     } catch (err) {
@@ -72,7 +72,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Redirect unregistered users to registration
     content = <Navigate to="/register" replace />;
   } else if (user && location.pathname === "/register") {
-    // Redirect registered users away from registration page
     content = <Navigate to="/" replace />;
   }
 

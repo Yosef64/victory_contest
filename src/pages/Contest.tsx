@@ -454,13 +454,13 @@ const ContestComponent: React.FC = () => {
       <div className="">
         <div className="flex w-full max-w-2xl mx-auto gap-3">
           {/* Previous Button */}
-          <button
+          <Button
             onClick={handlePreviousQuestion}
             disabled={currentQuestionIndex === 0}
             className="w-1/2 bg-gray-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
-          </button>
+          </Button>
 
           {/* Next/Finish Button */}
           <Button

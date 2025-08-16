@@ -36,11 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const location = useLocation();
 
   const fetchUser = useCallback(async () => {
-    if (!tgUser?.id) return;
+    // if (!tgUser?.id) return;
     setStatus("pending");
     setError(null);
     try {
-      const student = await getStudentById(tgUser.id.toString());
+      const student = await getStudentById(tgUser?.id.toString()!);
       setUser(student);
       setStatus("success");
     } catch (err) {
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   } else if (!user && location.pathname !== "/register") {
     content = <Navigate to="/register" replace />;
   } else if (user && location.pathname === "/register") {
-    content = <Navigate to="/dashboard" replace />;
+    content = <Navigate to="/" replace />;
   }
 
   return (

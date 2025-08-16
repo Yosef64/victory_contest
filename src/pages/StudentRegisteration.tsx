@@ -33,6 +33,7 @@ import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -64,6 +65,7 @@ const formSchema = z.object({
 
 export default function RegistrationForm() {
   const { user } = useTelegram();
+  const { setUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -88,31 +90,36 @@ export default function RegistrationForm() {
     let success;
     try {
       setSubmitting(true);
-      await studentRegister({
+      const registeredStudent = await studentRegister({
         ...values,
         age: values.age.toString(),
         imgurl: user?.photo_url,
-        telegram_id: user?.id.toString() ?? "12",
-        id: user?.id.toString() ?? "12",
+        telegram_id: user?.id.toString(),
+        id: user?.id.toString(),
       });
-      message = "Registration Submitted!";
-      success = true;
+
+      // Use the definitive object returned from your backend!
+      setUser(registeredStudent);
+
+      toast("Succesfully registered!", {
+        icon: <CheckCircle />,
+        style: {
+          backgroundColor: "green",
+          color: "white",
+        },
+      });
+      navigate("/");
     } catch (error) {
       message = "Something went wrong";
-      success = false;
+      toast(message, {
+        icon: <XCircle />,
+        style: {
+          backgroundColor: "#f8d7da",
+          color: success ? "white" : "#721c24",
+        },
+      });
     } finally {
       setSubmitting(false);
-    }
-    toast(message, {
-      icon: success ? <CheckCircle /> : <XCircle />,
-      style: {
-        backgroundColor: success ? "green" : "#f8d7da",
-        color: success ? "white" : "#721c24",
-      },
-    });
-    if (success) {
-      navigate("/");
-      return;
     }
   }
 

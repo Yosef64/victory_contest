@@ -14,10 +14,11 @@ import {
   Globe,
   Building2,
   User,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "../components/ui/button";
-import { Achievement, Student } from "../types";
+import { Achievement, AuthStudent, Student } from "../types";
 import {
   Select,
   SelectContent,
@@ -26,7 +27,11 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
-import { getUserProfile, getUserStat } from "../services/studentServices";
+import {
+  getUserProfile,
+  getUserStat,
+  updateUserInfo,
+} from "../services/studentServices";
 import { toast } from "sonner";
 // import homeIcon from "../assets/contest.svg?react";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
@@ -100,11 +105,11 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 };
 
 const Profile = () => {
-  const { user: tgUser, hapticFeedback } = useTelegram();
+  const { user: tgUser } = useTelegram();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Student>({
-    name: tgUser?.first_name || "",
+  const [editedProfile, setEditedProfile] = useState<AuthStudent>({
+    name: user?.name || "",
     grade: user?.grade || "",
     city: user?.city || "",
     region: user?.region || "",
@@ -114,11 +119,13 @@ const Profile = () => {
     telegram_id: tgUser?.id.toString() || "",
     id: tgUser?.id.toString() || "",
     age: user?.age || "5",
-    is_premium: false,
+    is_premium: user?.is_premium || false,
+    read_notifications: user?.read_notifications || {},
   });
 
   const [userStats, setUserStats] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   //Debugger
   // if (user) {
@@ -187,9 +194,29 @@ const Profile = () => {
     };
   }, [tgUser]);
 
-  const handleSave = () => {
-    hapticFeedback("notification", "success");
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await updateUserInfo(editedProfile);
+      toast.success("Changes saved!", {
+        style: {
+          backgroundColor: "green",
+          color: "white",
+        },
+        position: "top-center",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      toast.error("Unable to save changes", {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
+        position: "top-center",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
   const achievements = badges.map((b: Achievement) => {
     return { ...b, earned: user?.badge?.includes(b.id) };
@@ -424,10 +451,17 @@ const Profile = () => {
               Cancel
             </Button>
             <Button
+              disabled={
+                saving ||
+                !Object.keys(editedProfile).some((k) => {
+                  const key = k as keyof AuthStudent;
+                  return user && editedProfile[key] !== user[key];
+                })
+              }
               onClick={handleSave}
               className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50"
             >
-              Save
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save
             </Button>
           </div>
         )}

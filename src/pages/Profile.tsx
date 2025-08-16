@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
-import { getUserProfile, getUserStat } from "../services/studentServices";
+import { getUserStat, updateUserInfo } from "../services/studentServices";
 import { toast } from "sonner";
 // import homeIcon from "../assets/contest.svg?react";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
@@ -35,7 +35,6 @@ import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?reac
 import CollapseText from "../components/ui/Collapse";
 import { useAuth } from "../context/AuthContext";
 import { badges } from "../lib/data";
-import Loader from "../components/Loader";
 
 const achievementStyles: any = {
   first: {
@@ -101,7 +100,7 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 
 const Profile = () => {
   const { user: tgUser, hapticFeedback } = useTelegram();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Student>({
     name: tgUser?.first_name || "",
@@ -111,14 +110,18 @@ const Profile = () => {
     school: user?.school || "",
     imgurl: tgUser?.photo_url || "",
     isSuspended: user?.isSuspended || false,
-    telegram_id: tgUser?.id.toString() || "",
-    id: tgUser?.id.toString() || "",
+    telegram_id: tgUser?.id?.toString() || "",
+    id: tgUser?.id?.toString() || "",
     age: user?.age || "5",
-    is_premium: false,
+    is_premium: user?.is_premium || false,
+    badge: user?.badge || [],
+    phoneNumber: user?.phoneNumber || "",
+    read_notifications: user?.read_notifications || {},
   });
 
   const [userStats, setUserStats] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   //Debugger
   // if (user) {
@@ -129,6 +132,29 @@ const Profile = () => {
   //     },
   //   });
   // }
+
+  // Update editedProfile when user data changes
+  useEffect(() => {
+    if (tgUser?.id || user) {
+      setEditedProfile(prev => ({
+        ...prev,
+        name: tgUser?.first_name || prev.name,
+        grade: user?.grade || prev.grade,
+        city: user?.city || prev.city,
+        region: user?.region || prev.region,
+        school: user?.school || prev.school,
+        imgurl: tgUser?.photo_url || prev.imgurl,
+        isSuspended: user?.isSuspended || prev.isSuspended,
+        telegram_id: tgUser?.id?.toString() || prev.telegram_id,
+        id: tgUser?.id?.toString() || user?.id || prev.id,
+        age: user?.age || prev.age,
+        is_premium: user?.is_premium || prev.is_premium,
+        badge: user?.badge || prev.badge,
+        phoneNumber: user?.phoneNumber || prev.phoneNumber,
+        read_notifications: user?.read_notifications || prev.read_notifications,
+      }));
+    }
+  }, [tgUser, user]);
 
   useEffect(() => {
     let isMounted = true;
@@ -187,9 +213,59 @@ const Profile = () => {
     };
   }, [tgUser]);
 
-  const handleSave = () => {
-    hapticFeedback("notification", "success");
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      hapticFeedback("notification", "success");
+      
+      // Validate that we have a valid user ID
+      if (!editedProfile.id || editedProfile.id.trim() === "") {
+        throw new Error("Invalid user ID. Please ensure you're properly logged in.");
+      }
+      
+      // Call the update service with correct structure
+      await updateUserInfo({
+        id: editedProfile.id,
+        name: editedProfile.name,
+        grade: editedProfile.grade,
+        city: editedProfile.city,
+        region: editedProfile.region,
+        school: editedProfile.school,
+        age: editedProfile.age,
+        telegram_id: editedProfile.telegram_id,
+        imgurl: editedProfile.imgurl,
+        isSuspended: editedProfile.isSuspended,
+        is_premium: user?.is_premium || false,
+        badge: user?.badge || [],
+        phoneNumber: user?.phoneNumber || "",
+        read_notifications: user?.read_notifications || {},
+      });
+
+      // Show success message
+      toast.success("Profile updated successfully!", {
+        description: "Your profile information has been saved.",
+        duration: 3000,
+        position: "top-center",
+      });
+
+      // Refresh the user data to show updated information
+      await refreshUser();
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      
+      // Show error message
+      toast.error("Failed to update profile", {
+        description: "Please try again. If the problem persists, contact support.",
+        duration: 5000,
+        position: "top-center",
+      });
+      
+      hapticFeedback("notification", "error");
+    } finally {
+      setSaving(false);
+    }
   };
   const achievements = badges.map((b: Achievement) => {
     return { ...b, earned: user?.badge?.includes(b.id) };
@@ -329,7 +405,7 @@ const Profile = () => {
               ) : (
                 <input
                   type="text"
-                  value={user?.school}
+                  value={editedProfile.school}
                   onChange={(e) =>
                     setEditedProfile((prev) => ({
                       ...prev,
@@ -425,9 +501,10 @@ const Profile = () => {
             </Button>
             <Button
               onClick={handleSave}
-              className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50"
+              disabled={saving}
+              className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50 disabled:opacity-50"
             >
-              Save
+              {saving ? "Saving..." : "Save"}
             </Button>
           </div>
         )}

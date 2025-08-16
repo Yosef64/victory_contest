@@ -196,6 +196,15 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
+      if (editedProfile.id === "") {
+        toast.error("User id is null", {
+          style: {
+            backgroundColor: "red",
+            color: "white",
+          },
+        });
+        return;
+      }
       setSaving(true);
       await updateUserInfo(editedProfile);
       toast.success("Changes saved!", {
@@ -455,7 +464,7 @@ const Profile = () => {
                 saving ||
                 !Object.keys(editedProfile).some((k) => {
                   const key = k as keyof AuthStudent;
-                  return user && editedProfile[key] !== user[key];
+                  return user && editedProfile[key] === user[key];
                 })
               }
               onClick={handleSave}

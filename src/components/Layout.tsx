@@ -6,6 +6,7 @@ import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "../context/NotificationContext";
 import { AuthProvider } from "../context/AuthContext";
+import PaymentAlert from "./PaymentAlert";
 
 const Layout: React.FC = () => {
   const {
@@ -19,7 +20,6 @@ const Layout: React.FC = () => {
   useEffect(() => {
     if (webApp) {
       // const theme = webApp.themeParams;
-
       // --- Dark Mode Logic Commented Out ---
       // const isDark = isDarkColor(theme.bg_color || "#ffffff");
 
@@ -100,6 +100,7 @@ const Layout: React.FC = () => {
     >
       <AuthProvider>
         <NotificationProvider>
+          <PaymentAlert />
           <TopNavigation />
         </NotificationProvider>
         {/* <AdTrigger /> */}

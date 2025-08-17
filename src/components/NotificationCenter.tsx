@@ -47,7 +47,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         uns[element.id] = { id: element.id, is_deleted: false };
       });
       setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, read: true }))
+        prev.map((notif) => ({ ...notif, is_read: true }))
       );
       setUser((prev) => {
         if (!prev) return prev;

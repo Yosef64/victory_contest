@@ -5,6 +5,7 @@ import { useTelegram } from "../hooks/useTelegram";
 import { Alert, AlertTitle } from "../components/ui/alert";
 import { PopcornIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 export default function PaymentAlert() {
   const { user: tgUser } = useTelegram();
   const navigate = useNavigate();
@@ -17,7 +18,14 @@ export default function PaymentAlert() {
       try {
         const payments = await fetchUserPaymentRequests(tgUser?.id.toString());
         setpayments(payments);
-      } catch (err) {}
+      } catch (err) {
+        toast.error("something went wrong", {
+          style: {
+            backgroundColor: "red",
+            color: "white",
+          },
+        });
+      }
     };
     fetchUserPayments();
   }, [tgUser]);

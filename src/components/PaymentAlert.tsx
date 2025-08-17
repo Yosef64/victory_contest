@@ -3,13 +3,14 @@ import { PaymentRequest } from "../types";
 import { fetchUserPaymentRequests } from "../services/paymentServices";
 import { useTelegram } from "../hooks/useTelegram";
 import { Alert, AlertTitle } from "../components/ui/alert";
-import { PopcornIcon } from "lucide-react";
+import { PopcornIcon, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 export default function PaymentAlert() {
   const { user: tgUser } = useTelegram();
   const navigate = useNavigate();
 
   const [payments, setpayments] = useState<PaymentRequest[] | null>(null);
+  const [isVisible, setIsVisible] = useState(true); // <-- 2. Add state for visibility
 
   useEffect(() => {
     if (!tgUser?.id) return;
@@ -23,20 +24,29 @@ export default function PaymentAlert() {
   }, [tgUser]);
 
   if (payments == null) {
-    return;
+    return null;
   }
 
   const THREE_DAYS_IN_MS = 3 * 24 * 60 * 60 * 1000;
 
-  const isAboutToExpire = payments.some((payment) => {
-    if (payment.status !== "Approved" || !payment.expirationDate) {
-      return false;
+  let isAboutToExpire = false;
+  for (let index = 0; index < payments.length; index++) {
+    const payment = payments[index];
+    if (payment.status != "Approved") {
+      continue;
     }
-    const timeDiff = new Date(payment.expirationDate).getTime() - Date.now();
-    return timeDiff <= THREE_DAYS_IN_MS && timeDiff >= 0;
-  });
+    const timeDiff = new Date(payment.expirationDate!).getTime() - Date.now();
+    if (timeDiff > THREE_DAYS_IN_MS) {
+      isAboutToExpire = false;
+      break;
+    }
 
-  if (!isAboutToExpire) {
+    if (timeDiff <= THREE_DAYS_IN_MS) {
+      isAboutToExpire = true;
+    }
+  }
+
+  if (!isAboutToExpire || !isVisible) {
     return null;
   }
   return (
@@ -56,6 +66,13 @@ export default function PaymentAlert() {
           Subscribe
         </span>
       </AlertTitle>
+      <button
+        onClick={() => setIsVisible(false)}
+        className="absolute top-2 right-2 rounded-full hover:bg-yellow-200/60"
+        aria-label="Dismiss"
+      >
+        <X className="h-5 w-5" />
+      </button>
     </Alert>
   );
 }

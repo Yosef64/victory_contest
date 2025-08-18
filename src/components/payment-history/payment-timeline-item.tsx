@@ -86,7 +86,7 @@ export function PaymentTimelineItem({ request }: { request: PaymentRequest }) {
       {isModalOpen && (
         <div
           onClick={() => setIsModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm"
         >
           {/* The Modal Content */}
           <div

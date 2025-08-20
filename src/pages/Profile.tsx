@@ -104,7 +104,7 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 
 const Profile = () => {
   const { user: tgUser } = useTelegram();
-  const { user } = useAuth();
+  const { user, setUser, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<AuthStudent>({
     name: user?.name || "",
@@ -199,6 +199,21 @@ const Profile = () => {
     };
   }, [tgUser]);
 
+  // Determine if there are any changes compared to the current user profile
+  const hasChanges = (() => {
+    if (!user) return false;
+    const fieldsToCompare: (keyof AuthStudent)[] = [
+      "name",
+      "grade",
+      "city",
+      "region",
+      "school",
+      "imgurl",
+      "age",
+    ];
+    return fieldsToCompare.some((key) => (editedProfile as any)[key] !== (user as any)[key]);
+  })();
+
   const handleSave = async () => {
     try {
       if (editedProfile.id === "") {
@@ -212,6 +227,12 @@ const Profile = () => {
       }
       setSaving(true);
       await updateUserInfo(editedProfile);
+      // Optimistically update auth context so UI reflects saved changes
+      setUser((prev) => (prev ? { ...prev, ...editedProfile } : prev));
+      // Best-effort refresh from backend (non-blocking)
+      try {
+        refreshUser();
+      } catch {}
       toast.success("Changes saved!", {
         style: {
           backgroundColor: "green",
@@ -466,11 +487,7 @@ const Profile = () => {
             </Button>
             <Button
               disabled={
-                saving ||
-                Object.keys(editedProfile).some((k) => {
-                  const key = k as keyof AuthStudent;
-                  return user && editedProfile[key] === user[key];
-                })
+                saving || !hasChanges
               }
               onClick={handleSave}
               className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50 disabled:opacity-50"

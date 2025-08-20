@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { useNotification } from "../context/NotificationContext";
 import { markNotificationAsRead } from "../services/notificationService";
@@ -20,6 +21,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const { notifications, setNotifications, notificationLoading } =
     useNotification();
   const { user, setUser } = useAuth();
+  const navigate = useNavigate();
 
   const markAsRead = async (id: string) => {
     try {
@@ -194,11 +196,20 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 return (
                   <div
                     key={notification.id}
+                    onClick={async () => {
+                      if (notification.type === "feedback_question") {
+                        try {
+                          await markAsRead(notification.id);
+                        } catch {}
+                        onClose();
+                        navigate("/feedback");
+                      }
+                    }}
                     className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
                       !notification.is_read
                         ? "bg-blue-50/50 dark:bg-blue-900/10"
                         : ""
-                    }`}
+                    } ${notification.type === "feedback_question" ? "cursor-pointer" : ""}`}
                   >
                     <div className="flex items-start space-x-3">
                       <div
@@ -236,7 +247,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                           <div className="flex items-center space-x-1 ml-2">
                             {!notification.is_read && (
                               <button
-                                onClick={() => markAsRead(notification.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead(notification.id);
+                                }}
                                 className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
                                 title="Mark as read"
                               >
@@ -253,14 +267,20 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         <div className="flex items-center space-x-2 mt-2">
                           {!notification.read && (
                             <button
-                              onClick={() => markAsRead(notification.id.toString())}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(notification.id.toString());
+                              }}
                               className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
                             >
                               Mark as read
                             </button>
                           )}
                           <button
-                            onClick={() => deleteNotificationHandler(notification.id.toString())}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotificationHandler(notification.id.toString());
+                            }}
                             className="text-xs text-red-600 dark:text-red-400 hover:underline"
                           >
                             Delete

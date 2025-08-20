@@ -120,8 +120,9 @@ const Payment: FC = () => {
           color: "#155724",
         },
       });
-    } catch (err) {
-      toast.error("Unable to send your payment!", {
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || "Unable to send your payment!";
+      toast.error(msg, {
         style: {
           backgroundColor: "#f8d7da",
           color: "#721c24",

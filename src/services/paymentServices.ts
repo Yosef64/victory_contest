@@ -4,7 +4,14 @@ export async function sendPaymentInfo(formData: FormData) {
   for (const pair of formData.entries()) {
     console.log(pair[0] + ": " + pair[1]);
   }
-  const res = await api.post("/payment/", formData, {});
+  const res = await api.post("/payment/", formData, {
+    // Avoid sending cookies for this call to reduce CORS friction during dev
+    withCredentials: false,
+    headers: {
+      // Let Axios set proper multipart boundary; do not set Content-Type explicitly
+      Accept: "application/json",
+    },
+  });
   return res.data;
 }
 

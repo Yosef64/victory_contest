@@ -126,8 +126,11 @@ export interface Student {
   grade: string;
   imgurl?: string;
   isSuspended?: boolean;
+  defaultScoreRange?: string; // Stores the student's permanent score range selection
   badge?: string[];
-  is_premium: boolean;
+  is_premium?: boolean;
+  phoneNumber?: string;
+  read_notifications?: { [key: string]: { id: string; is_deleted: boolean } };
 }
 export interface AuthStudent extends Student {
   is_premium: boolean;

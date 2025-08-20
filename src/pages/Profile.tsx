@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "../components/ui/button";
-import { Achievement, AuthStudent, Student } from "../types";
+import { Achievement, AuthStudent } from "../types";
 import {
   Select,
   SelectContent,
@@ -28,7 +28,6 @@ import {
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
 import {
-  getUserProfile,
   getUserStat,
   updateUserInfo,
 } from "../services/studentServices";
@@ -40,7 +39,6 @@ import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?reac
 import CollapseText from "../components/ui/Collapse";
 import { useAuth } from "../context/AuthContext";
 import { badges } from "../lib/data";
-import Loader from "../components/Loader";
 
 const achievementStyles: any = {
   first: {
@@ -106,7 +104,7 @@ const getRarityBadge = (rarity: "common" | "rare" | "epic" | "legendary") => {
 
 const Profile = () => {
   const { user: tgUser } = useTelegram();
-  const { user } = useAuth();
+  const { user, setUser, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<AuthStudent>({
     name: user?.name || "",
@@ -116,8 +114,8 @@ const Profile = () => {
     school: user?.school || "",
     imgurl: tgUser?.photo_url || "",
     isSuspended: user?.isSuspended || false,
-    telegram_id: tgUser?.id.toString() || "",
-    id: tgUser?.id.toString() || "",
+    telegram_id: tgUser?.id?.toString() || "",
+    id: tgUser?.id?.toString() || "",
     age: user?.age || "5",
     is_premium: user?.is_premium || false,
     read_notifications: user?.read_notifications || {},
@@ -201,6 +199,21 @@ const Profile = () => {
     };
   }, [tgUser]);
 
+  // Determine if there are any changes compared to the current user profile
+  const hasChanges = (() => {
+    if (!user) return false;
+    const fieldsToCompare: (keyof AuthStudent)[] = [
+      "name",
+      "grade",
+      "city",
+      "region",
+      "school",
+      "imgurl",
+      "age",
+    ];
+    return fieldsToCompare.some((key) => (editedProfile as any)[key] !== (user as any)[key]);
+  })();
+
   const handleSave = async () => {
     try {
       if (editedProfile.id === "") {
@@ -214,6 +227,12 @@ const Profile = () => {
       }
       setSaving(true);
       await updateUserInfo(editedProfile);
+      // Optimistically update auth context so UI reflects saved changes
+      setUser((prev) => (prev ? { ...prev, ...editedProfile } : prev));
+      // Best-effort refresh from backend (non-blocking)
+      try {
+        refreshUser();
+      } catch {}
       toast.success("Changes saved!", {
         style: {
           backgroundColor: "green",
@@ -372,7 +391,7 @@ const Profile = () => {
               ) : (
                 <input
                   type="text"
-                  value={user?.school}
+                  value={editedProfile.school}
                   onChange={(e) =>
                     setEditedProfile((prev) => ({
                       ...prev,
@@ -468,14 +487,10 @@ const Profile = () => {
             </Button>
             <Button
               disabled={
-                saving ||
-                Object.keys(editedProfile).some((k) => {
-                  const key = k as keyof AuthStudent;
-                  return user && editedProfile[key] === user[key];
-                })
+                saving || !hasChanges
               }
               onClick={handleSave}
-              className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50"
+              className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50 disabled:opacity-50"
             >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save
             </Button>
@@ -595,7 +610,17 @@ const Profile = () => {
                       <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                         <Calendar className="w-3 h-3 mr-1" />
                         Earned{" "}
-                        {new Date(achievement.earnedDate!).toLocaleDateString()}
+                        {(() => {
+                          try {
+                            if (!achievement.earnedDate) return 'Unknown date';
+                            const date = new Date(achievement.earnedDate);
+                            if (isNaN(date.getTime())) return 'Invalid date';
+                            return date.toLocaleDateString();
+                          } catch (error) {
+                            console.warn('Error formatting earnedDate:', error);
+                            return 'Unknown date';
+                          }
+                        })()}
                       </div>
                     </div>
                   </div>

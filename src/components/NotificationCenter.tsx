@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import { useNotification } from "../context/NotificationContext";
 import { markNotificationAsRead } from "../services/notificationService";
@@ -20,6 +21,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const { notifications, setNotifications, notificationLoading } =
     useNotification();
   const { user, setUser } = useAuth();
+  const navigate = useNavigate();
 
   const markAsRead = async (id: string) => {
     try {
@@ -91,16 +93,24 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   };
 
   const formatTimestamp = (timestamp: string) => {
-    const now = new Date();
-    const notifTime = new Date(timestamp);
-    const diffInMinutes = Math.floor(
-      (now.getTime() - notifTime.getTime()) / (1000 * 60)
-    );
+    try {
+      if (!timestamp) return 'Unknown time';
+      const now = new Date();
+      const notifTime = new Date(timestamp);
+      if (isNaN(notifTime.getTime())) return 'Invalid time';
+      
+      const diffInMinutes = Math.floor(
+        (now.getTime() - notifTime.getTime()) / (1000 * 60)
+      );
 
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+      if (diffInMinutes < 1) return "Just now";
+      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+      return `${Math.floor(diffInMinutes / 1440)}d ago`;
+    } catch (error) {
+      console.warn('Error formatting timestamp:', error);
+      return 'Unknown time';
+    }
   };
 
   const getNotificationIcon = (type: string) => {
@@ -186,11 +196,20 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 return (
                   <div
                     key={notification.id}
+                    onClick={async () => {
+                      if (notification.type === "feedback_question") {
+                        try {
+                          await markAsRead(notification.id);
+                        } catch {}
+                        onClose();
+                        navigate("/feedback");
+                      }
+                    }}
                     className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
                       !notification.is_read
                         ? "bg-blue-50/50 dark:bg-blue-900/10"
                         : ""
-                    }`}
+                    } ${notification.type === "feedback_question" ? "cursor-pointer" : ""}`}
                   >
                     <div className="flex items-start space-x-3">
                       <div
@@ -202,7 +221,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       >
                         <IconComponent className={`w-5 h-5 ${iconColor}`} />
                       </div>
-
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -229,23 +247,44 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                           <div className="flex items-center space-x-1 ml-2">
                             {!notification.is_read && (
                               <button
-                                onClick={() => markAsRead(notification.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead(notification.id);
+                                }}
                                 className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
                                 title="Mark as read"
                               >
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                               </button>
                             )}
-                            <button
-                              onClick={() =>
-                                deleteNotificationHandler(notification.id)
-                              }
-                              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
-                              title="Delete"
-                            >
-                              <X className="w-4 h-4 text-gray-400" />
-                            </button>
                           </div>
+                        </div>
+                        {notification.message && (
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+                            {notification.message}
+                          </p>
+                        )}
+                        <div className="flex items-center space-x-2 mt-2">
+                          {!notification.read && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(notification.id.toString());
+                              }}
+                              className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                              Mark as read
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotificationHandler(notification.id.toString());
+                            }}
+                            className="text-xs text-red-600 dark:text-red-400 hover:underline"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -255,16 +294,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </div>
           )}
         </div>
-
-        {/* Footer */}
-        {notifications.length > 0 && (
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              {notifications.length} notification
-              {notifications.length !== 1 ? "s" : ""} total
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { NotificationProvider } from "../context/NotificationContext";
 import { AuthProvider } from "../context/AuthContext";
 import PaymentAlert from "./PaymentAlert";
 
+
 const Layout: React.FC = () => {
   const {
     webApp,
@@ -105,6 +106,7 @@ const Layout: React.FC = () => {
             <TopNavigation />
           </div>
         </NotificationProvider>
+
         {/* <AdTrigger /> */}
 
         <main className="flex-1 pt-16 pb-20 overflow-y-auto">
@@ -112,7 +114,6 @@ const Layout: React.FC = () => {
           <Toaster />
         </main>
         {location.pathname !== "/register" && <BottomNavigation />}
-      </AuthProvider>{" "}
     </div>
   );
 };

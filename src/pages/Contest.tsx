@@ -61,7 +61,24 @@ const ContestComponent: React.FC = () => {
 
         const contestData = await getContestById(conId);
         setContest(contestData);
-        const endTime = new Date(contestData.end_time).getTime();
+        
+        let endTime: number;
+        try {
+          if (!contestData.end_time) {
+            endTime = Date.now();
+          } else {
+            const endTimeDate = new Date(contestData.end_time);
+            if (isNaN(endTimeDate.getTime())) {
+              endTime = Date.now();
+            } else {
+              endTime = endTimeDate.getTime();
+            }
+          }
+        } catch (error) {
+          console.warn('Error parsing end_time:', error);
+          endTime = Date.now();
+        }
+        
         const now = Date.now();
         const diffInSeconds = Math.floor((endTime - now) / 1000);
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);

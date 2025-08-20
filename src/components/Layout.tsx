@@ -5,6 +5,9 @@ import BottomNavigation from "./BottomNavigation";
 import TopNavigation from "./TopNavigation";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "../context/NotificationContext";
+import { AuthProvider } from "../context/AuthContext";
+import PaymentAlert from "./PaymentAlert";
+
 
 const Layout: React.FC = () => {
   const {
@@ -18,7 +21,6 @@ const Layout: React.FC = () => {
   useEffect(() => {
     if (webApp) {
       // const theme = webApp.themeParams;
-
       // --- Dark Mode Logic Commented Out ---
       // const isDark = isDarkColor(theme.bg_color || "#ffffff");
 
@@ -97,9 +99,14 @@ const Layout: React.FC = () => {
       className="min-h-screen flex flex-col bg-gray-50"
       // style={getThemeStyles()}
     >
-      <NotificationProvider>
-        <TopNavigation />
-      </NotificationProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <div className="fixed top-0 left-0 right-0 z-50">
+            <PaymentAlert />
+            <TopNavigation />
+          </div>
+        </NotificationProvider>
+
         {/* <AdTrigger /> */}
 
         <main className="flex-1 pt-16 pb-20 overflow-y-auto">

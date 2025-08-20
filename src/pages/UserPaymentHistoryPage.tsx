@@ -38,10 +38,11 @@ export function UserPaymentHistoryPage() {
   useEffect(() => {
     // ... fetching logic remains the same ...
     const loadData = async () => {
+      if (!user?.id) return;
       try {
         setIsLoading(true);
         setError(null);
-        const data = await fetchUserPaymentRequests(user?.id.toString() || "");
+        const data = await fetchUserPaymentRequests(user?.id.toString());
         setRequests(data);
       } catch (err) {
         setError("Failed to load payment history. Please try again later.");
@@ -50,7 +51,7 @@ export function UserPaymentHistoryPage() {
       }
     };
     loadData();
-  }, [user]);
+  }, [user?.id]);
 
   const renderContent = () => {
     // ... render logic remains the same ...

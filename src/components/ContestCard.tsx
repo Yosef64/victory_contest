@@ -195,7 +195,7 @@ export default function ContestCard({ contest }: { contest: Contest }) {
                 duration: formatDistanceStrict(
                   new Date(contest.end_time),
                   new Date(contest.start_time),
-                  { unit: "hour" }
+                  { unit: "minute" }
                 ),
 
                 prizes: contest.prize,

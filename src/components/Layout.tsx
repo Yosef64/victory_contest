@@ -114,6 +114,7 @@ const Layout: React.FC = () => {
           <Toaster />
         </main>
         {location.pathname !== "/register" && <BottomNavigation />}
+      </AuthProvider>
     </div>
   );
 };

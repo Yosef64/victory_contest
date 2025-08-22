@@ -16,6 +16,7 @@ import { isUserRegistered } from "../services/contestApi";
 import { useContestTimer, ContestStatus } from "../hooks/useContestTimer";
 import LeaderboardModal from "./LeaderboardModal";
 import { title } from "process";
+import { formatDistanceStrict } from "date-fns";
 
 const ExpandableDescription = ({ text }: { text: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -163,9 +164,9 @@ export default function ContestCard({ contest }: { contest: Contest }) {
               <div className="text-xs text-blue-500 dark:text-blue-400">
                 {(() => {
                   try {
-                    if (!contest.start_time) return 'No date';
+                    if (!contest.start_time) return "No date";
                     const date = new Date(contest.start_time);
-                    if (isNaN(date.getTime())) return 'Invalid date';
+                    if (isNaN(date.getTime())) return "Invalid date";
                     return date.toLocaleDateString("en-US", {
                       weekday: "short",
                       month: "short",
@@ -174,8 +175,8 @@ export default function ContestCard({ contest }: { contest: Contest }) {
                       minute: "2-digit",
                     });
                   } catch (error) {
-                    console.warn('Error formatting start_time date:', error);
-                    return 'Invalid date';
+                    console.warn("Error formatting start_time date:", error);
+                    return "Invalid date";
                   }
                 })()}
               </div>
@@ -191,7 +192,12 @@ export default function ContestCard({ contest }: { contest: Contest }) {
                 title: contest.title,
                 startTime: contest.start_time,
                 questions: contest.questions.length,
-                duration: contest.end_time,
+                duration: formatDistanceStrict(
+                  new Date(contest.end_time),
+                  new Date(contest.start_time),
+                  { unit: "hour" }
+                ),
+
                 prizes: contest.prize,
               },
             }}

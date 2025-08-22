@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import {
   CheckCircle,
@@ -196,7 +196,9 @@ const Registration: React.FC = () => {
     <div className="p-4 max-w-2xl mx-auto">
       {/* Contest Info Card */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl mb-6">
-        <h2 className="text-xl font-bold mb-2">{contestInfo?.title}</h2>
+        <h2 className="text-xl font-bold mb-2 capitalize">
+          {contestInfo?.title}
+        </h2>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-2" />

@@ -15,6 +15,7 @@ import { useTelegram } from "../hooks/useTelegram";
 import { isUserRegistered } from "../services/contestApi";
 import { useContestTimer, ContestStatus } from "../hooks/useContestTimer";
 import LeaderboardModal from "./LeaderboardModal";
+import { title } from "process";
 
 const ExpandableDescription = ({ text }: { text: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -184,6 +185,16 @@ export default function ContestCard({ contest }: { contest: Contest }) {
 
         <div className="flex flex-col items-center">
           <Link
+            state={{
+              contestData: {
+                id: contest.id,
+                title: contest.title,
+                startTime: contest.start_time,
+                questions: contest.questions.length,
+                duration: contest.end_time,
+                prizes: contest.prize,
+              },
+            }}
             to={
               canJoin
                 ? `/contest?con=${contest.id}`

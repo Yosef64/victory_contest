@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import {
   CheckCircle,
@@ -10,13 +10,18 @@ import {
   Users,
   Target,
 } from "lucide-react";
-import { registerForContest } from "../services/contestApi";
+import {
+  getContestRegistration,
+  registerForContest,
+} from "../services/contestApi";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
+import { ContestInfo } from "../types";
 
 const Registration: React.FC = () => {
   const { user, hapticFeedback } = useTelegram();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -27,8 +32,46 @@ const Registration: React.FC = () => {
   });
   const [loading, _] = useState(false);
   const [registering, setRegistering] = useState<boolean>(false);
-  const [searchParams] = useSearchParams();
-  const contest_id = searchParams.get("con");
+  const [contestInfo, setContestInfo] = useState<ContestInfo | null>(null);
+
+  useEffect(() => {
+    if (!location.state || !location.state.contestData) {
+      toast.error("Something went wrong!", {
+        icon: <AlertCircle className="w-5 h-5" />,
+        duration: 3000,
+        position: "top-center",
+        style: {
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+        },
+      });
+      navigate("/");
+      return;
+    }
+
+    const fetchContestInfo = async () => {
+      try {
+        const registerations = await getContestRegistration(
+          location.state.contestData.id
+        );
+        setContestInfo({
+          ...location.state.contestData,
+          participants: registerations,
+        });
+      } catch (error) {
+        toast.error("Failed to fetch contest details", {
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 3000,
+          position: "top-center",
+          style: {
+            backgroundColor: "#f8d7da",
+            color: "#721c24",
+          },
+        });
+      }
+    };
+    fetchContestInfo();
+  }, [location]);
 
   const availableSubjects = [
     "Mathematics",
@@ -95,7 +138,7 @@ const Registration: React.FC = () => {
     }
     setRegistering(true);
     try {
-      await registerForContest(contest_id!, user!.id.toString());
+      await registerForContest(contestInfo?.id!, user!.id.toString());
       hapticFeedback("notification", "success");
       toast.success("Registration successful!", {
         icon: <CheckCircle className="w-5 h-5" />,
@@ -134,14 +177,6 @@ const Registration: React.FC = () => {
     }
   };
 
-  const contestInfo = {
-    title: "Mathematics Championship 2024",
-    duration: "90 minutes",
-    questions: 50,
-    participants: 1250,
-    startTime: "January 15, 2024 at 10:00 AM",
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -160,23 +195,23 @@ const Registration: React.FC = () => {
     <div className="p-4 max-w-2xl mx-auto">
       {/* Contest Info Card */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl mb-6">
-        <h2 className="text-xl font-bold mb-2">{contestInfo.title}</h2>
+        <h2 className="text-xl font-bold mb-2">{contestInfo?.title}</h2>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-2" />
-            {contestInfo.duration}
+            {contestInfo?.duration || "00:00"}
           </div>
           <div className="flex items-center">
             <Target className="w-4 h-4 mr-2" />
-            {contestInfo.questions} questions
+            {contestInfo?.questions || 0} questions
           </div>
           <div className="flex items-center">
             <Users className="w-4 h-4 mr-2" />
-            {contestInfo.participants} participants
+            {contestInfo?.participants || 0} participants
           </div>
           <div className="flex items-center">
             <Trophy className="w-4 h-4 mr-2" />
-            Prizes available
+            {contestInfo?.prizes || "No prizes"}
           </div>
         </div>
       </div>
@@ -369,9 +404,9 @@ const Registration: React.FC = () => {
 
         <Button
           onClick={handleNext}
-          disabled={!isStepValid()}
+          disabled={!isStepValid() || registering}
           className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            isStepValid()
+            isStepValid() && !registering
               ? "bg-blue-600 text-white hover:bg-blue-700"
               : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed"
           }`}

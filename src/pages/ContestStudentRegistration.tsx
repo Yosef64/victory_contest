@@ -48,6 +48,7 @@ const Registration: React.FC = () => {
       navigate("/");
       return;
     }
+    setContestInfo({ ...location.state.contestData });
 
     const fetchContestInfo = async () => {
       try {

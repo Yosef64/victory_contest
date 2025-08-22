@@ -56,6 +56,6 @@ export const getEditorial = async (
 };
 export async function getContestRegistration(contest_id: string): Promise<any> {
   return api
-    .get(`/contest-registration/contest//${contest_id}`)
+    .get(`/contest-registration/contest/${contest_id}`)
     .then((res) => res.data.registerations);
 }

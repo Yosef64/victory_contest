@@ -7,14 +7,49 @@ export const useTelegram = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const app = window.Telegram?.WebApp;
-    if (app) {
-      app.ready();
-      app.expand();
-      setWebApp(app);
-      setUser(app.initDataUnsafe?.user || null);
+    const initTelegram = () => {
+      const app = window.Telegram?.WebApp;
+      if (app) {
+        console.log("Telegram WebApp found, initializing...", app);
+        app.ready();
+        app.expand();
+        setWebApp(app);
+        const telegramUser = app.initDataUnsafe?.user || null;
+        console.log("Telegram user data:", telegramUser);
+        setUser(telegramUser);
+        setIsLoading(false);
+      } else {
+        console.log("Telegram WebApp not found, retrying...");
+        // If Telegram WebApp is not available, wait a bit and try again
+        setTimeout(initTelegram, 100);
+      }
+    };
+
+    // Check if Telegram script is loaded
+    if (typeof window !== "undefined") {
+      console.log("Window object available, checking for Telegram...");
+      if (window.Telegram?.WebApp) {
+        console.log("Telegram WebApp available immediately");
+        initTelegram();
+      } else {
+        // Wait for Telegram script to load
+        const checkTelegram = setInterval(() => {
+          if (window.Telegram?.WebApp) {
+            clearInterval(checkTelegram);
+            initTelegram();
+          }
+        }, 100);
+
+        // Fallback: stop checking after 5 seconds
+        setTimeout(() => {
+          clearInterval(checkTelegram);
+          setIsLoading(false);
+        }, 5000);
+      }
+    } else {
+      console.log("Window object not available (SSR)");
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const sendData = (data: any) => {

@@ -8,7 +8,6 @@ import { NotificationProvider } from "../context/NotificationContext";
 import { AuthProvider } from "../context/AuthContext";
 import PaymentAlert from "./PaymentAlert";
 
-
 const Layout: React.FC = () => {
   const {
     webApp,

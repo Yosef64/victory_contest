@@ -31,7 +31,6 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
-            {" "}
             <Route index element={<Home />} />
             <Route path="contest" element={<ContestComponent />} />
             <Route path="leaderboard" element={<Leaderboard />} />
@@ -43,7 +42,10 @@ function App() {
             <Route path="ai-practice" element={<AIPracticePage />} />
             <Route path="register" element={<RegistrationForm />} />
             <Route path="payment" element={<Payment />} />
-            <Route path="payment-history" element={<UserPaymentHistoryPage />} />
+            <Route
+              path="payment-history"
+              element={<UserPaymentHistoryPage />}
+            />
           </Route>
         </Routes>
       </AuthProvider>

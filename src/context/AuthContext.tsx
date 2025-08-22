@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     "pending"
   );
   const [error, setError] = useState<string | null>(null);
-  const { user: tgUser } = useTelegram();
+  const { user: tgUser, isLoading: tgLoading } = useTelegram();
   const location = useLocation();
 
   const fetchUser = useCallback(async () => {
@@ -50,8 +50,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [tgUser]);
 
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    // Only fetch user data when Telegram is loaded and we have a user
+    if (!tgLoading && tgUser?.id) {
+      fetchUser();
+    } else if (!tgLoading && !tgUser) {
+      // If Telegram is loaded but no user, set status to success (for development/testing)
+      setStatus("success");
+    }
+  }, [fetchUser, tgLoading, tgUser]);
 
   const isLoading = status === "pending";
 

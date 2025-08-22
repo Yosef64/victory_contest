@@ -241,3 +241,13 @@ export interface Achievement {
   earned: boolean;
   earnedDate: string;
 }
+
+export interface ContestInfo {
+  id: string;
+  title: string;
+  duration: string;
+  questions: number;
+  participants: number;
+  startTime: string;
+  prizes: string | null;
+}

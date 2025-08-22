@@ -61,7 +61,7 @@ const ContestComponent: React.FC = () => {
 
         const contestData = await getContestById(conId);
         setContest(contestData);
-        
+
         let endTime: number;
         try {
           if (!contestData.end_time) {
@@ -75,10 +75,10 @@ const ContestComponent: React.FC = () => {
             }
           }
         } catch (error) {
-          console.warn('Error parsing end_time:', error);
+          console.warn("Error parsing end_time:", error);
           endTime = Date.now();
         }
-        
+
         const now = Date.now();
         const diffInSeconds = Math.floor((endTime - now) / 1000);
         setTimeLeft(diffInSeconds > 0 ? diffInSeconds : 0);
@@ -241,6 +241,7 @@ const ContestComponent: React.FC = () => {
             } else {
               updatedAnswers.push(newAnswer);
             }
+            setAnswers(updatedAnswers);
           }
 
           const answeredQuestionIds = new Set(
@@ -375,13 +376,13 @@ const ContestComponent: React.FC = () => {
           </p>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
             <div className="text-4xl font-bold text-blue-600 mb-2">
-              {(answers.length / totalQuestions) * 100}%
+              {((answers.length / totalQuestions) * 100).toFixed(2)}%
             </div>
             <div className="text-gray-600 dark:text-gray-400">
               {answers.length} out of {totalQuestions} solved
             </div>
           </div>
-          <p>You can see your standings after the contest ended</p>
+          <p>You can see your standings</p>
         </div>
       </div>
     );

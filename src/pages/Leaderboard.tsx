@@ -246,9 +246,9 @@ const Leaderboard: React.FC = () => {
                 {period === "all" ? (
                   "All Time"
                 ) : (
-                  <div className="flex flex-col items-center space-y-0">
+                  <div className="flex flex-col items-center space-y-0 leading-none">
                     {period !== "today" && (
-                      <span className="text-[7px]">This </span>
+                      <span className="text-[7px] leading-tight">This </span>
                     )}
                     {`${period.charAt(0).toUpperCase()}${period.slice(1)}`}
                   </div>

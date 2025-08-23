@@ -10,7 +10,7 @@ export const useTelegram = () => {
     const app = window.Telegram?.WebApp;
     if (app) {
       app.ready();
-      app.expand();
+      app.setHeaderColor("#8b5cf6");
       app.setBackgroundColor("#ffffff");
       setWebApp(app);
       setUser(app.initDataUnsafe?.user || null);

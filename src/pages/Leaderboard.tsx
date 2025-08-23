@@ -243,9 +243,16 @@ const Leaderboard: React.FC = () => {
                     hover:scale-[1.03] active:scale-[0.98]
                   `}
               >
-                {period === "all"
-                  ? "All Time"
-                  : `${period.charAt(0).toUpperCase()}${period.slice(1)}`}
+                {period === "all" ? (
+                  "All Time"
+                ) : (
+                  <>
+                    {period !== "today" && (
+                      <span className="text-[7px]">By </span>
+                    )}
+                    `${period.charAt(0).toUpperCase()}${period.slice(1)}`
+                  </>
+                )}
               </button>
             ))}
           </div>
@@ -312,7 +319,7 @@ const Leaderboard: React.FC = () => {
                         <div className="text-center">
                           <div className="flex items-center text-green-600 dark:text-green-400">
                             <Target className="w-4 h-4 mr-1" />
-                            <span className="font-bold">
+                            <span className="font-bold text-gray-600 dark:text-gray-300">
                               {Math.round(
                                 (entry.correct_answers /
                                   entry.total_questions) *

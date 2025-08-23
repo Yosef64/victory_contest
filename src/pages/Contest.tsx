@@ -97,7 +97,11 @@ const ContestComponent: React.FC = () => {
 
         toast.error(apiError, {
           description: "Please try again later or contact support.",
-          icon: <XCircle className="w-6 h-6 text-red-500" />,
+          style: {
+            backgroundColor: "red",
+            color: "white",
+          },
+          position: "top-center",
         });
         // Optional: navigate away on critical error
         navigate("/");

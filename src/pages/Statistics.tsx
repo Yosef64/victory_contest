@@ -54,7 +54,7 @@ import { cn } from "../lib/utils";
 import { getAiRecommendationsFromApi } from "../services/aiService";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+import TimeIcon from "../assets/timer-02-stroke-rounded.svg?react";
 const Statistics: React.FC = () => {
   const { user: tgUser } = useTelegram();
   const { user } = useAuth();
@@ -412,7 +412,7 @@ const Statistics: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-2">
-            <Clock className="w-8 h-8 text-purple-500" />
+            <TimeIcon className="w-8 h-8 text-purple-500" />
             <div className="flex items-center text-red-500">
               <ArrowDown size={16} />
               <span className="text-sm font-medium">-3s</span>

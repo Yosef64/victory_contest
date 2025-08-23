@@ -9,12 +9,7 @@ import { AuthProvider } from "../context/AuthContext";
 import PaymentAlert from "./PaymentAlert";
 
 const Layout: React.FC = () => {
-  const {
-    webApp,
-    setHeaderColor,
-    enableClosingConfirmation,
-    setBackgroundColor,
-  } = useTelegram();
+  const { webApp, enableClosingConfirmation } = useTelegram();
   const location = useLocation();
 
   useEffect(() => {

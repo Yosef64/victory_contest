@@ -85,11 +85,11 @@ const Layout: React.FC = () => {
   //   } as React.CSSProperties;
   // };
 
-  if (webApp && webApp.platform === "unknown") {
-    return (
-      <div className="p-4 text-center">Please open this link in Telegram.</div>
-    );
-  }
+  // if (webApp && webApp.platform === "unknown") {
+  //   return (
+  //     <div className="p-4 text-center">Please open this link in Telegram.</div>
+  //   );
+  // }
   return (
     <div
       // Removed `dark:bg-gray-900` from className to prevent dark background

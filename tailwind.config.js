@@ -10,6 +10,10 @@ export default {
           "100%": { opacity: "1" },
         },
       },
+      fontFamily: {
+        nunito: ["Nunito", "sans-serif"],
+        "nunito-sans": ["Nunito Sans", "sans-serif"],
+      },
       animation: {
         "fade-in": "fade-in 0.5s ease-in-out",
       },

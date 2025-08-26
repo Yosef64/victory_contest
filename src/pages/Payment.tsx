@@ -23,7 +23,6 @@ import { toast } from "sonner";
 import { sendPaymentInfo } from "../services/paymentServices";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -121,7 +120,10 @@ const Payment: FC = () => {
         },
       });
     } catch (err: any) {
-      const msg = err?.response?.data?.error || err?.message || "Unable to send your payment!";
+      const msg =
+        err?.response?.data?.error ||
+        err?.message ||
+        "Unable to send your payment!";
       toast.error(msg, {
         style: {
           backgroundColor: "#f8d7da",

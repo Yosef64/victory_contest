@@ -14,6 +14,8 @@ import RegistrationForm from "./pages/StudentRegisteration";
 import Payment from "./pages/Payment";
 import { UserPaymentHistoryPage } from "./pages/UserPaymentHistoryPage";
 import { AuthProvider } from "./context/AuthContext";
+import ArticlesPage from "./pages/Articles";
+import { ArticleView } from "./components/article/ArticleView";
 // import ScreenshotProtection from "./components/ScreenProtection";
 
 function App() {
@@ -46,6 +48,8 @@ function App() {
               path="payment-history"
               element={<UserPaymentHistoryPage />}
             />
+            <Route path="article" element={<ArticlesPage />} />
+            <Route path="article/:id" element={<ArticleView />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -699,7 +699,7 @@ const Statistics: React.FC = () => {
                         className="w-full bg-gradient-to-r from-orange-300 to-red-400 hover:from-orange-600 hover:to-red-600 text-white border-0"
                       >
                         <Lock className="w-4 h-4 mr-2 " />
-                        Upgrade
+                        Get AI Recommendations
                       </Button>
                     ) : (
                       <Button

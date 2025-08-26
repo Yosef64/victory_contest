@@ -9,7 +9,12 @@ import { Link } from "react-router-dom";
 import { ContestCardSkeleton } from "../components/ContestCardSkeleton";
 import WelcomeCarousel from "../components/WelcomeCarousell";
 import LeaderboardModal from "../components/LeaderboardModal";
-import { safeFormatDistanceToNow, safeParseDate, safeQuestionsLength } from "../lib/utils";
+import {
+  safeFormatDistanceToNow,
+  safeParseDate,
+  safeQuestionsLength,
+} from "../lib/utils";
+import { ArticleListForHome } from "../components/article/ArticleList";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback, hideBackButton } = useTelegram();
@@ -33,14 +38,21 @@ const Home: React.FC = () => {
         const previous: Contest[] = [];
         contests.forEach((contest) => {
           try {
-            const endTime = contest.end_time ? new Date(contest.end_time) : null;
+            const endTime = contest.end_time
+              ? new Date(contest.end_time)
+              : null;
             if (endTime && !isNaN(endTime.getTime()) && endTime > now) {
               active.push(contest);
             } else {
               previous.push(contest);
             }
           } catch (error) {
-            console.warn('Error parsing contest end_time:', contest.id, contest.end_time, error);
+            console.warn(
+              "Error parsing contest end_time:",
+              contest.id,
+              contest.end_time,
+              error
+            );
             // Default to previous contests if date parsing fails
             previous.push(contest);
           }
@@ -65,10 +77,19 @@ const Home: React.FC = () => {
     <div className="p-4 space-y-6">
       {/* Welcome Section */}
       <WelcomeCarousel user={user} />
+      {/* Read Articles Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold font-nunito-sans text-gray-700 dark:text-white">
+            Read Articles
+          </h2>
+        </div>
+        <ArticleListForHome />
+      </div>
       {/* Upcoming Contests */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-lg font-bold font-nunito-sans text-gray-700 dark:text-white">
             Upcoming Contests
           </h2>
           <div className="flex items-center text-blue-600 dark:text-blue-400">
@@ -93,7 +114,7 @@ const Home: React.FC = () => {
 
       {/* Previous Contests */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+        <h2 className="text-lg font-bold mb-4 font-nunito text-gray-700 dark:text-white">
           Previous Contests
         </h2>
         {loading ? (
@@ -105,11 +126,17 @@ const Home: React.FC = () => {
             {previousContests
               .sort((a, b) => {
                 try {
-                  const aTime = safeParseDate(a.start_time, new Date(0)).getTime();
-                  const bTime = safeParseDate(b.start_time, new Date(0)).getTime();
+                  const aTime = safeParseDate(
+                    a.start_time,
+                    new Date(0)
+                  ).getTime();
+                  const bTime = safeParseDate(
+                    b.start_time,
+                    new Date(0)
+                  ).getTime();
                   return bTime - aTime;
                 } catch (error) {
-                  console.warn('Error sorting contests by date:', error);
+                  console.warn("Error sorting contests by date:", error);
                   return 0; // Keep original order on error
                 }
               })
@@ -121,15 +148,21 @@ const Home: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-800 dark:text-white mb-1">
+                      <h3 className="font-bold text-sm text-gray-800 dark:text-white mb-1">
                         {contest.title}
                       </h3>
                       <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                         <span>
-                          {safeFormatDistanceToNow(contest.start_time, 'No start time')} ago
+                          {safeFormatDistanceToNow(
+                            contest.start_time,
+                            "No start time"
+                          )}{" "}
+                          ago
                         </span>
                         <span>•</span>
-                        <span>{safeQuestionsLength(contest.questions)} questions</span>
+                        <span>
+                          {safeQuestionsLength(contest.questions)} questions
+                        </span>
                       </div>
                     </div>
                     <Link

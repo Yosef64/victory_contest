@@ -79,7 +79,7 @@ const ProfessionalWelcomeCarousel: React.FC<WelcomeCarouselProps> = ({
   }, [page]);
 
   return (
-    <div className="relative flex flex-col justify-between bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 text-white p-8 rounded-2xl shadow-lg overflow-hidden min-h-[340px]">
+    <div className="relative flex flex-col justify-between bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 text-white p-6 rounded-2xl shadow-lg overflow-hidden min-h-[340px]">
       {/* Main Content Area */}
       <div className="relative flex-grow flex items-center justify-center">
         <AnimatePresence initial={false} custom={direction}>
@@ -109,14 +109,14 @@ const ProfessionalWelcomeCarousel: React.FC<WelcomeCarouselProps> = ({
         {/* Navigation Buttons */}
         <button
           onClick={() => paginate(-1)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/10 rounded-full p-2 z-10 hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/10 rounded-full p-2 z-10 hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           aria-label="Previous message"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <button
           onClick={() => paginate(1)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/10 rounded-full p-2 z-10 hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/10 rounded-full p-2 z-10 hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           aria-label="Next message"
         >
           <ChevronRightIcon className="h-5 w-5" />

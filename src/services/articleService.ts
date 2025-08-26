@@ -26,6 +26,6 @@ export async function getArticleComments(articleId: string) {
   return response.data.comments as Comment[];
 }
 export async function postComment(articleId: string, comment: Comment) {
-  const res = await api.post(`/api/${articleId}/comments`, comment);
+  const res = await api.post(`/articles/${articleId}/comments`, comment);
   return res.data;
 }

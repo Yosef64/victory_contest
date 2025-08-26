@@ -141,8 +141,8 @@ export function ArticleView() {
     const newEntry: Comment = {
       id: String(comments.length + 1),
       articleId: article?.id || "",
-      user_name: user?.first_name ?? "" + user?.last_name ?? "",
-      user_id: user?.id.toString() ?? "",
+      user_name: user?.first_name ?? "" + user?.last_name ?? "shuluqa",
+      user_id: user?.id.toString() ?? "12",
       avatar: user?.photo_url ?? "",
       text: newComment,
       createdAt: new Date().toISOString(),
@@ -440,9 +440,11 @@ export function ArticleView() {
         <Separator orientation="vertical" className="h-6 w-px bg-white" />
         <Drawer>
           <DrawerTrigger asChild>
-            <div className="flex items-center gap-2 p-2 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+            <div className="flex items-center gap-2 p-2 rounded-lg shadow dark:hover:bg-gray-800 cursor-pointer">
               <ChatIcon className="w-5 h-5" />
-              <span className="font-medium">Comments</span>
+              <span className="font-medium">
+                {comments !== null ? comments.length : "Comments"}
+              </span>
             </div>
           </DrawerTrigger>
 
@@ -467,14 +469,17 @@ export function ArticleView() {
                   message="Failed to load comments."
                   onRetry={() => {}}
                 />
+              ) : comments.length === 0 ? (
+                <p className="text-gray-500">No comments yet.</p>
               ) : (
                 comments.map((comment) => (
                   <div key={comment.id} className="flex items-start gap-3">
-                    <img
-                      src={comment.avatar}
-                      alt={comment.user_name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <Avatar>
+                      <AvatarImage src={comment.avatar} />
+                      <AvatarFallback>
+                        {comment.user_name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <p className="font-semibold text-sm">
@@ -512,7 +517,11 @@ export function ArticleView() {
                 />
                 <div
                   onClick={handleAddComment}
-                  className="px-5 py-2 text-sm font-medium bg-blue-600 text-white rounded-full hover:bg-blue-500 transition"
+                  className={`px-5 py-2 text-sm font-medium bg-blue-600 text-white rounded-full hover:bg-blue-500 transition ${
+                    newComment.trim().length > 4
+                      ? ""
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
                 >
                   Post
                 </div>

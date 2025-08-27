@@ -133,43 +133,54 @@ export function ArticleView() {
 
   const handleLike = async () => {
     if (!articleId) return;
-    getCloudData(
-      "likedArticles",
-      async (likedArticles: Record<string, boolean>) => {
-        const updated = { ...(likedArticles || {}) };
-        if (liked) {
-          delete updated[articleId];
-        } else {
-          updated[articleId] = true;
-        }
-        setCloudData("likedArticles", updated, () => {
-          setLiked(!liked);
-          setArticle((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  likeCount: liked
-                    ? String(Number(prev.likeCount) - 1)
-                    : String(Number(prev.likeCount) + 1),
-                }
-              : prev
-          );
-        });
-        const payload = {
-          type: "like" as "like" | "view",
-          action: liked
-            ? "decrement"
-            : ("increment" as "increment" | "decrement"),
-        };
-        try {
-          await toggleStat(articleId, payload);
-        } catch (err) {
-          toast.error("Failed to update like status. Please try again later.", {
-            style: { backgroundColor: "red", color: "white" },
+
+    try {
+      getCloudData(
+        "likedArticles",
+        async (likedArticles: Record<string, boolean>) => {
+          let updated = { ...(likedArticles || {}) };
+
+          let newLiked: boolean;
+
+          if (updated[articleId]) {
+            // unlike
+            delete updated[articleId];
+            newLiked = false;
+          } else {
+            // like
+            updated[articleId] = true;
+            newLiked = true;
+          }
+
+          setCloudData("likedArticles", updated, async () => {
+            setLiked(newLiked);
+            setArticle((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    likeCount: newLiked
+                      ? String(Number(prev.likeCount) + 1)
+                      : String(Number(prev.likeCount) - 1),
+                  }
+                : prev
+            );
           });
+
+          // Sync with backend
+          const payload = {
+            type: "like" as "like" | "view",
+            action: liked
+              ? "decrement"
+              : ("increment" as "increment" | "decrement"),
+          };
+          await toggleStat(articleId, payload);
         }
-      }
-    );
+      );
+    } catch (err) {
+      toast.error("Failed to update like status. Please try again later.", {
+        style: { backgroundColor: "red", color: "white" },
+      });
+    }
   };
 
   const handleArticleShare = async () => {

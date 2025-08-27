@@ -14,13 +14,14 @@ import { AvatarFallback, Avatar, AvatarImage } from "../ui/avatar";
 import {
   getArticleById,
   getArticleComments,
-  getPreparedMessageIdTelegram,
   postComment,
   toggleStat,
 } from "../../services/articleService";
 import { toast } from "sonner";
 import ChatIcon from "../../assets/bubble-chat-stroke-rounded.svg?react";
 import HeartIcon from "../../assets/heart-check-stroke-rounded.svg?react";
+import BookMarkIcon from "../../assets/bookmark-check-02-stroke-rounded.svg?react";
+import ShareIconSvg from "../../assets/job-share-stroke-rounded.svg?react";
 import { Separator } from "../ui/separator";
 import {
   Drawer,
@@ -68,12 +69,35 @@ export function ArticleView() {
   const [loading, setLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
   const { user, PrepareAndShareMessageShare, getCloudData, setCloudData } =
     useTelegram();
+  // Bookmark logic
+
+  const handleBookmark = () => {
+    if (!articleId) return;
+    getCloudData(
+      "bookmarkedArticles",
+      (bookmarkedArticles: Record<string, boolean> | null) => {
+        const updated = { ...(bookmarkedArticles || {}) };
+        let newBookmarked: boolean;
+        if (updated[articleId]) {
+          delete updated[articleId];
+          newBookmarked = false;
+        } else {
+          updated[articleId] = true;
+          newBookmarked = true;
+        }
+        setCloudData("bookmarkedArticles", updated, () => {
+          setBookmarked(newBookmarked);
+        });
+      }
+    );
+  };
 
   const handleAddComment = async () => {
     if (!newComment.trim() || newComment.trim().length < 4) return;
@@ -296,6 +320,12 @@ export function ArticleView() {
         setLiked(isLiked);
       }
     );
+    getCloudData(
+      "bookmarkedArticles",
+      (bookmarkedArticles: Record<string, boolean> | null) => {
+        setBookmarked(!!(bookmarkedArticles && bookmarkedArticles[articleId]));
+      }
+    );
   }, [articleId, getCloudData]);
 
   if (loading) {
@@ -323,10 +353,23 @@ export function ArticleView() {
                   onClick={handleArticleShare}
                   className="p-2 text-gray-400 hover:text-gray-600"
                 >
-                  <Share2 className="w-5 h-5" />
+                  <ShareIconSvg className="w-5 h-5" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600">
-                  <Bookmark className="w-5 h-5" />
+                <button
+                  className={`p-2 hover:text-blue-600 focus:outline-none ${
+                    bookmarked ? "text-blue-600" : "text-gray-400"
+                  }`}
+                  onClick={handleBookmark}
+                  aria-pressed={bookmarked}
+                  title={bookmarked ? "Remove Bookmark" : "Add to Bookmarks"}
+                >
+                  {bookmarked ? (
+                    <BookMarkIcon className="w-5 h-5 text-yellow-500" />
+                  ) : (
+                    <Bookmark
+                      className={`w-5 h-5 ${bookmarked ? "fill-blue-600" : ""}`}
+                    />
+                  )}
                 </button>
               </div>
             </div>

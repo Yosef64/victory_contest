@@ -343,17 +343,17 @@ export function ArticleView() {
         {/* Status and Meta */}
         <div className="flex items-center justify-between mb-4">
           <div
-            className={`px-3 py-1 rounded-full text-sm font-medium border ${
+            className={`px-3 py-1 rounded-full bg-blue-100 text-sm font-medium border ${
               statusStyles[article?.status!]
             }`}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 bg">
                 <button
                   onClick={handleArticleShare}
                   className="p-2 text-gray-400 hover:text-gray-600"
                 >
-                  <ShareIconSvg className="w-5 h-5" />
+                  <ShareIconSvg className="w-6 h-6 text-blue-700" />
                 </button>
                 <button
                   className={`p-2 hover:text-blue-600 focus:outline-none ${
@@ -364,7 +364,7 @@ export function ArticleView() {
                   title={bookmarked ? "Remove Bookmark" : "Add to Bookmarks"}
                 >
                   {bookmarked ? (
-                    <BookMarkIcon className="w-5 h-5 text-yellow-500" />
+                    <BookMarkIcon className="w-6 h-6 text-yellow-500" />
                   ) : (
                     <Bookmark
                       className={`w-5 h-5 ${bookmarked ? "fill-blue-600" : ""}`}

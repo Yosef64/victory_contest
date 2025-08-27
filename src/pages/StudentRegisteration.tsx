@@ -108,7 +108,8 @@ export default function RegistrationForm() {
           color: "white",
         },
       });
-      navigate("/");
+      window.location.replace("/");
+      return;
     } catch (error) {
       message = "Something went wrong";
       toast(message, {

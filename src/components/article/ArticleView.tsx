@@ -386,10 +386,13 @@ export function ArticleView() {
         {/* Author and Date */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <Avatar>
-              <AvatarImage src={article?.author.avatar} />
-              <AvatarFallback>{article?.author.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            {article?.author.avatar && (
+              <img
+                src={article?.author.avatar}
+                alt={article?.author.name}
+                className="w-4 h-4 rounded-full mr-2 flex-shrink-0"
+              />
+            )}
             <div>
               <div className="flex items-center text-gray-900 font-semibold text-sm">
                 {article?.author.name}

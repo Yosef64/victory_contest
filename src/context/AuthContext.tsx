@@ -74,13 +74,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         retryText="Try Again"
       />
     );
+  } else if (!user && location.pathname !== "/register") {
+    // Redirect unregistered users to registration
+    content = <Navigate to="/article" replace />;
+  } else if (user && location.pathname === "/register") {
+    content = <Navigate to="/" replace />;
   }
-  // else if (!user && location.pathname !== "/register") {
-  //   // Redirect unregistered users to registration
-  //   content = <Navigate to="/article" replace />;
-  // } else if (user && location.pathname === "/register") {
-  //   content = <Navigate to="/" replace />;
-  // }
 
   return (
     <AuthContext.Provider

@@ -32,29 +32,31 @@ const TopNavigation: React.FC = () => {
   // })
 
   const getPageTitle = () => {
-    switch (location.pathname) {
-      case "/":
-        return "Dashboard";
-      case "/leaderboard":
-        return "Leaderboard";
-      case "/statistics":
-        return "Statistics";
-      case "/profile":
-        return "Profile";
-      case "/contest":
-        return "Contest";
-      case "/registration":
-        return "Registration";
-      case "/register":
-        return "Student Registration";
-      case "/contest-editorial":
-        return "Contest Editorial";
-      case "/ai-practice":
-        return "Ai";
-      case "/feedback":
-        return "Feedback";
-      default:
-        return "Contest App";
+    const pathname = location.pathname;
+    if (pathname === "/") {
+      return "Dashboard";
+    } else if (pathname === "/leaderboard") {
+      return "Leaderboard";
+    } else if (pathname === "/statistics") {
+      return "Statistics";
+    } else if (pathname === "/profile") {
+      return "Profile";
+    } else if (pathname === "/contest") {
+      return "Contest";
+    } else if (pathname === "/registration") {
+      return "Registration";
+    } else if (pathname === "/register") {
+      return "Student Registration";
+    } else if (pathname === "/contest-editorial") {
+      return "Contest Editorial";
+    } else if (pathname === "/ai-practice") {
+      return "Ai";
+    } else if (pathname === "/feedback") {
+      return "Feedback";
+    } else if (pathname.startsWith("/article")) {
+      return "Article";
+    } else {
+      return "Contest App"; // This is the default case
     }
   };
 
@@ -108,7 +110,9 @@ const TopNavigation: React.FC = () => {
                 {getPageTitle()}
               </h1>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Welcome back, {tgUser?.first_name || "Student"}
+                {location.pathname.startsWith("/article")
+                  ? "Read the latest articles"
+                  : `Welcome back, ${tgUser?.first_name || "Student"}`}
                 {tgUser?.is_premium && (
                   <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-medium rounded-full">
                     Premium

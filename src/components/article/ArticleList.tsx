@@ -21,13 +21,17 @@ export function ArticleList() {
   const [loading, setLoading] = useState(true);
   const [bookmarkedArticles, setBookmarkedIds] = useState<string[]>([]);
   const navigate = useNavigate();
-  const { showBackButton, getCloudData } = useTelegram();
+  const { showBackButton, getCloudData, setCloudData } = useTelegram();
 
   useEffect(() => {
     getCloudData("bookmarkedArticles", (bookmarked: string[] | null) => {
       if (bookmarked) {
         toast.success(`${bookmarked}`);
-        setBookmarkedIds(bookmarked);
+        if (Array.isArray(bookmarked)) {
+          setBookmarkedIds(bookmarked);
+        } else {
+          setCloudData("bookmarkedArticles", []);
+        }
       } else {
         setBookmarkedIds([]);
       }

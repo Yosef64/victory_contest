@@ -175,16 +175,16 @@ export function ArticleView() {
           parse_mode: "HTML" as const,
         },
         description: article.excerpt,
-        thumb_url: article.thumbnail || "https://picsum.photos/200/300",
+        thumbnail_url: article.thumbnail || "https://picsum.photos/200/300",
         url: window.location.href,
       };
+
       try {
         await PrepareAndShareMessageShare(payload);
       } catch (error) {
-        toast.error(error instanceof Error, {
+        toast.error(error instanceof Error ? error.message : "Unknown error", {
           style: { backgroundColor: "red", color: "white" },
         });
-        return;
       }
     }
   };

@@ -195,18 +195,7 @@ export const useTelegram = () => {
   ) => {
     const payload = {
       user_id: user?.id,
-      result: {
-        type: "article",
-        id: crypto.randomUUID(),
-        title: "something",
-        input_message_content: {
-          message_text: "<strong>Hello</strong>\n\nsomething\n\nRead more",
-          parse_mode: "HTML",
-        },
-        description: "something went wrong",
-        thumb_url: "https://picsum.photos/200/300",
-        url: "https://picsum.photos/200/300",
-      },
+      result: data,
       allow_user_chats: true,
       allow_bot_chats: true,
       allow_group_chats: true,

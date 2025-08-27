@@ -33,6 +33,7 @@ import {
 import { useTelegram } from "../../hooks/useTelegram";
 import { Input } from "../ui/input";
 import ErrorMessage from "../ErrorComponent";
+import { InlineQueryResultArticle } from "../../types";
 const statusStyles = {
   published: "bg-green-100 text-green-700 border-green-200",
   draft: "bg-amber-100 text-amber-700 border-amber-200",
@@ -166,7 +167,7 @@ export function ArticleView() {
       const uniqueId =
         Date.now().toString() + Math.random().toString(36).substring(2, 9);
 
-      const payload = {
+      const payload: InlineQueryResultArticle = {
         type: "article" as const,
         id: uniqueId,
         title: article.title,
@@ -176,6 +177,7 @@ export function ArticleView() {
         },
         description: article.excerpt,
         thumbnail_url: article.thumbnail || "https://picsum.photos/200/300",
+        thumbnail_height: 100,
         url: window.location.href,
       };
 

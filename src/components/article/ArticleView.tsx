@@ -169,13 +169,25 @@ export function ArticleView() {
         id: article.id,
         title: article.title,
         input_message_content: {
-          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more at `,
+          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more \nhttps://t.me/victory_contest_bot/victory `,
           parse_mode: "HTML" as const,
         },
         description: article.excerpt,
         thumbnail_url:
           "https://firebasestorage.googleapis.com/v0/b/rent-ffb49.appspot.com/o/portfolio_projects%2FScreenshot%20from%202025-06-30%2009-18-38.png?alt=media&token=874ac485-8dbd-4ecb-9e2a-bd9ed3262155",
         thumbnail_height: 100,
+        thumbnail_width: 100,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Read Full Article",
+                web_app:
+                  "https://victory-contest.vercel.app/article/" + article.id,
+              },
+            ],
+          ],
+        },
         // url: window.location.href,
       };
 

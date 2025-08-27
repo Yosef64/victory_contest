@@ -111,6 +111,7 @@ export interface InlineQueryResultArticle {
   thumbnail_url?: string;
   thumbnail_width?: number;
   thumbnail_height?: number;
+  reply_markup: any;
 }
 
 export interface InputMessageContent {

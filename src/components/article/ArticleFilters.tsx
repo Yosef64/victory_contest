@@ -140,9 +140,7 @@ export function ArticleFilters({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
+                      <SelectItem value="favourite">Favourite</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

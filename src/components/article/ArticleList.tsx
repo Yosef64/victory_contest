@@ -26,12 +26,14 @@ export function ArticleList() {
   useEffect(() => {
     getCloudData("bookmarkedArticles", (bookmarked: string[] | null) => {
       if (bookmarked) {
+        toast.success(`${bookmarked}`);
         setBookmarkedIds(bookmarked);
       } else {
         setBookmarkedIds([]);
       }
     });
   }, [getCloudData]);
+
   useEffect(() => {
     const fetchArticles = async () => {
       try {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TelegramWebApp, TelegramUser } from "../types";
+import { TelegramWebApp, TelegramUser, PreparedInlineMessage } from "../types";
 
 export const useTelegram = () => {
   const [webApp, setWebApp] = useState<TelegramWebApp | null>(null);
@@ -23,33 +23,25 @@ export const useTelegram = () => {
       webApp.sendData(JSON.stringify(data));
     }
   };
-  const shareToChat = (mediaUrl: string, caption?: string) => {
-    if (webApp?.shareToChat) {
-      try {
-        webApp.shareToChat({
-          media_url: mediaUrl,
-          text: caption ?? "",
-        });
-      } catch (err) {
-        console.error("Failed to share to chat:", err);
-      }
-    } else {
-      console.warn("shareToChat is not available in this client.");
+  const shareMessage = async (message: PreparedInlineMessage) => {
+    if (!webApp?.shareMessage) {
+      console.warn("shareMessage is not available on this client");
+      return;
+    }
+    try {
+      await webApp.shareMessage(message);
+      console.log("Message shared successfully!");
+    } catch (err) {
+      console.error("Failed to share message:", err);
     }
   };
-  const shareToStory = (mediaUrl: string, caption?: string) => {
-    if (webApp?.shareToStory) {
-      try {
-        webApp.shareToStory({
-          media_url: mediaUrl,
-          text: caption ?? "",
-        });
-      } catch (err) {
-        console.error("Failed to share to story:", err);
-      }
-    } else {
-      console.warn("shareToStory is not available in this client.");
+
+  const downloadFile = (fileUrl: string, fileName?: string) => {
+    if (!webApp?.downloadFile) {
+      console.warn("downloadFile is not available on this client");
+      return;
     }
+    webApp.downloadFile(fileUrl, fileName);
   };
 
   const showMainButton = (text: string, onClick: () => void) => {
@@ -228,7 +220,7 @@ export const useTelegram = () => {
     disableClosingConfirmation,
     switchInlineQuery,
     readTextFromClipboard,
-    shareToChat,
-    shareToStory,
+    shareMessage,
+    downloadFile,
   };
 };

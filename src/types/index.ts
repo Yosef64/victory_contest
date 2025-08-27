@@ -94,10 +94,14 @@ export interface TelegramWebApp {
   disableClosingConfirmation: () => void;
   switchInlineQuery: (query: string, chatTypes?: string[]) => void;
   readTextFromClipboard: () => string | null;
-  shareToChat?: (params: { media_url: string; text?: string }) => void;
-  shareToStory?: (params: { media_url: string; text?: string }) => void;
+  shareMessage?: (message: PreparedInlineMessage) => Promise<void>;
+  downloadFile?: (fileUrl: string, fileName?: string) => void;
 }
-
+export interface PreparedInlineMessage {
+  type: "text" | "photo" | "video";
+  media?: string; // URL if photo/video
+  text?: string;
+}
 export interface Question {
   id: string;
   question_text: string;

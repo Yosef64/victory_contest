@@ -71,7 +71,7 @@ export function ArticleView() {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
-  const { user, shareToChat } = useTelegram();
+  const { user, shareMessage } = useTelegram();
 
   const handleAddComment = async () => {
     if (!newComment.trim() || newComment.trim().length < 4) return;
@@ -165,23 +165,12 @@ export function ArticleView() {
       const text = `${article.title}\n\n${article.excerpt}\n\nRead more...`;
       const url = window.location.href;
       const shareText = `${text}\n${url}`;
-      if (shareToChat) {
-        shareToChat(url, text);
-      } else {
-        // Fallback: copy to clipboard
-        navigator.clipboard
-          .writeText(shareText)
-          .then(() => {
-            toast.success("Article link copied to clipboard!", {
-              style: { backgroundColor: "green", color: "white" },
-            });
-          })
-          .catch((err) => {
-            toast.error("Failed to copy link. Please try again.", {
-              style: { backgroundColor: "red", color: "white" },
-            });
-          });
-      }
+
+      shareMessage({
+        type: "photo",
+        media: article.thumbnail,
+        text: shareText,
+      });
     }
   };
 

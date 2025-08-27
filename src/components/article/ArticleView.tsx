@@ -174,22 +174,21 @@ export function ArticleView() {
         },
         description: article.excerpt,
         thumbnail_url: article.thumbnail || "https://picsum.photos/200/300",
-        thumbnail_width: 100,
-        thumbnail_height: 100,
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "Read Full Article",
-                web_app: {
-                  url:
-                    "https://victory-contest.vercel.app/article/" + article.id,
-                },
-              },
-            ],
-          ],
-        },
-        url: "https://victory-contest.vercel.app/article/" + article.id,
+        // thumbnail_width: 100,
+        // thumbnail_height: 100,
+        // reply_markup: {
+        //   inline_keyboard: [
+        //     [
+        //       {
+        //         text: "Read Full Article",
+        //         web_app: {
+        //           url:
+        //             "https://victory-contest.vercel.app/article/" + article.id,
+        //         },
+        //       },
+        //     ],
+        //   ],
+        // },
       };
 
       try {

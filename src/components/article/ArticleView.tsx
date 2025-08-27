@@ -260,12 +260,6 @@ export function ArticleView() {
   useEffect(() => {
     if (articleId) {
       // Fetch liked state from Telegram Cloud
-      getCloudData(
-        "likedArticles",
-        (likedArticles: Record<string, boolean>) => {
-          setLiked(!!(likedArticles && likedArticles[articleId]));
-        }
-      );
 
       // Fetch article data by ID
       const fetchArticle = async () => {
@@ -288,6 +282,12 @@ export function ArticleView() {
         } finally {
           setLoading(false);
         }
+        getCloudData(
+          "likedArticles",
+          (likedArticles: Record<string, boolean>) => {
+            setLiked(!!(likedArticles && likedArticles[articleId]));
+          }
+        );
       };
       fetchArticle();
     }

@@ -165,30 +165,31 @@ export function ArticleView() {
   const handleArticleShare = async () => {
     if (article?.title && article?.excerpt) {
       const payload: InlineQueryResultArticle = {
-        type: "article" as const,
-        id: article.id,
+        type: "article",
+        id: article.id, // 1-64 chars
         title: article.title,
         input_message_content: {
-          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more \nhttps://t.me/victory_contest_bot/victory `,
-          parse_mode: "HTML" as const,
+          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more`,
+          parse_mode: "HTML",
         },
         description: article.excerpt,
-        thumbnail_url:
-          "https://firebasestorage.googleapis.com/v0/b/rent-ffb49.appspot.com/o/portfolio_projects%2FScreenshot%20from%202025-06-30%2009-18-38.png?alt=media&token=874ac485-8dbd-4ecb-9e2a-bd9ed3262155",
-        thumbnail_height: 100,
+        thumbnail_url: article.thumbnail || "https://picsum.photos/200/300",
         thumbnail_width: 100,
+        thumbnail_height: 100,
         reply_markup: {
           inline_keyboard: [
             [
               {
                 text: "Read Full Article",
-                web_app:
-                  "https://victory-contest.vercel.app/article/" + article.id,
+                web_app: {
+                  url:
+                    "https://victory-contest.vercel.app/article/" + article.id,
+                },
               },
             ],
           ],
         },
-        // url: window.location.href,
+        url: "https://victory-contest.vercel.app/article/" + article.id,
       };
 
       try {

@@ -32,7 +32,7 @@ export async function postComment(articleId: string, comment: Comment) {
 }
 export async function getPreparedMessageIdTelegram(data: any) {
   const res = await axios.post(
-    `https://api.telegram.org/bot8328194489:AAF1Ul46yoR0XXkDF0bZeBXw37mol_vO68U/answerWebAppQuery`,
+    `https://api.telegram.org/bot8328194489:AAF1Ul46yoR0XXkDF0bZeBXw37mol_vO68U/savePreparedInlineMessage`,
     data
   );
   return res.data;

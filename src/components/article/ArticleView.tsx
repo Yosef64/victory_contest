@@ -42,8 +42,7 @@ const statusStyles = {
 
 function formatNumber(num: number): string {
   if (num < 1000) return num.toString();
-  if (num < 1_000_000)
-    return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  if (num < 1_000_000) return (num / 1000).toFixed(1).replace(/\.0$/, "") + "K";
   if (num < 1_000_000_000)
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (num < 1_000_000_000_000)
@@ -73,7 +72,8 @@ export function ArticleView() {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
-  const { user, PrepareAndShareMessageShare } = useTelegram();
+  const { user, PrepareAndShareMessageShare, getCloudData, setCloudData } =
+    useTelegram();
 
   const handleAddComment = async () => {
     if (!newComment.trim() || newComment.trim().length < 4) return;
@@ -101,65 +101,75 @@ export function ArticleView() {
 
   const handleViewCount = async () => {
     if (!articleId) return;
-    const viewedArticles = JSON.parse(
-      localStorage.getItem("viewedArticles") || "{}"
+    getCloudData(
+      "viewedArticles",
+      async (viewedArticles: Record<string, boolean>) => {
+        const updated = { ...(viewedArticles || {}) };
+        if (updated[articleId]) return;
+        updated[articleId] = true;
+        setCloudData("viewedArticles", updated, async () => {
+          // Increment view count
+          const payload = {
+            type: "view" as "like" | "view",
+            action: "increment" as "increment" | "decrement",
+          };
+          try {
+            await toggleStat(articleId, payload);
+            setArticle((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    viewCount: String(Number(prev.viewCount) + 1),
+                  }
+                : prev
+            );
+          } catch (err) {
+            console.log("Failed to increment view count");
+          }
+        });
+      }
     );
-    if (viewedArticles[articleId]) return;
-    viewedArticles[articleId] = true;
-    localStorage.setItem("viewedArticles", JSON.stringify(viewedArticles));
-    // Increment view count
-    const payload = {
-      type: "view" as "like" | "view",
-      action: "increment" as "increment" | "decrement",
-    };
-    try {
-      await toggleStat(articleId, payload);
-      setArticle((prev) =>
-        prev
-          ? {
-              ...prev,
-              viewCount: String(Number(prev.viewCount) + 1),
-            }
-          : prev
-      );
-    } catch (err) {
-      console.log("Failed to increment view count");
-    }
   };
 
   const handleLike = async () => {
     if (!articleId) return;
-    const likedArticles = JSON.parse(
-      localStorage.getItem("likedArticles") || "{}"
+    getCloudData(
+      "likedArticles",
+      async (likedArticles: Record<string, boolean>) => {
+        const updated = { ...(likedArticles || {}) };
+        if (liked) {
+          delete updated[articleId];
+        } else {
+          updated[articleId] = true;
+        }
+        setCloudData("likedArticles", updated, () => {
+          setLiked(!liked);
+          setArticle((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  likeCount: liked
+                    ? String(Number(prev.likeCount) - 1)
+                    : String(Number(prev.likeCount) + 1),
+                }
+              : prev
+          );
+        });
+        const payload = {
+          type: "like" as "like" | "view",
+          action: liked
+            ? "decrement"
+            : ("increment" as "increment" | "decrement"),
+        };
+        try {
+          await toggleStat(articleId, payload);
+        } catch (err) {
+          toast.error("Failed to update like status. Please try again later.", {
+            style: { backgroundColor: "red", color: "white" },
+          });
+        }
+      }
     );
-    if (liked) {
-      delete likedArticles[articleId];
-    } else {
-      likedArticles[articleId] = true;
-    }
-    localStorage.setItem("likedArticles", JSON.stringify(likedArticles));
-    setLiked(!liked);
-    setArticle((prev) =>
-      prev
-        ? {
-            ...prev,
-            likeCount: liked
-              ? String(Number(prev.likeCount) - 1)
-              : String(Number(prev.likeCount) + 1),
-          }
-        : prev
-    );
-    const payload = {
-      type: "like" as "like" | "view",
-      action: liked ? "decrement" : ("increment" as "increment" | "decrement"),
-    };
-    try {
-      await toggleStat(articleId, payload);
-    } catch (err) {
-      toast.error("Failed to update like status. Please try again later.", {
-        style: { backgroundColor: "red", color: "white" },
-      });
-    }
   };
 
   const handleArticleShare = async () => {
@@ -238,13 +248,15 @@ export function ArticleView() {
 
   useEffect(() => {
     if (articleId) {
-      // Fetch article data by ID
-
-      const likedArticles = JSON.parse(
-        localStorage.getItem("likedArticles") || "{}"
+      // Fetch liked state from Telegram Cloud
+      getCloudData(
+        "likedArticles",
+        (likedArticles: Record<string, boolean>) => {
+          setLiked(!!(likedArticles && likedArticles[articleId]));
+        }
       );
-      setLiked(!!likedArticles[articleId]);
 
+      // Fetch article data by ID
       const fetchArticle = async () => {
         try {
           const data = await getArticleById(articleId);

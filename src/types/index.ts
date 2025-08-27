@@ -100,6 +100,32 @@ export interface TelegramWebApp {
     callback: (success: boolean) => void
   ) => Promise<void>;
   downloadFile?: (fileUrl: string, fileName?: string) => void;
+  CloudStorage: {
+    setItem: (
+      key: string,
+      value: string,
+      callback?: (error: string | null, result?: boolean) => void
+    ) => void;
+    getItem: (
+      key: string,
+      callback: (error: string | null, result?: string) => void
+    ) => void;
+    getItems: (
+      keys: string[],
+      callback: (error: string | null, result?: Record<string, string>) => void
+    ) => void;
+    removeItem: (
+      key: string,
+      callback?: (error: string | null, result?: boolean) => void
+    ) => void;
+    removeItems: (
+      keys: string[],
+      callback?: (error: string | null, result?: boolean) => void
+    ) => void;
+    getKeys: (
+      callback: (error: string | null, result?: string[]) => void
+    ) => void;
+  };
 }
 export interface InlineQueryResultArticle {
   type: "article"; // always "article"

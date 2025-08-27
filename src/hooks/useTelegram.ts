@@ -212,6 +212,90 @@ export const useTelegram = () => {
     }
     return;
   };
+  const setCloudData = (
+    key: string,
+    value: any,
+    callback?: (success: boolean) => void
+  ) => {
+    if (webApp?.CloudStorage) {
+      webApp.CloudStorage.setItem(
+        key,
+        JSON.stringify(value),
+        (error, result) => {
+          if (callback) {
+            callback(!error && result === true);
+          }
+        }
+      );
+    } else {
+      // Fallback to localStorage
+      try {
+        localStorage.setItem(`telegram_cloud_${key}`, JSON.stringify(value));
+        if (callback) callback(true);
+      } catch (error) {
+        if (callback) callback(false);
+      }
+    }
+  };
+
+  const getCloudData = (key: string, callback: (data: any) => void) => {
+    if (webApp?.CloudStorage) {
+      webApp.CloudStorage.getItem(key, (error, result) => {
+        if (!error && result) {
+          try {
+            callback(JSON.parse(result));
+          } catch (e) {
+            callback(null);
+          }
+        } else {
+          callback(null);
+        }
+      });
+    } else {
+      // Fallback to localStorage
+      try {
+        const data = localStorage.getItem(`telegram_cloud_${key}`);
+        callback(data ? JSON.parse(data) : null);
+      } catch (error) {
+        callback(null);
+      }
+    }
+  };
+
+  const removeCloudData = (
+    key: string,
+    callback?: (success: boolean) => void
+  ) => {
+    if (webApp?.CloudStorage) {
+      webApp.CloudStorage.removeItem(key, (error, result) => {
+        if (callback) {
+          callback(!error && result === true);
+        }
+      });
+    } else {
+      // Fallback to localStorage
+      try {
+        localStorage.removeItem(`telegram_cloud_${key}`);
+        if (callback) callback(true);
+      } catch (error) {
+        if (callback) callback(false);
+      }
+    }
+  };
+
+  const getCloudKeys = (callback: (keys: string[]) => void) => {
+    if (webApp?.CloudStorage) {
+      webApp.CloudStorage.getKeys((error, result) => {
+        callback(!error && result ? result : []);
+      });
+    } else {
+      // Fallback to localStorage
+      const keys = Object.keys(localStorage)
+        .filter((key) => key.startsWith("telegram_cloud_"))
+        .map((key) => key.replace("telegram_cloud_", ""));
+      callback(keys);
+    }
+  };
 
   return {
     webApp,
@@ -239,5 +323,9 @@ export const useTelegram = () => {
     readTextFromClipboard,
     downloadFile,
     PrepareAndShareMessageShare,
+    removeCloudData,
+    setCloudData,
+    getCloudData,
+    getCloudKeys,
   };
 };

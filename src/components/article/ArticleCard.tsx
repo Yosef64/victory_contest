@@ -1,7 +1,5 @@
 import { Calendar, Clock, Tag } from "lucide-react";
 import { Article } from "../../types/article";
-import { Avatar } from "@radix-ui/react-avatar";
-import { AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface ArticleCardProps {
   article: Article;
@@ -56,7 +54,7 @@ export function ArticleCard({ article, onClick }: ArticleCardProps) {
                 <img
                   src={article?.author.avatar}
                   alt={article?.author.name}
-                  className="w-4 h-4 rounded-full mr-2 flex-shrink-0"
+                  className="w-4 h-4 rounded-full flex-shrink-0"
                 />
               )}
               <span className="truncate">{article.author.name}</span>

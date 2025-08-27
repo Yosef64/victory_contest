@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  Calendar,
-  Clock,
-  Tag,
-  Share2,
-  Bookmark,
-  ArrowUp,
-  Eye,
-} from "lucide-react";
+import { Calendar, Clock, Tag, Bookmark, ArrowUp, Eye } from "lucide-react";
 import { Article, Comment } from "../../types/article";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AvatarFallback, Avatar, AvatarImage } from "../ui/avatar";
 import {
   getArticleById,
@@ -36,6 +28,7 @@ import { Input } from "../ui/input";
 import ErrorMessage from "../ErrorComponent";
 import { InlineQueryResultArticle } from "../../types";
 
+// Helper functions (unchanged)
 function formatNumber(num: number): string {
   if (num < 1000) return num.toString();
   if (num < 1_000_000) return (num / 1000).toFixed(1).replace(/\.0$/, "") + "K";
@@ -47,17 +40,14 @@ function formatNumber(num: number): string {
 }
 
 function stripProseWrapper(html: string): string {
-  // Regex to match an outer <div class="prose ...">...</div> and extract the inner HTML
   const match = html.match(
     /^<div[^>]*class=["'][^"']*prose[^"']*["]{1}[^>]*>([\s\S]*)<\/div>$/i
   );
   let content = match ? match[1].trim() : html;
-  // Replace all <br>, <br/>, <br /> with double <br>
-
-  // Add a <br> after every </p>
   content = content.replace(/<\/p>/gi, "</p><br>");
   return content;
 }
+
 export function ArticleView() {
   const [article, setArticle] = useState<Article | null>(null);
   const { id: articleId } = useParams<{ id: string }>();
@@ -69,32 +59,42 @@ export function ArticleView() {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
-  const { user, PrepareAndShareMessageShare, getCloudData, setCloudData } =
-    useTelegram();
-  // Bookmark logic
+  const {
+    user,
+    PrepareAndShareMessageShare,
+    getCloudData,
+    setCloudData,
+    showBackButton,
+  } = useTelegram();
+  const navigate = useNavigate();
 
+  showBackButton(() => navigate(-1));
+
+  // MODIFIED: Bookmark logic now uses a list (array)
   const handleBookmark = () => {
     if (!articleId) return;
-    getCloudData(
-      "bookmarkedArticles",
-      (bookmarkedArticles: Record<string, boolean> | null) => {
-        const updated = { ...(bookmarkedArticles || {}) };
-        let newBookmarked: boolean;
-        if (updated[articleId]) {
-          delete updated[articleId];
-          newBookmarked = false;
-        } else {
-          updated[articleId] = true;
-          newBookmarked = true;
-        }
-        setCloudData("bookmarkedArticles", updated, () => {
-          setBookmarked(newBookmarked);
-        });
+    getCloudData("bookmarkedArticles", (bookmarkedIds: string[] | null) => {
+      const currentBookmarks = bookmarkedIds || [];
+      let updatedBookmarks: string[];
+      let newBookmarked: boolean;
+
+      if (currentBookmarks.includes(articleId)) {
+        // Remove from list
+        updatedBookmarks = currentBookmarks.filter((id) => id !== articleId);
+        newBookmarked = false;
+      } else {
+        // Add to list
+        updatedBookmarks = [...currentBookmarks, articleId];
+        newBookmarked = true;
       }
-    );
+      setCloudData("bookmarkedArticles", updatedBookmarks, () => {
+        setBookmarked(newBookmarked);
+      });
+    });
   };
 
   const handleAddComment = async () => {
+    // ... (This function is unchanged)
     if (!newComment.trim() || newComment.trim().length < 4) return;
     const newEntry: Comment = {
       id: String(comments?.length ?? 0 + 1),
@@ -118,83 +118,74 @@ export function ArticleView() {
     }
   };
 
+  // MODIFIED: View count logic now uses a list (array)
   const handleViewCount = async () => {
     if (!articleId) return;
-    getCloudData(
-      "viewedArticles",
-      async (viewedArticles: Record<string, boolean>) => {
-        const updated = { ...(viewedArticles || {}) };
-        if (updated[articleId]) return;
-        updated[articleId] = true;
-        setCloudData("viewedArticles", updated, async () => {
-          // Increment view count
-          const payload = {
-            type: "view" as "like" | "view",
-            action: "increment" as "increment" | "decrement",
-          };
-          try {
-            await toggleStat(articleId, payload);
-            setArticle((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    viewCount: String(Number(prev.viewCount) + 1),
-                  }
-                : prev
-            );
-          } catch (err) {
-            console.log("Failed to increment view count");
-          }
-        });
-      }
-    );
+    getCloudData("viewedArticles", async (viewedIds: string[] | null) => {
+      const currentViews = viewedIds || [];
+      if (currentViews.includes(articleId)) return; // Already viewed
+
+      const updatedViews = [...currentViews, articleId];
+      setCloudData("viewedArticles", updatedViews, async () => {
+        const payload = { type: "view" as const, action: "increment" as const };
+        try {
+          await toggleStat(articleId, payload);
+          setArticle((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  viewCount: String(Number(prev.viewCount) + 1),
+                }
+              : prev
+          );
+        } catch (err) {
+          console.log("Failed to increment view count");
+        }
+      });
+    });
   };
 
+  // MODIFIED: Like logic now uses a list (array)
   const handleLike = async () => {
     if (!articleId) return;
 
     try {
-      getCloudData(
-        "likedArticles",
-        async (likedArticles: Record<string, boolean>) => {
-          let updated = { ...(likedArticles || {}) };
-          let newLiked: boolean;
+      getCloudData("likedArticles", async (likedIds: string[] | null) => {
+        const currentLikes = likedIds || [];
+        let updatedLikes: string[];
+        let newLiked: boolean;
 
-          if (updated[articleId]) {
-            // unlike
-            delete updated[articleId];
-            newLiked = false;
-          } else {
-            // like
-            updated[articleId] = true;
-            newLiked = true;
-          }
-
-          // Use `newLiked` directly to determine the action
-          const action = newLiked ? "increment" : "decrement";
-          const payload = {
-            type: "like" as "like" | "view",
-            action: action as "increment" | "decrement",
-          };
-
-          // Update state and call the backend after setting cloud data
-          setCloudData("likedArticles", updated, async () => {
-            setLiked(newLiked);
-            setArticle((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    likeCount: newLiked
-                      ? String(Number(prev.likeCount) + 1)
-                      : String(Number(prev.likeCount) - 1),
-                  }
-                : prev
-            );
-            // Sync with backend after local state is updated
-            await toggleStat(articleId, payload);
-          });
+        if (currentLikes.includes(articleId)) {
+          // Unlike: remove from list
+          updatedLikes = currentLikes.filter((id) => id !== articleId);
+          newLiked = false;
+        } else {
+          // Like: add to list
+          updatedLikes = [...currentLikes, articleId];
+          newLiked = true;
         }
-      );
+
+        const action = newLiked ? "increment" : "decrement";
+        const payload = {
+          type: "like" as const,
+          action: action as "increment" | "decrement",
+        };
+
+        setCloudData("likedArticles", updatedLikes, async () => {
+          setLiked(newLiked);
+          setArticle((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  likeCount: newLiked
+                    ? String(Number(prev.likeCount) + 1)
+                    : String(Number(prev.likeCount) - 1),
+                }
+              : prev
+          );
+          await toggleStat(articleId, payload);
+        });
+      });
     } catch (err) {
       toast.error("Failed to update like status. Please try again later.", {
         style: { backgroundColor: "red", color: "white" },
@@ -202,6 +193,7 @@ export function ArticleView() {
     }
   };
 
+  // ... (handleArticleShare and formatDate are unchanged)
   const handleArticleShare = async () => {
     if (article?.title && article?.excerpt) {
       const payload: InlineQueryResultArticle = {
@@ -240,17 +232,15 @@ export function ArticleView() {
       day: "numeric",
     }).format(date);
   };
-
   useEffect(() => {
+    // ... (This useEffect for scroll and comments is unchanged)
     const checkScrollTop = () => {
-      // Show button if user scrolls down more than 300px
       if (window.scrollY > 100) {
         setShowScrollButton(true);
       } else {
         setShowScrollButton(false);
       }
     };
-
     window.addEventListener("scroll", checkScrollTop);
     const fetchComments = async () => {
       if (!articleId) return;
@@ -265,9 +255,8 @@ export function ArticleView() {
       }
     };
     fetchComments();
-
     return () => window.removeEventListener("scroll", checkScrollTop);
-  }, []);
+  }, [articleId]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -277,10 +266,8 @@ export function ArticleView() {
   };
 
   useEffect(() => {
+    // ... (This useEffect for fetching the article is unchanged)
     if (articleId) {
-      // Fetch liked state from Telegram Cloud
-
-      // Fetch article data by ID
       const fetchArticle = async () => {
         try {
           const data = await getArticleById(articleId);
@@ -305,25 +292,22 @@ export function ArticleView() {
       fetchArticle();
     }
   }, [articleId]);
+
+  // MODIFIED: useEffect for checking liked/bookmarked status now uses a list
   useEffect(() => {
     if (!articleId) return;
 
-    getCloudData(
-      "likedArticles",
-      (likedArticles: Record<string, boolean> | null) => {
-        const isLiked = !!(likedArticles && likedArticles[articleId]);
-        setLiked(isLiked);
-      }
-    );
-    getCloudData(
-      "bookmarkedArticles",
-      (bookmarkedArticles: Record<string, boolean> | null) => {
-        setBookmarked(!!(bookmarkedArticles && bookmarkedArticles[articleId]));
-      }
-    );
+    getCloudData("likedArticles", (likedIds: string[] | null) => {
+      setLiked(!!likedIds?.includes(articleId));
+    });
+
+    getCloudData("bookmarkedArticles", (bookmarkedIds: string[] | null) => {
+      setBookmarked(!!bookmarkedIds?.includes(articleId));
+    });
   }, [articleId, getCloudData]);
 
   if (loading) {
+    // ... (Loading state JSX is unchanged)
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -331,6 +315,7 @@ export function ArticleView() {
     );
   }
 
+  // ... (Return JSX is unchanged)
   return (
     <div className="article relative bg-white font-nunito-sans">
       {/* Article Content */}
@@ -360,7 +345,9 @@ export function ArticleView() {
                     <BookMarkIcon className="w-6 h-6 text-yellow-500" />
                   ) : (
                     <Bookmark
-                      className={`w-5 h-5 ${bookmarked ? "fill-blue-600" : ""}`}
+                      className={`w-5 h-5 text-black ${
+                        bookmarked ? "fill-blue-600" : ""
+                      }`}
                     />
                   )}
                 </button>
@@ -605,7 +592,9 @@ export function ArticleView() {
     </div>
   );
 }
+
 const CommentSkeleton = () => {
+  // ... (CommentSkeleton is unchanged)
   return (
     <div className="flex items-start gap-3 animate-pulse">
       {/* Avatar */}

@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { ArticleCard } from "./ArticleCard";
 import { ArticleFilters } from "./ArticleFilters";
-import { Article, ArticleStatus } from "../../types/article";
-import { FileText, RefreshCw } from "lucide-react";
+import { Article } from "../../types/article";
+import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getArticles } from "../../services/articleService";
 import { toast } from "sonner";
@@ -12,17 +12,26 @@ import ErrorMessage from "../ErrorComponent";
 
 export function ArticleList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ArticleStatus | "all">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<"favourite" | "all">("all");
   const [authorFilter, setAuthorFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("");
   const [sortBy, setSortBy] = useState("publishedAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [articles, setArticles] = useState<Article[] | []>([]);
   const [loading, setLoading] = useState(true);
+  const [bookmarkedArticles, setBookmarkedIds] = useState<string[]>([]);
   const navigate = useNavigate();
-  const { showBackButton } = useTelegram();
+  const { showBackButton, getCloudData } = useTelegram();
+
+  useEffect(() => {
+    getCloudData("bookmarkedArticles", (bookmarked: string[] | null) => {
+      if (bookmarked) {
+        setBookmarkedIds(bookmarked);
+      } else {
+        setBookmarkedIds([]);
+      }
+    });
+  }, [getCloudData]);
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -76,7 +85,7 @@ export function ArticleList() {
         article.content.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "all" || article.status === statusFilter;
+        statusFilter === "all" || bookmarkedArticles.includes(article.id);
       const matchesAuthor =
         authorFilter === "" || article.author.name === authorFilter;
       const matchesTag = tagFilter === "" || article.tags.includes(tagFilter);
@@ -132,22 +141,6 @@ export function ArticleList() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileText className="w-6 h-6 text-blue-600" />
-            <h1 className="text-xl font-bold text-gray-900">Articles</h1>
-          </div>
-          <button className="p-2 text-gray-400 hover:text-gray-600">
-            <RefreshCw className="w-5 h-5" />
-          </button>
-        </div>
-        <p className="text-sm text-gray-600 mt-2">
-          {articles.length} articles available
-        </p>
-      </div>
-
       {/* Filters */}
       <ArticleFilters
         searchTerm={searchTerm}

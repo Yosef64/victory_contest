@@ -1,5 +1,4 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-import { ArticleStatus } from "../../types/article";
 import {
   Sheet,
   SheetContent,
@@ -19,8 +18,8 @@ import { Button } from "../ui/button";
 interface ArticleFiltersProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
-  statusFilter: ArticleStatus | "all";
-  onStatusFilterChange: (status: ArticleStatus | "all") => void;
+  statusFilter: "favourite" | "all";
+  onStatusFilterChange: (status: "favourite" | "all") => void;
   authorFilter: string;
   onAuthorFilterChange: (author: string) => void;
   sortBy: string;
@@ -74,7 +73,7 @@ export function ArticleFilters({
           <Select
             value={statusFilter}
             onValueChange={(value) =>
-              onStatusFilterChange(value as ArticleStatus | "all")
+              onStatusFilterChange(value as "favourite" | "all")
             }
           >
             <SelectTrigger className="w-[120px] h-9 text-xs">
@@ -82,9 +81,7 @@ export function ArticleFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
+              <SelectItem value="favourite">Favourite</SelectItem>
             </SelectContent>
           </Select>
 
@@ -135,7 +132,7 @@ export function ArticleFilters({
                   <Select
                     value={statusFilter}
                     onValueChange={(value) =>
-                      onStatusFilterChange(value as ArticleStatus | "all")
+                      onStatusFilterChange(value as "favourite" | "all")
                     }
                   >
                     <SelectTrigger>

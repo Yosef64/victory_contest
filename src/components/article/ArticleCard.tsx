@@ -1,5 +1,7 @@
 import { Calendar, Clock, Tag } from "lucide-react";
 import { Article } from "../../types/article";
+import { Avatar } from "@radix-ui/react-avatar";
+import { AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface ArticleCardProps {
   article: Article;
@@ -49,14 +51,14 @@ export function ArticleCard({ article, onClick }: ArticleCardProps) {
 
           {/* Author and Date */}
           <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-            <div className="flex items-center min-w-0">
-              {article.author.avatar && (
-                <img
+            <div className="flex items-center gap-2 min-w-0">
+              <Avatar>
+                <AvatarImage
                   src={article.author.avatar}
                   alt={article.author.name}
-                  className="w-4 h-4 rounded-full mr-2 flex-shrink-0"
                 />
-              )}
+                <AvatarFallback>{article.author.name.charAt(0)}</AvatarFallback>
+              </Avatar>
               <span className="truncate">{article.author.name}</span>
             </div>
             <div className="flex items-center ml-2 flex-shrink-0">

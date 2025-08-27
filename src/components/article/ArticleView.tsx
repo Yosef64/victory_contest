@@ -6,7 +6,7 @@ import {
   Share2,
   Bookmark,
   ArrowUp,
-  ThumbsUp,
+  Eye,
 } from "lucide-react";
 import { Article, Comment } from "../../types/article";
 import { useParams } from "react-router-dom";
@@ -31,7 +31,6 @@ import {
 } from "../ui/drawer";
 import { useTelegram } from "../../hooks/useTelegram";
 import { Input } from "../ui/input";
-import { set } from "date-fns";
 import ErrorMessage from "../ErrorComponent";
 const statusStyles = {
   published: "bg-green-100 text-green-700 border-green-200",
@@ -39,78 +38,16 @@ const statusStyles = {
   archived: "bg-gray-100 text-gray-700 border-gray-200",
 };
 
-const mockComments: Comment[] = [
-  {
-    id: "1",
-    articleId: "a1",
-    user_name: "John Doe",
-    user_id: "133",
-    avatar: "https://i.pravatar.cc/40",
-    text: "This article was super helpful. Thanks for sharing!",
-    createdAt: "2025-08-25T10:00:00Z",
-    updatedAt: "2025-08-25T10:00:00Z",
-  },
-  {
-    id: "2",
-    articleId: "a1",
-    user_name: "Sarah Smith",
-    user_id: "134",
-    avatar: "https://i.pravatar.cc/41",
-    text: "I love how you explained buoyant force. Clear and easy to understand!",
-    createdAt: "2025-08-24T15:00:00Z",
-    updatedAt: "2025-08-24T15:00:00Z",
-  },
-  {
-    id: "3",
-    articleId: "a1",
-    user_name: "Michael Lee",
-    user_id: "1334",
-    avatar: "https://i.pravatar.cc/42",
-    text: "Great work! Can you also cover more examples?",
-    createdAt: "2025-08-23T20:30:00Z",
-    updatedAt: "2025-08-23T20:30:00Z",
-  },
-  {
-    id: "4",
-    articleId: "a1",
-    user_name: "John Doe",
-    user_id: "133",
-    avatar: "https://i.pravatar.cc/40",
-    text: "This article was super helpful. Thanks for sharing!",
-    createdAt: "2025-08-25T10:00:00Z",
-    updatedAt: "2025-08-25T10:00:00Z",
-  },
-  {
-    id: "5",
-    articleId: "a1",
-    user_name: "Sarah Smith",
-    user_id: "134",
-    avatar: "https://i.pravatar.cc/41",
-    text: "I love how you explained buoyant force. Clear and easy to understand!",
-    createdAt: "2025-08-24T15:00:00Z",
-    updatedAt: "2025-08-24T15:00:00Z",
-  },
-  {
-    id: "6",
-    articleId: "a1",
-    user_name: "John Doe",
-    user_id: "133",
-    avatar: "https://i.pravatar.cc/40",
-    text: "This article was super helpful. Thanks for sharing!",
-    createdAt: "2025-08-25T10:00:00Z",
-    updatedAt: "2025-08-25T10:00:00Z",
-  },
-  {
-    id: "7",
-    articleId: "a1",
-    user_name: "Sarah Smith",
-    user_id: "134",
-    avatar: "https://i.pravatar.cc/41",
-    text: "I love how you explained buoyant force. Clear and easy to understand!",
-    createdAt: "2025-08-24T15:00:00Z",
-    updatedAt: "2025-08-24T15:00:00Z",
-  },
-];
+function formatNumber(num: number): string {
+  if (num < 1000) return num.toString();
+  if (num < 1_000_000)
+    return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  if (num < 1_000_000_000)
+    return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (num < 1_000_000_000_000)
+    return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
+  return (num / 1_000_000_000_000).toFixed(1).replace(/\.0$/, "") + "T";
+}
 
 function stripProseWrapper(html: string): string {
   // Regex to match an outer <div class="prose ...">...</div> and extract the inner HTML
@@ -131,15 +68,15 @@ export function ArticleView() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [liked, setLiked] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
-  const { user } = useTelegram();
+  const { user, shareToChat } = useTelegram();
 
   const handleAddComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || newComment.trim().length < 4) return;
     const newEntry: Comment = {
-      id: String(comments.length + 1),
+      id: String(comments?.length ?? 0 + 1),
       articleId: article?.id || "",
       user_name: user?.first_name ?? "" + user?.last_name ?? "shuluqa",
       user_id: user?.id.toString() ?? "12",
@@ -148,7 +85,7 @@ export function ArticleView() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setComments([newEntry, ...comments]);
+    setComments([newEntry, ...(comments ?? [])]);
     setNewComment("");
     try {
       await postComment(articleId ?? "", newEntry);
@@ -157,6 +94,34 @@ export function ArticleView() {
       toast.error("Failed to post comment. Please try again later.", {
         style: { backgroundColor: "red", color: "white" },
       });
+    }
+  };
+
+  const handleViewCount = async () => {
+    if (!articleId) return;
+    const viewedArticles = JSON.parse(
+      localStorage.getItem("viewedArticles") || "{}"
+    );
+    if (viewedArticles[articleId]) return;
+    viewedArticles[articleId] = true;
+    localStorage.setItem("viewedArticles", JSON.stringify(viewedArticles));
+    // Increment view count
+    const payload = {
+      type: "view" as "like" | "view",
+      action: "increment" as "increment" | "decrement",
+    };
+    try {
+      await toggleStat(articleId, payload);
+      setArticle((prev) =>
+        prev
+          ? {
+              ...prev,
+              viewCount: String(Number(prev.viewCount) + 1),
+            }
+          : prev
+      );
+    } catch (err) {
+      console.log("Failed to increment view count");
     }
   };
 
@@ -192,6 +157,31 @@ export function ArticleView() {
       toast.error("Failed to update like status. Please try again later.", {
         style: { backgroundColor: "red", color: "white" },
       });
+    }
+  };
+
+  const handleArticleShare = () => {
+    if (article?.title && article?.excerpt) {
+      const text = `${article.title}\n\n${article.excerpt}\n\nRead more...`;
+      const url = window.location.href;
+      const shareText = `${text}\n${url}`;
+      if (shareToChat) {
+        shareToChat(url, text);
+      } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard
+          .writeText(shareText)
+          .then(() => {
+            toast.success("Article link copied to clipboard!", {
+              style: { backgroundColor: "green", color: "white" },
+            });
+          })
+          .catch((err) => {
+            toast.error("Failed to copy link. Please try again.", {
+              style: { backgroundColor: "red", color: "white" },
+            });
+          });
+      }
     }
   };
 
@@ -261,6 +251,7 @@ export function ArticleView() {
             updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
           };
           setArticle(finalData);
+          handleViewCount();
         } catch (error) {
           toast.error("Failed to fetch article. Please try again later.", {
             style: { backgroundColor: "red", color: "white" },
@@ -294,7 +285,10 @@ export function ArticleView() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button className="p-2 text-gray-400 hover:text-gray-600">
+                <button
+                  onClick={handleArticleShare}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
                   <Share2 className="w-5 h-5" />
                 </button>
                 <button className="p-2 text-gray-400 hover:text-gray-600">
@@ -337,6 +331,10 @@ export function ArticleView() {
                   : formatDate(article?.updatedAt)}
               </div>
             </div>
+          </div>
+          <div className="flex items-center text-gray-500 text-sm gap-1 mr-2">
+            <Eye className="w-4 h-4 text-gray-400" />
+            {formatNumber(Number(article?.viewCount) ?? 0)} views
           </div>
         </div>
 
@@ -435,15 +433,17 @@ export function ArticleView() {
             />
           )}
 
-          <span>{article?.likeCount ?? "Like"}</span>
+          <span>{formatNumber(Number(article?.likeCount ?? 0)) ?? "Like"}</span>
         </button>
         <Separator orientation="vertical" className="h-6 w-px bg-white" />
         <Drawer>
           <DrawerTrigger asChild>
-            <div className="flex items-center gap-2 p-2 rounded-lg shadow dark:hover:bg-gray-800 cursor-pointer">
+            <div className="flex items-center gap-2 p-2 dark:hover:bg-gray-800 cursor-pointer">
               <ChatIcon className="w-5 h-5" />
               <span className="font-medium">
-                {comments !== null ? comments.length : "Comments"}
+                {comments !== null
+                  ? formatNumber(comments.length) ?? "Comments"
+                  : "Comments"}
               </span>
             </div>
           </DrawerTrigger>
@@ -469,10 +469,10 @@ export function ArticleView() {
                   message="Failed to load comments."
                   onRetry={() => {}}
                 />
-              ) : comments.length === 0 ? (
+              ) : (comments ?? []).length === 0 ? (
                 <p className="text-gray-500">No comments yet.</p>
               ) : (
-                comments.map((comment) => (
+                (comments ?? []).map((comment) => (
                   <div key={comment.id} className="flex items-start gap-3">
                     <Avatar>
                       <AvatarImage src={comment.avatar} />
@@ -503,11 +503,13 @@ export function ArticleView() {
             {/* Comment Input */}
             <div className="p-4 border-t bg-gray-50 dark:bg-gray-900">
               <div className="flex items-center gap-3">
-                <img
-                  src="https://i.pravatar.cc/51"
-                  alt="your avatar"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
+                <Avatar>
+                  <AvatarImage
+                    src={user?.photo_url ?? "https://i.pravatar.cc/51"}
+                    alt="your avatar"
+                  />
+                  <AvatarFallback>{user?.first_name.charAt(0)}</AvatarFallback>
+                </Avatar>
                 <Input
                   type="text"
                   value={newComment}

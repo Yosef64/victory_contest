@@ -23,6 +23,34 @@ export const useTelegram = () => {
       webApp.sendData(JSON.stringify(data));
     }
   };
+  const shareToChat = (mediaUrl: string, caption?: string) => {
+    if (webApp?.shareToChat) {
+      try {
+        webApp.shareToChat({
+          media_url: mediaUrl,
+          text: caption ?? "",
+        });
+      } catch (err) {
+        console.error("Failed to share to chat:", err);
+      }
+    } else {
+      console.warn("shareToChat is not available in this client.");
+    }
+  };
+  const shareToStory = (mediaUrl: string, caption?: string) => {
+    if (webApp?.shareToStory) {
+      try {
+        webApp.shareToStory({
+          media_url: mediaUrl,
+          text: caption ?? "",
+        });
+      } catch (err) {
+        console.error("Failed to share to story:", err);
+      }
+    } else {
+      console.warn("shareToStory is not available in this client.");
+    }
+  };
 
   const showMainButton = (text: string, onClick: () => void) => {
     if (webApp) {
@@ -200,5 +228,7 @@ export const useTelegram = () => {
     disableClosingConfirmation,
     switchInlineQuery,
     readTextFromClipboard,
+    shareToChat,
+    shareToStory,
   };
 };

@@ -94,6 +94,8 @@ export interface TelegramWebApp {
   disableClosingConfirmation: () => void;
   switchInlineQuery: (query: string, chatTypes?: string[]) => void;
   readTextFromClipboard: () => string | null;
+  shareToChat?: (params: { media_url: string; text?: string }) => void;
+  shareToStory?: (params: { media_url: string; text?: string }) => void;
 }
 
 export interface Question {

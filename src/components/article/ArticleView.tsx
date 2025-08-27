@@ -295,7 +295,7 @@ export function ArticleView() {
           if (likedArticles[articleId]) {
             setLiked(true);
           } else {
-            setLiked(false);
+            setLiked(true);
           }
         }
       );

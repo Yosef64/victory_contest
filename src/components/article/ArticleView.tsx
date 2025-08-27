@@ -282,15 +282,25 @@ export function ArticleView() {
         } finally {
           setLoading(false);
         }
-        getCloudData(
-          "likedArticles",
-          (likedArticles: Record<string, boolean>) => {
-            setLiked(!!(likedArticles && likedArticles[articleId]));
-          }
-        );
       };
       fetchArticle();
     }
+  }, [articleId]);
+  useEffect(() => {
+    if (!articleId) return;
+    const changeLikedState = async () => {
+      getCloudData(
+        "likedArticles",
+        (likedArticles: Record<string, boolean>) => {
+          if (likedArticles[articleId]) {
+            setLiked(true);
+          } else {
+            setLiked(false);
+          }
+        }
+      );
+    };
+    changeLikedState();
   }, [articleId]);
 
   if (loading) {

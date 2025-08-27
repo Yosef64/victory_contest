@@ -139,7 +139,6 @@ export function ArticleView() {
         "likedArticles",
         async (likedArticles: Record<string, boolean>) => {
           let updated = { ...(likedArticles || {}) };
-
           let newLiked: boolean;
 
           if (updated[articleId]) {
@@ -152,6 +151,14 @@ export function ArticleView() {
             newLiked = true;
           }
 
+          // Use `newLiked` directly to determine the action
+          const action = newLiked ? "increment" : "decrement";
+          const payload = {
+            type: "like" as "like" | "view",
+            action: action as "increment" | "decrement",
+          };
+
+          // Update state and call the backend after setting cloud data
           setCloudData("likedArticles", updated, async () => {
             setLiked(newLiked);
             setArticle((prev) =>
@@ -164,16 +171,9 @@ export function ArticleView() {
                   }
                 : prev
             );
+            // Sync with backend after local state is updated
+            await toggleStat(articleId, payload);
           });
-
-          // Sync with backend
-          const payload = {
-            type: "like" as "like" | "view",
-            action: liked
-              ? "decrement"
-              : ("increment" as "increment" | "decrement"),
-          };
-          await toggleStat(articleId, payload);
         }
       );
     } catch (err) {

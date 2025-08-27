@@ -174,8 +174,8 @@ export function ArticleView() {
           link_preview_options: {
             is_disabled: false,
             url: "https://t.me/victory_contest_bot/victory",
-            prefer_large_media: true,
-            prefer_small_media: false,
+            prefer_large_media: false,
+            prefer_small_media: true,
           },
         },
         description: article.excerpt,

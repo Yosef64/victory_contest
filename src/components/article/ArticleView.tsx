@@ -176,7 +176,7 @@ export function ArticleView() {
         thumbnail_url:
           "https://firebasestorage.googleapis.com/v0/b/rent-ffb49.appspot.com/o/portfolio_projects%2FScreenshot%20from%202025-06-30%2009-18-38.png?alt=media&token=874ac485-8dbd-4ecb-9e2a-bd9ed3262155",
         thumbnail_height: 100,
-        url: window.location.href,
+        // url: window.location.href,
       };
 
       try {

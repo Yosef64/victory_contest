@@ -26,7 +26,6 @@ export function ArticleList() {
   useEffect(() => {
     getCloudData("bookmarkedArticles", (bookmarked: string[] | null) => {
       if (bookmarked) {
-        toast.success(`${bookmarked}`);
         if (Array.isArray(bookmarked)) {
           setBookmarkedIds(bookmarked);
         } else {

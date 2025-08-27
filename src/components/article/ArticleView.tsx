@@ -122,7 +122,12 @@ export function ArticleView() {
   const handleViewCount = async () => {
     if (!articleId) return;
     getCloudData("viewedArticles", async (viewedIds: string[] | null) => {
-      const currentViews = viewedIds || [];
+      const currentViews: string[] = Array.isArray(viewedIds)
+        ? viewedIds
+        : viewedIds
+        ? Object.keys(viewedIds)
+        : [];
+
       if (currentViews.includes(articleId)) return; // Already viewed
 
       const updatedViews = [...currentViews, articleId];
@@ -151,7 +156,12 @@ export function ArticleView() {
 
     try {
       getCloudData("likedArticles", async (likedIds: string[] | null) => {
-        const currentLikes = likedIds || [];
+        const currentLikes: string[] = Array.isArray(likedIds)
+          ? likedIds
+          : likedIds
+          ? Object.keys(likedIds)
+          : [];
+
         let updatedLikes: string[];
         let newLiked: boolean;
 

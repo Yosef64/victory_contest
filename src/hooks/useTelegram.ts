@@ -195,16 +195,28 @@ export const useTelegram = () => {
   ) => {
     const payload = {
       user_id: user?.id,
-      result: data,
+      result: {
+        type: "article",
+        id: crypto.randomUUID(),
+        title: "something",
+        input_message_content: {
+          message_text: "<strong>Hello</strong>\n\nsomething\n\nRead more",
+          parse_mode: "HTML",
+        },
+        description: "something went wrong",
+        thumb_url: "https://picsum.photos/200/300",
+        url: "https://picsum.photos/200/300",
+      },
       allow_user_chats: true,
       allow_bot_chats: true,
       allow_group_chats: true,
       allow_channel_chats: true,
     };
     const res = await getPreparedMessageIdTelegram(payload);
-    if (res?.result?.id) {
+    const chatId = res?.result?.id;
+    if (chatId) {
       if (webApp) {
-        return webApp.shareMessage(res.result.inline_message_id, (success) => {
+        return webApp.shareMessage(chatId, (success) => {
           console.log("Shared:", success);
         });
       }

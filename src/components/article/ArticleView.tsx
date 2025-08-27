@@ -165,12 +165,13 @@ export function ArticleView() {
       const text = `${article.title}\n\n${article.excerpt}\n\nRead more...`;
       const url = window.location.href;
       const shareText = `${text}\n${url}`;
+      const message = {
+        type: "photo" as "photo" | "text" | "video", // "text" | "photo" | "video"
+        media: "https://picsum.photos/400/300",
+        text: "Check out this article!",
+      };
 
-      shareMessage({
-        type: "photo",
-        media: article.thumbnail,
-        text: shareText,
-      });
+      shareMessage(message);
     }
   };
 

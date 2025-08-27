@@ -35,11 +35,6 @@ import { useTelegram } from "../../hooks/useTelegram";
 import { Input } from "../ui/input";
 import ErrorMessage from "../ErrorComponent";
 import { InlineQueryResultArticle } from "../../types";
-const statusStyles = {
-  published: "bg-green-100 text-green-700 border-green-200",
-  draft: "bg-amber-100 text-amber-700 border-amber-200",
-  archived: "bg-gray-100 text-gray-700 border-gray-200",
-};
 
 function formatNumber(num: number): string {
   if (num < 1000) return num.toString();
@@ -343,9 +338,7 @@ export function ArticleView() {
         {/* Status and Meta */}
         <div className="flex items-center justify-between mb-4">
           <div
-            className={`px-3 py-1 rounded-full bg-blue-100 text-sm font-medium border ${
-              statusStyles[article?.status!]
-            }`}
+            className={`px-3 py-1 rounded-full bg-blue-100 text-sm font-medium border`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 bg">
@@ -353,7 +346,7 @@ export function ArticleView() {
                   onClick={handleArticleShare}
                   className="p-2 text-gray-400 hover:text-gray-600"
                 >
-                  <ShareIconSvg className="w-6 h-6 text-blue-700" />
+                  <ShareIconSvg className="w-6 h-6 text-black" />
                 </button>
                 <button
                   className={`p-2 hover:text-blue-600 focus:outline-none ${

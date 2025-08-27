@@ -14,6 +14,7 @@ import { AvatarFallback, Avatar, AvatarImage } from "../ui/avatar";
 import {
   getArticleById,
   getArticleComments,
+  getPreparedMessageIdTelegram,
   postComment,
   toggleStat,
 } from "../../services/articleService";
@@ -71,7 +72,7 @@ export function ArticleView() {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
-  const { user, shareMessage } = useTelegram();
+  const { user, PrepareAndShareMessageShare } = useTelegram();
 
   const handleAddComment = async () => {
     if (!newComment.trim() || newComment.trim().length < 4) return;
@@ -160,18 +161,31 @@ export function ArticleView() {
     }
   };
 
-  const handleArticleShare = () => {
+  const handleArticleShare = async () => {
     if (article?.title && article?.excerpt) {
-      const text = `${article.title}\n\n${article.excerpt}\n\nRead more...`;
-      const url = window.location.href;
-      const shareText = `${text}\n${url}`;
-      const message = {
-        type: "photo" as "photo" | "text" | "video", // "text" | "photo" | "video"
-        media: "https://picsum.photos/400/300",
-        text: "Check out this article!",
-      };
+      const uniqueId =
+        Date.now().toString() + Math.random().toString(36).substring(2, 9);
 
-      shareMessage(message);
+      const payload = {
+        type: "article" as const,
+        id: uniqueId,
+        title: article.title,
+        input_message_content: {
+          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more at ${window.location.href}`,
+          parse_mode: "HTML" as const,
+        },
+        description: article.excerpt,
+        thumb_url: article.thumbnail || "https://picsum.photos/200/300",
+        url: window.location.href,
+      };
+      try {
+        await PrepareAndShareMessageShare(payload);
+      } catch (error) {
+        toast.error(error instanceof Error, {
+          style: { backgroundColor: "red", color: "white" },
+        });
+        return;
+      }
     }
   };
 
@@ -212,7 +226,6 @@ export function ArticleView() {
     return () => window.removeEventListener("scroll", checkScrollTop);
   }, []);
 
-  // 3. THE SCROLL FUNCTION
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,

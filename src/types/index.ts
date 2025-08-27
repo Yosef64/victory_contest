@@ -17,6 +17,7 @@ export interface TelegramWebApp {
     start_param?: string;
     auth_date?: number;
     hash?: string;
+    query_id?: string;
   };
   version: string;
   platform: string;
@@ -94,14 +95,29 @@ export interface TelegramWebApp {
   disableClosingConfirmation: () => void;
   switchInlineQuery: (query: string, chatTypes?: string[]) => void;
   readTextFromClipboard: () => string | null;
-  shareMessage?: (message: PreparedInlineMessage) => Promise<void>;
+  shareMessage: (
+    msg_id: string,
+    callback: (success: boolean) => void
+  ) => Promise<void>;
   downloadFile?: (fileUrl: string, fileName?: string) => void;
 }
-export interface PreparedInlineMessage {
-  type: "text" | "photo" | "video";
-  media?: string; // URL if photo/video
-  text?: string;
+export interface InlineQueryResultArticle {
+  type: "article"; // always "article"
+  id: string; // unique identifier for this result
+  title: string;
+  input_message_content: InputMessageContent;
+  url?: string;
+  description?: string;
+  thumbnail_url?: string;
+  thumbnail_width?: number;
+  thumbnail_height?: number;
 }
+
+export interface InputMessageContent {
+  message_text: string;
+  parse_mode?: "Markdown" | "MarkdownV2" | "HTML"; // optional, safer with enum-like values
+}
+
 export interface Question {
   id: string;
   question_text: string;

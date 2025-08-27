@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Article, Comment } from "../types/article";
 import api from "./api";
 
@@ -27,5 +28,12 @@ export async function getArticleComments(articleId: string) {
 }
 export async function postComment(articleId: string, comment: Comment) {
   const res = await api.post(`/articles/${articleId}/comments`, comment);
+  return res.data;
+}
+export async function getPreparedMessageIdTelegram(data: any) {
+  const res = await axios.post(
+    `https://api.telegram.org/bot8328194489:AAF1Ul46yoR0XXkDF0bZeBXw37mol_vO68U/answerWebAppQuery`,
+    data
+  );
   return res.data;
 }

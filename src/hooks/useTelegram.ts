@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { TelegramWebApp, TelegramUser, PreparedInlineMessage } from "../types";
+import {
+  TelegramWebApp,
+  TelegramUser,
+  InlineQueryResultArticle,
+} from "../types";
+import { getPreparedMessageIdTelegram } from "../services/articleService";
 
 export const useTelegram = () => {
   const [webApp, setWebApp] = useState<TelegramWebApp | null>(null);
@@ -8,6 +13,7 @@ export const useTelegram = () => {
 
   useEffect(() => {
     const app = window.Telegram?.WebApp;
+    console.log("Telegram WebApp:", app);
     if (app) {
       app.ready();
       app.setHeaderColor("#8b5cf6");
@@ -21,18 +27,6 @@ export const useTelegram = () => {
   const sendData = (data: any) => {
     if (webApp) {
       webApp.sendData(JSON.stringify(data));
-    }
-  };
-  const shareMessage = async (message: PreparedInlineMessage) => {
-    if (!webApp?.shareMessage) {
-      console.warn("shareMessage is not available on this client");
-      return;
-    }
-    try {
-      await webApp.shareMessage(message);
-      console.log("Message shared successfully!");
-    } catch (err) {
-      console.error("Failed to share message:", err);
     }
   };
 
@@ -196,6 +190,28 @@ export const useTelegram = () => {
     }
     return null;
   };
+  const PrepareAndShareMessageShare = async (
+    data: InlineQueryResultArticle
+  ) => {
+    const payload = {
+      user_id: user?.id,
+      result: data,
+      allow_user_chats: true,
+      allow_bot_chats: true,
+      allow_group_chats: true,
+      allow_channel_chats: true,
+    };
+    const res = await getPreparedMessageIdTelegram(payload);
+    if (res?.result?.inline_message_id) {
+      if (webApp) {
+        return webApp.shareMessage(res.result.inline_message_id, (success) => {
+          console.log("Shared:", success);
+        });
+      }
+    }
+    return;
+  };
+
   return {
     webApp,
     user,
@@ -220,7 +236,7 @@ export const useTelegram = () => {
     disableClosingConfirmation,
     switchInlineQuery,
     readTextFromClipboard,
-    shareMessage,
     downloadFile,
+    PrepareAndShareMessageShare,
   };
 };

@@ -169,8 +169,14 @@ export function ArticleView() {
         id: article.id, // 1-64 chars
         title: article.title,
         input_message_content: {
-          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\n<a href="https://victory-contest.com/article/${article.id}">Read more</a>\n https://t.me/victory_contest_bot/victory`,
+          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\n<a href="https://victory-contest.com/article/${article.id}">Read more</a>\n `,
           parse_mode: "HTML",
+          link_preview_options: {
+            is_disabled: false,
+            url: "https://t.me/victory_contest_bot/victory",
+            prefer_large_media: true,
+            prefer_small_media: false,
+          },
         },
         description: article.excerpt,
         thumbnail_url: article.thumbnail || "https://picsum.photos/200/300",

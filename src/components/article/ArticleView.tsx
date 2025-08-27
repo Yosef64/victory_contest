@@ -288,20 +288,15 @@ export function ArticleView() {
   }, [articleId]);
   useEffect(() => {
     if (!articleId) return;
-    const changeLikedState = async () => {
-      getCloudData(
-        "likedArticles",
-        (likedArticles: Record<string, boolean>) => {
-          if (likedArticles[articleId]) {
-            setLiked(true);
-          } else {
-            setLiked(true);
-          }
-        }
-      );
-    };
-    changeLikedState();
-  }, [articleId]);
+
+    getCloudData(
+      "likedArticles",
+      (likedArticles: Record<string, boolean> | null) => {
+        const isLiked = !!(likedArticles && likedArticles[articleId]);
+        setLiked(isLiked);
+      }
+    );
+  }, [articleId, getCloudData]);
 
   if (loading) {
     return (

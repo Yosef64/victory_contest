@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import ChatIcon from "../../assets/bubble-chat-stroke-rounded.svg?react";
 import HeartIcon from "../../assets/heart-check-stroke-rounded.svg?react";
 import BookMarkIcon from "../../assets/bookmark-check-02-stroke-rounded.svg?react";
-import ShareIconSvg from "../../assets/job-share-stroke-rounded.svg?react";
+import ShareIconSvg from "../../assets/share-01-stroke-rounded.svg?react";
 import { Separator } from "../ui/separator";
 import {
   Drawer,

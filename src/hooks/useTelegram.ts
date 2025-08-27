@@ -202,7 +202,7 @@ export const useTelegram = () => {
       allow_channel_chats: true,
     };
     const res = await getPreparedMessageIdTelegram(payload);
-    if (res?.result?.inline_message_id) {
+    if (res?.result?.id) {
       if (webApp) {
         return webApp.shareMessage(res.result.inline_message_id, (success) => {
           console.log("Shared:", success);

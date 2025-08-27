@@ -164,19 +164,17 @@ export function ArticleView() {
 
   const handleArticleShare = async () => {
     if (article?.title && article?.excerpt) {
-      const uniqueId =
-        Date.now().toString() + Math.random().toString(36).substring(2, 9);
-
       const payload: InlineQueryResultArticle = {
         type: "article" as const,
-        id: uniqueId,
+        id: article.id,
         title: article.title,
         input_message_content: {
-          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more at ${window.location.href}`,
+          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\nRead more at `,
           parse_mode: "HTML" as const,
         },
         description: article.excerpt,
-        thumbnail_url: article.thumbnail || "https://picsum.photos/200/300",
+        thumbnail_url:
+          "https://firebasestorage.googleapis.com/v0/b/rent-ffb49.appspot.com/o/portfolio_projects%2FScreenshot%20from%202025-06-30%2009-18-38.png?alt=media&token=874ac485-8dbd-4ecb-9e2a-bd9ed3262155",
         thumbnail_height: 100,
         url: window.location.href,
       };

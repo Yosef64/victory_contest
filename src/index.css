@@ -41,7 +41,7 @@
       font-size: revert; /* restores browser default size */
     }
     .article blockquote {
-      @apply border-l-4 border-gray-300 pl-4 italic text-gray-600;
+      @apply border-l-4 border-blue-300 pl-4 italic text-blue-600 bg-blue-50 dark:bg-gray-800;
     }
   }
   .article img {

@@ -40,6 +40,9 @@
       font-weight: revert; /* restores browser default (bold) */
       font-size: revert; /* restores browser default size */
     }
+    .article blockquote {
+      @apply border-l-4 border-gray-300 pl-4 italic text-gray-600;
+    }
   }
   .article img {
     @apply mx-auto;

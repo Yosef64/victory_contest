@@ -41,7 +41,14 @@
       font-size: revert; /* restores browser default size */
     }
     .article blockquote {
-      @apply border-l-4 border-blue-300 pl-4 italic text-blue-600 bg-blue-50 dark:bg-gray-800 flex items-center rounded-lg;
+      @apply border-l-4 border-blue-400 pl-4 py-3 my-4 italic text-blue-600 
+         bg-blue-50 dark:bg-blue-950 dark:text-blue-300 
+         flex items-start rounded-lg text-lg leading-relaxed;
+    }
+
+    .article blockquote::before {
+      content: "“";
+      @apply text-3xl text-blue-400 mr-2;
     }
   }
   .article img {

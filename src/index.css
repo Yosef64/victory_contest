@@ -41,9 +41,9 @@
       font-size: revert; /* restores browser default size */
     }
     .article blockquote {
-      @apply border-l-4 border-blue-400 pl-2 py-3 mb-4 italic text-blue-600 
+      @apply border-l-4 border-blue-400 pl-2 py-3 mb-4 text-blue-600 
          bg-blue-50 dark:bg-blue-950 dark:text-blue-300 
-         flex items-start font-bold font-sans rounded-lg text-sm leading-relaxed;
+         flex items-start font-bold font-nunito rounded-lg text-sm leading-relaxed;
     }
 
     .article blockquote::before {

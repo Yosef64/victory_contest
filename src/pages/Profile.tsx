@@ -27,10 +27,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
-import {
-  getUserStat,
-  updateUserInfo,
-} from "../services/studentServices";
+import { getUserStat, updateUserInfo } from "../services/studentServices";
 import { toast } from "sonner";
 // import homeIcon from "../assets/contest.svg?react";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
@@ -211,7 +208,9 @@ const Profile = () => {
       "imgurl",
       "age",
     ];
-    return fieldsToCompare.some((key) => (editedProfile as any)[key] !== (user as any)[key]);
+    return fieldsToCompare.some(
+      (key) => (editedProfile as any)[key] !== (user as any)[key]
+    );
   })();
 
   const handleSave = async () => {
@@ -351,10 +350,13 @@ const Profile = () => {
                   <SelectValue placeholder="Select a timezone" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="9th Grade">9th Grade</SelectItem>
-                  <SelectItem value="10th Grade">10th Grade</SelectItem>
-                  <SelectItem value="11th Grade">11th Grade</SelectItem>
-                  <SelectItem value="12th Grade">12th Grade</SelectItem>
+                  {Array.from({ length: 4 }, (_, index) => {
+                    return (
+                      <SelectItem value={`${9 + index}`}>{`${
+                        9 + index
+                      }th Grade`}</SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             ) : (
@@ -486,9 +488,7 @@ const Profile = () => {
               Cancel
             </Button>
             <Button
-              disabled={
-                saving || !hasChanges
-              }
+              disabled={saving || !hasChanges}
               onClick={handleSave}
               className="bg-green-50 text-green-600 font-semibold hover:bg-gray-50 disabled:opacity-50"
             >
@@ -612,13 +612,13 @@ const Profile = () => {
                         Earned{" "}
                         {(() => {
                           try {
-                            if (!achievement.earnedDate) return 'Unknown date';
+                            if (!achievement.earnedDate) return "Unknown date";
                             const date = new Date(achievement.earnedDate);
-                            if (isNaN(date.getTime())) return 'Invalid date';
+                            if (isNaN(date.getTime())) return "Invalid date";
                             return date.toLocaleDateString();
                           } catch (error) {
-                            console.warn('Error formatting earnedDate:', error);
-                            return 'Unknown date';
+                            console.warn("Error formatting earnedDate:", error);
+                            return "Unknown date";
                           }
                         })()}
                       </div>

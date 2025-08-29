@@ -1,5 +1,6 @@
 import { Calendar, Clock, Tag } from "lucide-react";
 import { Article } from "../../types/article";
+import NewBadge from "../ui/newBadge";
 
 interface ArticleCardProps {
   article: Article;
@@ -14,12 +15,17 @@ export function ArticleCard({ article, onClick }: ArticleCardProps) {
       day: "numeric",
     }).format(date);
   };
+  const isNew = article.publishedAt
+    ? Date.now() - new Date(article.publishedAt).getTime() <=
+      2 * 24 * 60 * 60 * 1000
+    : false;
 
   return (
     <article
       className="relative first-letter:bg-white border border-gray-200 rounded-lg p-4 mb-3 active:bg-gray-50 transition-colors"
       onClick={onClick}
     >
+      {isNew && <NewBadge className="absolute top-[-10px] left-[-10px]" />}
       <div className="flex gap-3">
         {/* Thumbnail */}
         {article.thumbnail && (

@@ -1,11 +1,12 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BarChart3 } from "lucide-react";
 import HomeIcon from "../assets/home-09-stroke-rounded.svg?react";
 import AwardIcon from "../assets/award-04-stroke-rounded.svg?react";
 import AccountIcon from "../assets/account-setting-02-stroke-rounded (1).svg?react";
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     {
@@ -46,9 +47,9 @@ const BottomNavigation: React.FC = () => {
           const isActive = location.pathname === item.path;
 
           return (
-            <NavLink
+            <div
               key={item.path}
-              to={item.path}
+              onClick={() => navigate(item.path)}
               className="flex flex-col items-center"
             >
               <div
@@ -81,7 +82,7 @@ const BottomNavigation: React.FC = () => {
               {isActive && (
                 <div className="absolute -top-1 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
               )}
-            </NavLink>
+            </div>
           );
         })}
       </div>

@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Label } from "../components/ui/label";
-import { getAiGeneratedQuestions } from "../services/questionServices";
+import { getAiGeneratedQuestions } from "../services/aiService";
 import { toast } from "sonner";
 import { useTelegram } from "../hooks/useTelegram";
 import { Input } from "../components/ui/input";

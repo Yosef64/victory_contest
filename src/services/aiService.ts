@@ -1,5 +1,11 @@
 import api from "./api";
 
+interface PracticeSettings {
+  subject: string;
+  topic: string;
+  difficulty: "easy" | "medium" | "hard" | "";
+}
+
 export async function getAiRecommendationsFromApi(data: {
   subject: string;
   chapters:
@@ -14,4 +20,9 @@ export async function getAiRecommendationsFromApi(data: {
 }) {
   const res = await api.post("/ai/getRecommendation", data);
   return res.data.recommendation;
+}
+
+export async function getAiGeneratedQuestions(setting: PracticeSettings) {
+  const res = await api.post("/ai/practice", setting);
+  return res.data.message;
 }

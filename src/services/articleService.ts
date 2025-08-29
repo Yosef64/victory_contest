@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Article, Comment } from "../types/article";
-import api from "./api";
+import api, { telegramApi } from "./api";
 
 export async function getArticles(number: string = "") {
   const response = await api.get(`/articles/published?number=${number}`);
@@ -31,9 +31,20 @@ export async function postComment(articleId: string, comment: Comment) {
   return res.data;
 }
 export async function getPreparedMessageIdTelegram(data: any) {
-  const res = await axios.post(
-    `https://api.telegram.org/bot8328194489:AAF1Ul46yoR0XXkDF0bZeBXw37mol_vO68U/savePreparedInlineMessage`,
-    data
-  );
+  const res = await telegramApi.post(`/savePreparedInlineMessage`, data);
   return res.data;
+}
+export async function createInvoice(): Promise<string> {
+  const payloadId = crypto.randomUUID();
+  const final_payloadId = payloadId.replace("-", "");
+  const res = await telegramApi.post("/createInvoiceLink", {
+    title: `Premium Plan`,
+    description: "This the plan for victory learning platform",
+    payload: `subscription_${final_payloadId}`,
+    currency: "XTR", // Stars are in Telegram’s native currency
+    prices: [{ label: "Victory Premium", amount: 50 }],
+    subscription_period: "month", // e.g. "month", "year"
+  });
+
+  return res.data.result as string;
 }

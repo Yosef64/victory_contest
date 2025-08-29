@@ -94,11 +94,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const formatTimestamp = (timestamp: string) => {
     try {
-      if (!timestamp) return 'Unknown time';
+      if (!timestamp) return "Unknown time";
       const now = new Date();
       const notifTime = new Date(timestamp);
-      if (isNaN(notifTime.getTime())) return 'Invalid time';
-      
+      if (isNaN(notifTime.getTime())) return "Invalid time";
+
       const diffInMinutes = Math.floor(
         (now.getTime() - notifTime.getTime()) / (1000 * 60)
       );
@@ -108,8 +108,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
       return `${Math.floor(diffInMinutes / 1440)}d ago`;
     } catch (error) {
-      console.warn('Error formatting timestamp:', error);
-      return 'Unknown time';
+      console.warn("Error formatting timestamp:", error);
+      return "Unknown time";
     }
   };
 
@@ -146,7 +146,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Bell className="w-6 h-6 text-blue-500" />
               <h3 className="text-lg font-bold text-gray-800 dark:text-white">
                 Notifications
               </h3>
@@ -209,7 +208,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       !notification.is_read
                         ? "bg-blue-50/50 dark:bg-blue-900/10"
                         : ""
-                    } ${notification.type === "feedback_question" ? "cursor-pointer" : ""}`}
+                    } ${
+                      notification.type === "feedback_question"
+                        ? "cursor-pointer"
+                        : ""
+                    }`}
                   >
                     <div className="flex items-start space-x-3">
                       <div
@@ -259,13 +262,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             )}
                           </div>
                         </div>
-                        {notification.message && (
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
-                            {notification.message}
-                          </p>
-                        )}
+
                         <div className="flex items-center space-x-2 mt-2">
-                          {!notification.read && (
+                          {!notification.is_read && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -279,7 +278,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteNotificationHandler(notification.id.toString());
+                              deleteNotificationHandler(
+                                notification.id.toString()
+                              );
                             }}
                             className="text-xs text-red-600 dark:text-red-400 hover:underline"
                           >

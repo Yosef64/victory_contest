@@ -143,6 +143,16 @@ export const useTelegram = () => {
       webApp.openLink(url);
     }
   };
+  const openInvoice = (url: string, callback?: (status: string) => void) => {
+    if (webApp && webApp.openInvoice) {
+      webApp.openInvoice(url, (status: string) => {
+        console.log("Invoice status:", status);
+        if (callback) callback(status);
+      });
+    } else {
+      console.warn("openInvoice is not available on this client");
+    }
+  };
 
   const openTelegramLink = (url: string) => {
     if (webApp) {
@@ -314,6 +324,7 @@ export const useTelegram = () => {
     showAlert,
     showConfirm,
     openLink,
+    openInvoice,
     openTelegramLink,
     requestWriteAccess,
     requestContact,

@@ -59,6 +59,8 @@ export function ArticleView() {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
+  const [drawerHeight, setDrawerHeight] = useState(window.innerHeight * 0.65);
+
   const {
     user,
     PrepareAndShareMessageShare,
@@ -69,7 +71,13 @@ export function ArticleView() {
   const navigate = useNavigate();
 
   showBackButton(() => navigate(-1));
-
+  useEffect(() => {
+    const handleResize = () => {
+      setDrawerHeight(window.innerHeight * 0.65);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   // MODIFIED: Bookmark logic now uses a list (array)
   const handleBookmark = () => {
     if (!articleId) return;
@@ -139,7 +147,7 @@ export function ArticleView() {
             prev
               ? {
                   ...prev,
-                  viewCount: String(Number(prev.viewCount) + 1),
+                  viewCount: prev.viewCount + 1,
                 }
               : prev
           );
@@ -187,9 +195,7 @@ export function ArticleView() {
             prev
               ? {
                   ...prev,
-                  likeCount: newLiked
-                    ? String(Number(prev.likeCount) + 1)
-                    : String(Number(prev.likeCount) - 1),
+                  likeCount: newLiked ? prev.likeCount + 1 : prev.likeCount - 1,
                 }
               : prev
           );
@@ -211,7 +217,7 @@ export function ArticleView() {
         id: article.id, // 1-64 chars
         title: article.title,
         input_message_content: {
-          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\n<a href="https://victory-contest.com/article/${article.id}">Read more</a>\n `,
+          message_text: `<strong>${article.title}</strong>\n\n${article.excerpt}\n\n<a href="https://victory-contest.vercel.app/article/${article.id}">Read more</a>\n `,
           parse_mode: "HTML",
           link_preview_options: {
             is_disabled: false,
@@ -290,7 +296,6 @@ export function ArticleView() {
             updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
           };
           setArticle(finalData);
-          handleViewCount();
         } catch (error) {
           toast.error("Failed to fetch article. Please try again later.", {
             style: { backgroundColor: "red", color: "white" },
@@ -306,6 +311,7 @@ export function ArticleView() {
   // MODIFIED: useEffect for checking liked/bookmarked status now uses a list
   useEffect(() => {
     if (!articleId) return;
+    handleViewCount();
 
     getCloudData("likedArticles", (likedIds: string[] | null) => {
       setLiked(!!likedIds?.includes(articleId));
@@ -325,7 +331,6 @@ export function ArticleView() {
     );
   }
 
-  // ... (Return JSX is unchanged)
   return (
     <div className="article relative bg-white font-nunito-sans">
       {/* Article Content */}
@@ -371,12 +376,12 @@ export function ArticleView() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
+        <h1 className="text-2xl font-bold font-nunito text-gray-900 mb-4 leading-tight">
           {article?.title}
         </h1>
 
         {/* Excerpt */}
-        <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+        <p className="text-sm text-gray-600 mb-6 leading-relaxed">
           {article?.excerpt}
         </p>
 
@@ -443,12 +448,12 @@ export function ArticleView() {
               prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
               prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
               prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
-              prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+              a:text-blue-600 prose-a:no-underline hover:prose-a:underline
               prose-strong:text-gray-900 prose-strong:font-semibold
               prose-ul:mb-4 prose-ol:mb-4
               prose-li:text-gray-700 prose-li:mb-1
               prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:text-sm prose-pre:rounded-lg
-              prose-code:bg-gray-100 prose-code:text-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+              code:bg-gray-100 code:text-gray-800 code:px-1 code:py-0.5 code:rounded code:text-sm
               prose-img:rounded-lg prose-img:shadow-sm
               "
           dangerouslySetInnerHTML={{
@@ -509,13 +514,16 @@ export function ArticleView() {
               <ChatIcon className="w-5 h-5" />
               <span className="font-medium">
                 {comments !== null
-                  ? formatNumber(comments.length) ?? "Comments"
+                  ? formatNumber(comments.length ?? 0) ?? "Comments"
                   : "Comments"}
               </span>
             </div>
           </DrawerTrigger>
 
-          <DrawerContent className="max-h-[65%]">
+          <DrawerContent
+            style={{ height: drawerHeight }}
+            className="flex flex-col"
+          >
             <DrawerHeader>
               <DrawerTitle className="text-lg font-semibold">
                 Comments
@@ -526,7 +534,7 @@ export function ArticleView() {
             </DrawerHeader>
 
             {/* Comment List */}
-            <div className="p-4 space-y-6 max-h-[60vh] overflow-y-auto">
+            <div className="flex-1 p-4 space-y-6 overflow-y-auto">
               {commentLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <CommentSkeleton key={i} />

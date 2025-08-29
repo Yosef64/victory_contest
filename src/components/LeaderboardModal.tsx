@@ -83,8 +83,10 @@ export default function LeaderboardModal({
         <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
-                {selectedContest.title}
+              <h3 className="text-sm font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                {selectedContest.title.length > 16
+                  ? selectedContest.title.slice(0, 16) + "..."
+                  : selectedContest.title}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Final Standings

@@ -101,14 +101,22 @@ export default function RegistrationForm() {
       // Use the definitive object returned from your backend!
       setUser(registeredStudent);
 
-      toast("Succesfully registered!", {
+      toast.success("Succesfully registered!", {
         icon: <CheckCircle />,
         style: {
           backgroundColor: "green",
           color: "white",
+          borderRadius: "8px",
+          fontSize: "14px",
+          fontWeight: "500",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+          transition: "all 0.3s ease-in-out",
         },
       });
-      window.location.replace("/");
+      setTimeout(() => {
+        window.location.replace("/");
+      }, 2000);
+
       return;
     } catch (error) {
       message = "Something went wrong";

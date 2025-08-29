@@ -4,6 +4,7 @@ import { LeaderboardEntry } from "../types";
 import { Trophy, Medal, Award, Clock, Target } from "lucide-react";
 import api from "../services/api";
 import { LeaderboardSkeleton } from "../components/LeaderboardSkeleton";
+import NotFound from "../components/not-found";
 
 const avatarColors = [
   "bg-red-500",
@@ -278,77 +279,81 @@ const Leaderboard: React.FC = () => {
               Full Rankings
             </h2>
             <div className="space-y-2">
-              {leaderboard.map((entry) => {
-                const isCurrentUser =
-                  entry.user_id.toString() === user?.id?.toString();
+              {leaderboard.length === 0 ? (
+                <NotFound text="No standing found" />
+              ) : (
+                leaderboard.map((entry) => {
+                  const isCurrentUser =
+                    entry.user_id.toString() === user?.id?.toString();
 
-                return (
-                  <div
-                    key={entry.user_id}
-                    className={`p-4 rounded-xl shadow-sm transition-all duration-200 ${
-                      isCurrentUser
-                        ? "bg-violet-100 dark:bg-violet-500/30 border-2 border-violet-400 dark:border-violet-500 shadow-lg scale-105"
-                        : "bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        {getRankIcon(entry.rank)}
-                        <div>
-                          <div
-                            className={`font-semibold ${
-                              isCurrentUser
-                                ? "text-blue-800 dark:text-blue-300"
-                                : "text-gray-800 dark:text-white"
-                            }`}
-                          >
-                            {entry.user_name}
-                            {isCurrentUser && (
-                              <span className="ml-2 text-sm text-blue-600 dark:text-blue-400">
-                                (You)
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            Rank #{entry.rank}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-center">
-                          <div className="flex items-center text-green-600 dark:text-green-400">
-                            <Target className="w-4 h-4 mr-1" />
-                            <span className="font-bold text-gray-600 dark:text-gray-300">
-                              {Math.round(
-                                (entry.correct_answers /
-                                  entry.total_questions) *
-                                  100
+                  return (
+                    <div
+                      key={entry.user_id}
+                      className={`p-4 rounded-xl shadow-sm transition-all duration-200 ${
+                        isCurrentUser
+                          ? "bg-violet-100 dark:bg-violet-500/30 border-2 border-violet-400 dark:border-violet-500 shadow-lg scale-105"
+                          : "bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          {getRankIcon(entry.rank)}
+                          <div>
+                            <div
+                              className={`font-semibold ${
+                                isCurrentUser
+                                  ? "text-blue-800 dark:text-blue-300"
+                                  : "text-gray-800 dark:text-white"
+                              }`}
+                            >
+                              {entry.user_name}
+                              {isCurrentUser && (
+                                <span className="ml-2 text-sm text-blue-600 dark:text-blue-400">
+                                  (You)
+                                </span>
                               )}
-                              %
-                            </span>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {entry.correct_answers}/{entry.total_questions}
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              Rank #{entry.rank}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="text-center">
-                          <div className="flex items-center text-blue-600 dark:text-blue-400">
-                            <Clock className="w-4 h-4 mr-1" />
-                            <span className="font-bold">
-                              {entry.time_taken}
-                            </span>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-center">
+                            <div className="flex items-center text-green-600 dark:text-green-400">
+                              <Target className="w-4 h-4 mr-1" />
+                              <span className="font-bold text-gray-600 dark:text-gray-300">
+                                {Math.round(
+                                  (entry.correct_answers /
+                                    entry.total_questions) *
+                                    100
+                                )}
+                                %
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {entry.correct_answers}/{entry.total_questions}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Time
+
+                          <div className="text-center">
+                            <div className="flex items-center text-blue-600 dark:text-blue-400">
+                              <Clock className="w-4 h-4 mr-1" />
+                              <span className="font-bold">
+                                {entry.time_taken}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              Time
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
         </main>

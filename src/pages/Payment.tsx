@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { Upload, CheckCircle, Loader2, HelpCircle } from "lucide-react";
+import { Upload, CheckCircle, Loader2, HelpCircle, Send } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
 import { toast } from "sonner";
 import { sendPaymentInfo } from "../services/paymentServices";
@@ -25,11 +25,11 @@ import {
   Drawer,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "../components/ui/drawer";
+import { createInvoice } from "../services/articleService";
 
 interface FormErrors {
   fullName?: string;
@@ -47,7 +47,7 @@ const Payment: FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const { user } = useTelegram();
+  const { user, openInvoice } = useTelegram();
 
   const banks: string[] = [
     "Bank of America",
@@ -151,7 +151,54 @@ const Payment: FC = () => {
     setErrors({});
     setIsSuccess(false);
   };
-
+  const handlePayWithTG = async () => {
+    try {
+      const invoiceLink = await createInvoice();
+      openInvoice(invoiceLink, (status) => {
+        if (status === "paid") {
+          toast.success("Payment is successfull", {
+            style: {
+              backgroundColor: "green",
+              color: "white",
+              border: "1px solid #f59e0b",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "500",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+            },
+          });
+        } else if (status === "cancelled") {
+          toast.warning("Payment is cancelled", {
+            position: "top-center",
+            style: {
+              background: "#fef3c7",
+              color: "#92400e",
+              border: "1px solid #f59e0b",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "500",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+              transition: "all 0.1s ease-in-out",
+            },
+          });
+        } else {
+          toast.error("Payment is faild", {
+            position: "top-center",
+            style: {
+              background: "red",
+              color: "white",
+              border: "1px solid #f59e0b",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "500",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+              transition: "all 0.1s ease-in-out",
+            },
+          });
+        }
+      });
+    } catch (error) {}
+  };
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4 font-sans">
@@ -173,8 +220,8 @@ const Payment: FC = () => {
   }
 
   return (
-    <div className="bg-background">
-      <Card className="w-full max-w-lg">
+    <div className="bg-background h-full flex items-center justify-center">
+      <Card className="w-full max-w-lg h-full shadow-none bg-transparent border-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <span>Secure Payment </span>
@@ -324,8 +371,15 @@ const Payment: FC = () => {
             </Button>
           </form>
         </CardContent>
+        <span className="text-center">or</span>
         <CardFooter className="flex-col items-start text-xs text-muted-foreground">
-          <p>Your payment information is encrypted and transmitted securely.</p>
+          <div
+            onClick={handlePayWithTG}
+            className=" gap-2 rounded-lg bg-[#24A1DE] flex items-center text-white p-3 mx-auto text-sm"
+          >
+            <Send className="text-white w-6 h-6" />
+            Pay with Telegram
+          </div>
         </CardFooter>
       </Card>
     </div>

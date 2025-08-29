@@ -19,8 +19,9 @@ export interface Article {
   tags: string[];
   thumbnail?: string;
   readTime: number;
-  likeCount: string;
-  viewCount: string;
+  likeCount: number;
+  viewCount: number;
+  commentCount: number;
 }
 export interface Comment {
   id: string;

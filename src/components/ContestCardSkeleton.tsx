@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 export function ContestCardSkeleton() {
   return (
     // Manually add dark mode classes for background and border
-    <Card className="overflow-hidden border bg-white dark:border-zinc-800 dark:bg-gray-800">
+    <Card className="overflow-hidden border border-gray-200 rounded-lg p-4 mb-3 animate-pulse dark:border-zinc-800 dark:bg-gray-800">
       <CardHeader>
         <div className="flex items-center justify-between">
           {/* Manually set light and dark colors for skeletons */}

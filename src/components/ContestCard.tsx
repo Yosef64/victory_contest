@@ -15,7 +15,6 @@ import { useTelegram } from "../hooks/useTelegram";
 import { isUserRegistered } from "../services/contestApi";
 import { useContestTimer, ContestStatus } from "../hooks/useContestTimer";
 import LeaderboardModal from "./LeaderboardModal";
-import { title } from "process";
 import { formatDistanceStrict } from "date-fns";
 
 const ExpandableDescription = ({ text }: { text: string }) => {
@@ -124,7 +123,7 @@ export default function ContestCard({ contest }: { contest: Contest }) {
   return (
     <div
       key={contest.id}
-      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
+      className="bg-white first-letter:bg-white border border-gray-200 rounded-lg p-4 mb-3 active:bg-gray-50 transition-colors dark:bg-gray-800 shadow-sm dark:border-gray-700 overflow-hidden"
     >
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">

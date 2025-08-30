@@ -76,7 +76,9 @@ const Home: React.FC = () => {
 
   const filteredContest = React.useMemo(() => {
     if (loading) return [];
-    return contests.filter((con) => con.grade === userInfo?.grade);
+    return contests.filter(
+      (con) => con.status == "active" && con.grade === userInfo?.grade
+    );
   }, [loading, contests, userInfo]);
 
   return (

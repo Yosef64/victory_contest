@@ -80,6 +80,11 @@ const Home: React.FC = () => {
     setShowPreviousModal(true);
   };
 
+  const filteredContest = React.useMemo(() => {
+    if (loading) return [];
+    return contests.filter((con) => con.grade === userInfo?.grade);
+  }, [loading, contests, userInfo]);
+
   return (
     <div className="p-4 space-y-6">
       {/* Welcome Section */}
@@ -116,17 +121,12 @@ const Home: React.FC = () => {
           />
         ) : (
           <div className="space-y-4">
-            {contests
-              .filter((con) => con.status === "active")
-              .map((contest) => {
-                if (contest.grade === userInfo?.grade) {
-                  return <ContestCard contest={contest} key={contest.id} />;
-                }
-                return;
-              })}
+            {filteredContest.map((contest) => {
+              return <ContestCard contest={contest} key={contest.id} />;
+            })}
           </div>
         )}
-        {contests.length === 0 && contestError != null && (
+        {filteredContest.length === 0 && contestError != null && (
           <NoContests type="active" />
         )}
       </div>

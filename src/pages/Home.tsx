@@ -112,7 +112,7 @@ const Home: React.FC = () => {
         ) : contestError !== null ? (
           <ErrorMessage
             message="Something Went wrong. please try again!"
-            onRetry={() => setTriggerLoading(true)}
+            onRetry={() => setTriggerLoading((prev) => !prev)}
           />
         ) : (
           <div className="space-y-4">
@@ -126,7 +126,9 @@ const Home: React.FC = () => {
               })}
           </div>
         )}
-        {contests.length === 0 && !loading && <NoContests type="active" />}
+        {contests.length === 0 && contestError != null && (
+          <NoContests type="active" />
+        )}
       </div>
 
       {/* Previous Contests */}
@@ -141,7 +143,7 @@ const Home: React.FC = () => {
         ) : contestError !== null ? (
           <ErrorMessage
             message="Unable to load the previous contests. please try again!"
-            onRetry={() => setTriggerLoading(true)}
+            onRetry={() => setTriggerLoading((prev) => !prev)}
           />
         ) : (
           <div className="space-y-3">

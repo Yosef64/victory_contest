@@ -24,5 +24,5 @@ export async function getAiRecommendationsFromApi(data: {
 
 export async function getAiGeneratedQuestions(setting: PracticeSettings) {
   const res = await api.post("/ai/practice", setting);
-  return res.data.message;
+  return res.data.questions;
 }

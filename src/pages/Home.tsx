@@ -15,14 +15,19 @@ import {
   safeQuestionsLength,
 } from "../lib/utils";
 import { ArticleListForHome } from "../components/article/ArticleList";
+import { useAuth } from "../context/AuthContext";
+import ErrorMessage from "../components/ErrorComponent";
 
 const Home: React.FC = () => {
   const { user, hapticFeedback, hideBackButton } = useTelegram();
+  const { user: userInfo } = useAuth();
   const [contests, setContests] = useState<Contest[]>([]);
   const [previousContests, setPreviousContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPreviousContest, setSelectedPreviousContest] =
     useState<Contest | null>(null);
+  const [triggerLoading, setTriggerLoading] = useState(true);
+  const [contestError, setContestError] = useState<string | null>(null);
 
   const [showPreviousModal, setShowPreviousModal] = useState(false);
 
@@ -61,11 +66,13 @@ const Home: React.FC = () => {
         setPreviousContests(previous);
       } catch (e) {
         // handle error
+        setContestError(e instanceof Error ? e.message : String(e));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchContests();
-  }, []);
+  }, [triggerLoading]);
 
   const handleShowStandings = async (contest: Contest) => {
     hapticFeedback("selection");
@@ -102,11 +109,21 @@ const Home: React.FC = () => {
 
         {loading ? (
           <ContestCardSkeleton />
+        ) : contestError !== null ? (
+          <ErrorMessage
+            message="Something Went wrong. please try again!"
+            onRetry={() => setTriggerLoading(true)}
+          />
         ) : (
           <div className="space-y-4">
-            {contests.map((contest) => {
-              return <ContestCard contest={contest} key={contest.id} />;
-            })}
+            {contests
+              .filter((con) => con.status === "active")
+              .map((contest) => {
+                if (contest.grade === userInfo?.grade) {
+                  return <ContestCard contest={contest} key={contest.id} />;
+                }
+                return;
+              })}
           </div>
         )}
         {contests.length === 0 && !loading && <NoContests type="active" />}
@@ -121,6 +138,11 @@ const Home: React.FC = () => {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
+        ) : contestError !== null ? (
+          <ErrorMessage
+            message="Unable to load the previous contests. please try again!"
+            onRetry={() => setTriggerLoading(true)}
+          />
         ) : (
           <div className="space-y-3">
             {previousContests

@@ -35,6 +35,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchContests = async () => {
       setLoading(true);
+      setContestError(null);
       try {
         const contests = await getAllContests();
         // Split contests into active and previous based on end_time

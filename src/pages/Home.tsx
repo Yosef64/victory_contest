@@ -52,13 +52,6 @@ const Home: React.FC = () => {
               previous.push(contest);
             }
           } catch (error) {
-            console.warn(
-              "Error parsing contest end_time:",
-              contest.id,
-              contest.end_time,
-              error
-            );
-            // Default to previous contests if date parsing fails
             previous.push(contest);
           }
         });
@@ -126,7 +119,7 @@ const Home: React.FC = () => {
             })}
           </div>
         )}
-        {filteredContest.length === 0 && contestError != null && (
+        {filteredContest.length === 0 && contestError == null && (
           <NoContests type="active" />
         )}
       </div>

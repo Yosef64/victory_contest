@@ -128,7 +128,7 @@ export default function ContestCard({ contest }: { contest: Contest }) {
   return (
     <div
       key={contest.id}
-      className="bg-white first-letter:bg-white border border-gray-200 rounded-lg p-4 mb-3 active:bg-gray-50 transition-colors dark:bg-gray-800 shadow-sm dark:border-gray-700 overflow-hidden"
+      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden  first-letter:bg-white active:bg-gray-50 transition-color"
     >
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
@@ -323,7 +323,7 @@ export function PremiumUpgradeButton({
       onClick={onClick}
       aria-disabled={isDisabled}
       className={[
-        "group inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2",
+        "group flex items-center justify-center gap-2 rounded-2xl px-4 py-2",
         "text-sm font-semibold shadow-sm transition-all",
         "bg-gradient-to-r from-amber-500 to-amber-600 text-white",
         "hover:from-amber-600 hover:to-amber-700",

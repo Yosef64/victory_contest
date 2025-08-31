@@ -102,6 +102,7 @@ export default function LeaderboardModal({
                   locked
                   label="Editorial"
                   loading={modalLoading}
+                  className=""
                 />
               ) : (
                 <button

@@ -188,7 +188,7 @@ export default function ContestCard({ contest }: { contest: Contest }) {
           </div>
         </div>
 
-        <div className="flex flex-col items-center">
+        <div className="">
           {contest.type === "premium" && !userInfo?.is_premium ? (
             <PremiumUpgradeButton
               onClick={() => navigate("/payment")}
@@ -196,97 +196,100 @@ export default function ContestCard({ contest }: { contest: Contest }) {
               priceHint="200/mo"
             />
           ) : (
-            <Link
-              state={{
-                contestData: {
-                  id: contest.id,
-                  title: contest.title,
-                  startTime: contest.start_time,
-                  questions: contest.questions.length,
-                  duration: formatDistanceStrict(
-                    new Date(contest.end_time),
-                    new Date(contest.start_time),
-                    { unit: "minute" }
-                  ),
+            <div className="flex flex-col items-center">
+              <Link
+                state={{
+                  contestData: {
+                    id: contest.id,
+                    title: contest.title,
+                    startTime: contest.start_time,
+                    questions: contest.questions.length,
+                    duration: formatDistanceStrict(
+                      new Date(contest.end_time),
+                      new Date(contest.start_time),
+                      { unit: "minute" }
+                    ),
 
-                  prizes: contest.prize,
-                },
-              }}
-              to={
-                canJoin
-                  ? `/contest?con=${contest.id}`
-                  : canRegister
-                  ? `/registration?con=${contest.id}`
-                  : "#"
-              }
-              onClick={handleContestClick}
-              className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
-                canJoin
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
-                  : isPendingStart
-                  ? "bg-green-500 text-white cursor-not-allowed"
-                  : canRegister
-                  ? "bg-blue-500 text-white"
-                  : isEnded
-                  ? "bg-gray-400 text-white cursor-not-allowed"
-                  : "bg-blue-500 text-white" // Fallback for loading state
-              }`}
-              aria-disabled={isPendingStart || isEnded || checkingRegistration}
-              tabIndex={
-                isPendingStart || isEnded || checkingRegistration
-                  ? -1
-                  : undefined
-              }
-              style={{
-                pointerEvents:
+                    prizes: contest.prize,
+                  },
+                }}
+                to={
+                  canJoin
+                    ? `/contest?con=${contest.id}`
+                    : canRegister
+                    ? `/registration?con=${contest.id}`
+                    : "#"
+                }
+                onClick={handleContestClick}
+                className={`w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
+                  canJoin
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                    : isPendingStart
+                    ? "bg-green-500 text-white cursor-not-allowed"
+                    : canRegister
+                    ? "bg-blue-500 text-white"
+                    : isEnded
+                    ? "bg-gray-400 text-white cursor-not-allowed"
+                    : "bg-blue-500 text-white" // Fallback for loading state
+                }`}
+                aria-disabled={
                   isPendingStart || isEnded || checkingRegistration
-                    ? "none"
-                    : "auto",
-              }}
-            >
-              {checkingRegistration ? (
-                <>
-                  <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
-                  Checking...
-                </>
-              ) : canJoin ? (
-                <>
-                  <PlayCircle className="w-5 h-5 mr-2" />
-                  Join Contest Now
-                </>
-              ) : isPendingStart ? (
-                <>
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Registered
-                </>
-              ) : canRegister ? (
-                <>
-                  <Play className="w-5 h-5 mr-2" />
-                  Register Now
-                </>
-              ) : isEnded ? (
-                <>
-                  <XCircle className="w-5 h-5 mr-2" />
-                  Contest Ended
-                </>
-              ) : (
-                "Register"
+                }
+                tabIndex={
+                  isPendingStart || isEnded || checkingRegistration
+                    ? -1
+                    : undefined
+                }
+                style={{
+                  pointerEvents:
+                    isPendingStart || isEnded || checkingRegistration
+                      ? "none"
+                      : "auto",
+                }}
+              >
+                {checkingRegistration ? (
+                  <>
+                    <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
+                    Checking...
+                  </>
+                ) : canJoin ? (
+                  <>
+                    <PlayCircle className="w-5 h-5 mr-2" />
+                    Join Contest Now
+                  </>
+                ) : isPendingStart ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Registered
+                  </>
+                ) : canRegister ? (
+                  <>
+                    <Play className="w-5 h-5 mr-2" />
+                    Register Now
+                  </>
+                ) : isEnded ? (
+                  <>
+                    <XCircle className="w-5 h-5 mr-2" />
+                    Contest Ended
+                  </>
+                ) : (
+                  "Register"
+                )}
+                {!checkingRegistration && (
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                )}
+              </Link>
+              {status === "ACTIVE" && (
+                <Link
+                  to="#"
+                  onClick={handleCurrentStandingsClick}
+                  className="mt-4 flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  View Current Standings
+                </Link>
               )}
-              {!checkingRegistration && (
-                <ChevronRight className="w-4 h-4 ml-2" />
-              )}
-            </Link>
-          )}
-
-          {status === "ACTIVE" && (
-            <Link
-              to="#"
-              onClick={handleCurrentStandingsClick}
-              className="mt-4 flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              View Current Standings
-            </Link>
+            </div>
           )}
         </div>
         {showModal && (

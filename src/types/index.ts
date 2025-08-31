@@ -290,6 +290,7 @@ export interface PaymentRequest {
   createdAt: string; // ISO String
   updatedAt: string;
   expirationDate?: string;
+  medium?: string;
 }
 export interface Achievement {
   id: string;

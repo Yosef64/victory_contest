@@ -30,6 +30,8 @@ import {
   DrawerTrigger,
 } from "../components/ui/drawer";
 import { createInvoice } from "../services/articleService";
+import { PaymentRequest } from "../types";
+import { useNavigate } from "react-router-dom";
 
 interface FormErrors {
   fullName?: string;
@@ -47,7 +49,8 @@ const Payment: FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const { user, openInvoice } = useTelegram();
+  const { user, openInvoice, showBackButton } = useTelegram();
+  const navigate = useNavigate();
 
   const banks: string[] = [
     "Bank of America",
@@ -119,6 +122,8 @@ const Payment: FC = () => {
           color: "#155724",
         },
       });
+      setIsSuccess(true);
+      resetForm();
     } catch (err: any) {
       const msg =
         err?.response?.data?.error ||
@@ -154,8 +159,21 @@ const Payment: FC = () => {
   const handlePayWithTG = async () => {
     try {
       const invoiceLink = await createInvoice();
-      openInvoice(invoiceLink, (status) => {
+      openInvoice(invoiceLink, async (status) => {
         if (status === "paid") {
+          const payment: PaymentRequest = {
+            userId: user?.id.toString() ?? "",
+            id: "",
+            fullName: user?.first_name ?? "" + user?.last_name ?? "",
+            bankName: "Telegram Star",
+            billScreenshotUrl: "",
+            status: "Approved",
+            createdAt: "",
+            updatedAt: "",
+            medium: "telegram_payment",
+          };
+          await sendPaymentInfo(payment);
+          setIsSuccess(true);
           toast.success("Payment is successfull", {
             style: {
               backgroundColor: "green",
@@ -167,6 +185,7 @@ const Payment: FC = () => {
               boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
             },
           });
+          resetForm();
         } else if (status === "cancelled") {
           toast.warning("Payment is cancelled", {
             position: "top-center",
@@ -200,6 +219,7 @@ const Payment: FC = () => {
     } catch (error) {}
   };
   if (isSuccess) {
+    showBackButton(() => navigate(-1));
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4 font-sans">
         <Card className="w-full max-w-lg text-center">
@@ -210,9 +230,6 @@ const Payment: FC = () => {
               Thank you, {fullName}. Your payment information has been received
               and is being processed.
             </p>
-            <Button onClick={resetForm} className="w-full">
-              Make Another Payment
-            </Button>
           </CardContent>
         </Card>
       </div>

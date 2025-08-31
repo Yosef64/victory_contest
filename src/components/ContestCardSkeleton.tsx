@@ -16,7 +16,6 @@ export function ContestCardSkeleton() {
           <Skeleton className="h-4 w-4/5 rounded-md bg-gray-200 dark:bg-gray-700" />
         </div>
       </CardHeader>
-
       <CardContent>
         <Skeleton className="h-[76px] w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
       </CardContent>

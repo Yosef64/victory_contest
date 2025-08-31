@@ -33,7 +33,6 @@ import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -58,7 +57,7 @@ const formSchema = z.object({
     .or(z.literal("")),
   isSuspended: z.boolean().default(false),
   phoneNumber: z
-    .string()
+    .string({ error: "Please write your photo number" })
     .max(13, { message: "The phone number must not exceed 10" })
     .min(10, { message: "The phone number must be 10 or 12" }),
 });
@@ -67,7 +66,6 @@ export default function RegistrationForm() {
   const { user } = useTelegram();
   const { setUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
@@ -134,7 +132,7 @@ export default function RegistrationForm() {
 
   return (
     <div className="sm:p-6 lg:p-8">
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none bg-transparent">
         <CardHeader>
           <CardTitle className="text-2xl font-bold tracking-tight">
             Student Registration

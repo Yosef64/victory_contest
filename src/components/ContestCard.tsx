@@ -190,7 +190,11 @@ export default function ContestCard({ contest }: { contest: Contest }) {
 
         <div className="flex flex-col items-center">
           {contest.type === "premium" && !userInfo?.is_premium ? (
-            <PremiumUpgradeButton onClick={() => navigate("/payment")} />
+            <PremiumUpgradeButton
+              onClick={() => navigate("/payment")}
+              fullWidth={true}
+              priceHint="200/mo"
+            />
           ) : (
             <Link
               state={{
@@ -336,11 +340,8 @@ export function PremiumUpgradeButton({
       disabled={isDisabled}
     >
       {/* Left icon stack */}
-      <span className="relative flex h-5 w-5 items-center justify-center">
-        <Lock
-          className="h-4 w-4 translate-x-2 translate-y-2 opacity-90 drop-shadow"
-          aria-hidden="true"
-        />
+      <span className="">
+        <Lock className="h-4 w-4 opacity-90 drop-shadow" aria-hidden="true" />
       </span>
 
       <span>{loading ? "Processing…" : label}</span>

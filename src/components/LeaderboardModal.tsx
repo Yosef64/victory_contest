@@ -6,6 +6,8 @@ import { useTelegram } from "../hooks/useTelegram";
 import { getLeaderboardByContest } from "../services/contestApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
+import { PremiumUpgradeButton } from "./ContestCard";
 
 export default function LeaderboardModal({
   selectedContest,
@@ -20,6 +22,7 @@ export default function LeaderboardModal({
   const [previousContestLeaderboard, setPreviousContestLeaderboard] =
     React.useState<LeaderboardEntry[]>([]);
   const { user } = useTelegram();
+  const { user: userInfo } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,14 +96,23 @@ export default function LeaderboardModal({
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {/* --- REFINED BUTTON: More subtle, professional style --- */}
-              <button
-                onClick={handleEditorialClick}
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700/70 px-3 py-2 rounded-lg transition-colors"
-              >
-                <BookOpenIcon className="h-5 w-5" />
-                Editorial
-              </button>
+              {selectedContest.type === "premium" && !userInfo?.is_premium ? (
+                <PremiumUpgradeButton
+                  onClick={() => navigate("payment")}
+                  locked
+                  label="Editorial"
+                  loading={modalLoading}
+                />
+              ) : (
+                <button
+                  onClick={handleEditorialClick}
+                  className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700/70 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <BookOpenIcon className="h-5 w-5" />
+                  Editorial
+                </button>
+              )}
+
               <button
                 onClick={() => setShowModal(false)}
                 className="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"

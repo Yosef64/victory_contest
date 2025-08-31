@@ -282,7 +282,6 @@ export function ArticleView() {
   };
 
   useEffect(() => {
-    // ... (This useEffect for fetching the article is unchanged)
     if (articleId) {
       const fetchArticle = async () => {
         try {
@@ -308,7 +307,6 @@ export function ArticleView() {
     }
   }, [articleId]);
 
-  // MODIFIED: useEffect for checking liked/bookmarked status now uses a list
   useEffect(() => {
     if (!articleId) return;
     handleViewCount();

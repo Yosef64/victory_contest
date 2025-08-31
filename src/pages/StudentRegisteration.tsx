@@ -31,7 +31,6 @@ import { toast } from "sonner";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { studentRegister } from "../services/studentServices";
 import { useTelegram } from "../hooks/useTelegram";
-import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 
 const formSchema = z.object({
@@ -64,7 +63,6 @@ const formSchema = z.object({
 
 export default function RegistrationForm() {
   const { user } = useTelegram();
-  const { setUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
@@ -88,16 +86,13 @@ export default function RegistrationForm() {
     let success;
     try {
       setSubmitting(true);
-      const registeredStudent = await studentRegister({
+      await studentRegister({
         ...values,
         age: values.age.toString(),
         imgurl: user?.photo_url,
         telegram_id: user?.id.toString(),
         id: user?.id.toString(),
       });
-
-      // Use the definitive object returned from your backend!
-      setUser(registeredStudent);
 
       toast.success("Succesfully registered!", {
         icon: <CheckCircle />,
@@ -108,12 +103,11 @@ export default function RegistrationForm() {
           fontSize: "14px",
           fontWeight: "500",
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-          transition: "all 0.3s ease-in-out",
         },
       });
       setTimeout(() => {
         window.location.replace("/");
-      }, 2000);
+      }, 4000);
 
       return;
     } catch (error) {

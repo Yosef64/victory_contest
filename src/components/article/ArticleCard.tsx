@@ -17,7 +17,7 @@ export function ArticleCard({ article, onClick }: ArticleCardProps) {
   };
   const isNew = article.publishedAt
     ? Date.now() - new Date(article.publishedAt).getTime() <=
-      2 * 24 * 60 * 60 * 1000
+      1 * 24 * 60 * 60 * 1000
     : false;
 
   return (

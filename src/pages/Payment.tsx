@@ -186,6 +186,7 @@ const Payment: FC = () => {
             },
           });
           resetForm();
+          window.location.replace("/");
         } else if (status === "cancelled") {
           toast.warning("Payment is cancelled", {
             position: "top-center",

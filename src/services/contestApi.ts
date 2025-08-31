@@ -2,7 +2,7 @@ import { Contest, LeaderboardEntry } from "../types";
 import api from "./api";
 
 export const getAllContests = async (): Promise<Contest[]> => {
-  const res = await api.get(`/contest/`);
+  const res = await api.get(`/contest/status/active`);
   return res.data.contests;
 };
 

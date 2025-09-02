@@ -221,7 +221,7 @@ export function ArticleView() {
           parse_mode: "HTML",
           link_preview_options: {
             is_disabled: false,
-            url: "https://t.me/victory_contest_bot/victory",
+            url: "https://t.me/VictoryLearningBot/learn",
             prefer_large_media: false,
             prefer_small_media: true,
           },

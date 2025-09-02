@@ -193,10 +193,6 @@ export function FeedbackPage() {
     string | null
   >(null);
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "https://txnfqqn7-8081.euw.devtunnels.ms";
-
-  // Separate useEffect to handle setting default score range when student profile is loaded
   useEffect(() => {
     console.log(
       "useEffect triggered - studentProfile:",
@@ -363,13 +359,11 @@ export function FeedbackPage() {
         }
 
         // Fetch active feedback questions
-        const questionsResponse = await fetch(
-          `${API_BASE_URL}/api/feedback-question/active`
-        );
+        const questionsResponse = await api.get(`/feedback-question/active`);
         console.log("Questions response status:", questionsResponse.status);
 
-        if (questionsResponse.ok) {
-          const questionsData = await questionsResponse.json();
+        if (questionsResponse.status == 200) {
+          const questionsData = await questionsResponse.data;
           console.log("Questions data:", questionsData);
           // Transform snake_case to camelCase for frontend
           const transformedQuestions: FeedbackQuestion[] = (
@@ -389,11 +383,11 @@ export function FeedbackPage() {
         }
 
         // Fetch poll options
-        const pollResponse = await fetch(`${API_BASE_URL}/api/poll-option/`);
+        const pollResponse = await api.get(`/poll-option/`);
         console.log("Poll response status:", pollResponse.status);
 
-        if (pollResponse.ok) {
-          const pollData = await pollResponse.json();
+        if (pollResponse.status === 200) {
+          const pollData = await pollResponse.data;
           console.log("Poll data:", pollData);
           // Transform snake_case to camelCase for frontend
           const transformedPollOptions: PollOption[] = (
@@ -420,7 +414,7 @@ export function FeedbackPage() {
     };
 
     fetchData();
-  }, [API_BASE_URL, user?.id]);
+  }, [user?.id]);
 
   const handleQuestionResponse = (questionId: string, value: string) => {
     setFeedback((prev) => ({
@@ -521,18 +515,9 @@ export function FeedbackPage() {
         language: feedback.contactInfo?.language || "english",
       };
 
-      console.log("Submitting feedback data:", feedbackData);
-      console.log("Contact info being sent:", feedbackData.contact_info);
+      const response = await api.post(`/feedback-response/`, feedbackData);
 
-      const response = await fetch(`${API_BASE_URL}/api/feedback-response/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(feedbackData),
-      });
-
-      if (response.ok) {
+      if (response.status === 200) {
         // Save the score range as the student's permanent default (only if not skipped)
         if (
           feedback.pollResponse &&
@@ -566,7 +551,7 @@ export function FeedbackPage() {
 
         setIsSubmitted(true);
       } else {
-        const errorData = await response.text();
+        const errorData = await response.data.error;
         console.error("Failed to submit feedback:", errorData);
 
         // Check if it's a duplicate submission error

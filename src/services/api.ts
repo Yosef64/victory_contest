@@ -9,6 +9,6 @@ const api = axios.create({
 
 export const telegramApi = axios.create({
   baseURL:
-    "https://api.telegram.org/bot8328194489:AAF1Ul46yoR0XXkDF0bZeBXw37mol_vO68U",
+    "https://api.telegram.org/bot8456650822:AAEUgeko2e9PZvr-W6GlscEXhER5fAGDnrg",
 });
 export default api;

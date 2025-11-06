@@ -317,6 +317,11 @@ const ContestComponent: React.FC = () => {
       });
       hideMainButton();
       hapticFeedback("notification", "success");
+      setTimeout(() => {
+        navigate("/");
+      }, 10000);
+
+      setContestEnded(true);
     } catch (e) {
       // Optionally handle error
       toast.error("Submission failed!", {
@@ -330,12 +335,7 @@ const ContestComponent: React.FC = () => {
       });
     } finally {
       setSubmitting(false);
-      setContestEnded(true);
     }
-
-    setTimeout(() => {
-      navigate("/");
-    }, 10000);
   };
 
   const endContest = async () => {

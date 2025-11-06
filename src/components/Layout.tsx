@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useTelegram } from "../hooks/useTelegram";
 import BottomNavigation from "./BottomNavigation";
@@ -11,6 +11,7 @@ import PaymentAlert from "./PaymentAlert";
 const Layout: React.FC = () => {
   const { webApp, enableClosingConfirmation } = useTelegram();
   const location = useLocation();
+  const [hasAlert, setHasAlert] = useState(false);
 
   useEffect(() => {
     if (webApp) {
@@ -99,14 +100,18 @@ const Layout: React.FC = () => {
       <AuthProvider>
         <NotificationProvider>
           <div className="fixed top-0 left-0 right-0 z-50">
-            <PaymentAlert />
+            <PaymentAlert onVisibilityChange={setHasAlert} />
             <TopNavigation />
           </div>
         </NotificationProvider>
 
         {/* <AdTrigger /> */}
 
-        <main className="flex-1 pt-16 pb-20 overflow-y-auto">
+        <main
+          className={`flex-1 pb-20 overflow-y-auto transition-all duration-300 ${
+            hasAlert ? "pt-25" : "pt-16"
+          }`}
+        >
           <Outlet />
           <Toaster />
         </main>

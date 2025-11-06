@@ -18,6 +18,19 @@ import ArticlesPage from "./pages/Articles";
 import { ArticleView } from "./components/article/ArticleView";
 // import ScreenshotProtection from "./components/ScreenProtection";
 
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   const { isLoading } = useTelegram();
   if (isLoading) {
@@ -30,6 +43,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Layout />}>

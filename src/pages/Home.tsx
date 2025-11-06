@@ -3,9 +3,9 @@ import { useTelegram } from "../hooks/useTelegram";
 import { Contest } from "../types";
 import { Calendar } from "lucide-react";
 import { getAllContests } from "../services/contestApi";
-import ContestCard from "../components/ContestCard";
+import ContestCard, { PremiumUpgradeButton } from "../components/ContestCard";
 import NoContests from "../components/NoContest";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ContestCardSkeleton } from "../components/ContestCardSkeleton";
 import WelcomeCarousel from "../components/WelcomeCarousell";
 import LeaderboardModal from "../components/LeaderboardModal";
@@ -30,7 +30,7 @@ const Home: React.FC = () => {
   const [contestError, setContestError] = useState<string | null>(null);
 
   const [showPreviousModal, setShowPreviousModal] = useState(false);
-
+  const navigate = useNavigate();
   hideBackButton();
   useEffect(() => {
     const fetchContests = async () => {
@@ -155,7 +155,7 @@ const Home: React.FC = () => {
                   return bTime - aTime;
                 } catch (error) {
                   console.warn("Error sorting contests by date:", error);
-                  return 0; // Keep original order on error
+                  return 0;
                 }
               })
               .map((contest) => (
@@ -183,29 +183,40 @@ const Home: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    <Link
-                      to={`/contest-editorial?id=${contest.id}&title=${contest.title}`}
-                      className={`flex rounded-full cursor-pointer items-center justify-center w-10 h-10 text-sm hover:text-[#00AB55] hover:bg-[#00AB5514] text-[#00AB55] font-bold`}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                        role="img"
-                        className="h-5 w-5 "
-                        width="1.5em"
-                        height="1.5em"
-                        preserveAspectRatio="xMidYMid meet"
-                        viewBox="0 0 256 256"
+
+                    {contest.type == "premium" && user?.is_premium! ? (
+                      <PremiumUpgradeButton
+                        onClick={() => navigate("payment")}
+                        locked
+                        label="Pro"
+                        loading={false}
+                        className=""
+                      />
+                    ) : (
+                      <Link
+                        to={`/contest-editorial?id=${contest.id}&title=${contest.title}`}
+                        className={`flex rounded-full cursor-pointer items-center justify-center w-10 h-10 text-sm hover:text-[#00AB55] hover:bg-[#00AB5514] text-[#00AB55] font-bold`}
                       >
-                        <g fill="currentColor">
-                          <path
-                            d="M152 128a24 24 0 1 1-24-24a24 24 0 0 1 24 24"
-                            opacity=".2"
-                          ></path>
-                          <path d="M200 152a31.84 31.84 0 0 0-19.53 6.68l-23.11-18A31.65 31.65 0 0 0 160 128c0-.74 0-1.48-.08-2.21l13.23-4.41A32 32 0 1 0 168 104c0 .74 0 1.48.08 2.21l-13.23 4.41A32 32 0 0 0 128 96a32.6 32.6 0 0 0-5.27.44L115.89 81A32 32 0 1 0 96 88a32.6 32.6 0 0 0 5.27-.44l6.84 15.4a31.92 31.92 0 0 0-8.57 39.64l-25.71 22.84a32.06 32.06 0 1 0 10.63 12l25.71-22.84a31.91 31.91 0 0 0 37.36-1.24l23.11 18A31.65 31.65 0 0 0 168 184a32 32 0 1 0 32-32m0-64a16 16 0 1 1-16 16a16 16 0 0 1 16-16M80 56a16 16 0 1 1 16 16a16 16 0 0 1-16-16M56 208a16 16 0 1 1 16-16a16 16 0 0 1-16 16m56-80a16 16 0 1 1 16 16a16 16 0 0 1-16-16m88 72a16 16 0 1 1 16-16a16 16 0 0 1-16 16"></path>
-                        </g>
-                      </svg>
-                    </Link>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                          role="img"
+                          className="h-5 w-5 "
+                          width="1.5em"
+                          height="1.5em"
+                          preserveAspectRatio="xMidYMid meet"
+                          viewBox="0 0 256 256"
+                        >
+                          <g fill="currentColor">
+                            <path
+                              d="M152 128a24 24 0 1 1-24-24a24 24 0 0 1 24 24"
+                              opacity=".2"
+                            ></path>
+                            <path d="M200 152a31.84 31.84 0 0 0-19.53 6.68l-23.11-18A31.65 31.65 0 0 0 160 128c0-.74 0-1.48-.08-2.21l13.23-4.41A32 32 0 1 0 168 104c0 .74 0 1.48.08 2.21l-13.23 4.41A32 32 0 0 0 128 96a32.6 32.6 0 0 0-5.27.44L115.89 81A32 32 0 1 0 96 88a32.6 32.6 0 0 0 5.27-.44l6.84 15.4a31.92 31.92 0 0 0-8.57 39.64l-25.71 22.84a32.06 32.06 0 1 0 10.63 12l25.71-22.84a31.91 31.91 0 0 0 37.36-1.24l23.11 18A31.65 31.65 0 0 0 168 184a32 32 0 1 0 32-32m0-64a16 16 0 1 1-16 16a16 16 0 0 1 16-16M80 56a16 16 0 1 1 16 16a16 16 0 0 1-16-16M56 208a16 16 0 1 1 16-16a16 16 0 0 1-16 16m56-80a16 16 0 1 1 16 16a16 16 0 0 1-16-16m88 72a16 16 0 1 1 16-16a16 16 0 0 1-16 16"></path>
+                          </g>
+                        </svg>
+                      </Link>
+                    )}
                     <Link
                       onClick={() => {
                         handleShowStandings(contest);

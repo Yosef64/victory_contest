@@ -20,9 +20,12 @@ export default function PaymentAlert({
     if (!tgUser?.id) return;
     const fetchUserPayments = async () => {
       try {
-        const payments = await fetchUserPaymentRequests(tgUser?.id.toString());
+        const payments = await fetchUserPaymentRequests(tgUser.id.toString());
         setpayments(payments);
-      } catch (err) {}
+      } catch (err) {
+        console.error("Failed to fetch payments", err);
+        setpayments([]);
+      }
     };
     fetchUserPayments();
   }, [tgUser]);
@@ -64,7 +67,7 @@ export default function PaymentAlert({
       <PopcornIcon className="mt-1 shrink-0 text-yellow-600" />
 
       <AlertTitle className="text-sm leading-relaxed">
-        Your payment is about to expire. Please{" "}
+        Your payment is about to expire. Please
         <span
           onClick={() => navigate("/payment")}
           role="button"
@@ -75,7 +78,7 @@ export default function PaymentAlert({
           className="font-medium underline text-yellow-800 cursor-pointer hover:text-yellow-900"
         >
           subscribe
-        </span>{" "}
+        </span>
         for more.
       </AlertTitle>
 

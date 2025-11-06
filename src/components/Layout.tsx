@@ -100,7 +100,7 @@ const Layout: React.FC = () => {
       <AuthProvider>
         <NotificationProvider>
           <div className="fixed top-0 left-0 right-0 z-50">
-            {/* <PaymentAlert onVisibilityChange={setHasAlert} /> */}
+            <PaymentAlert onVisibilityChange={setHasAlert} />
             <TopNavigation />
           </div>
         </NotificationProvider>

@@ -190,7 +190,7 @@ const Home: React.FC = () => {
                         locked
                         label="Pro"
                         loading={false}
-                        className=""
+                        className="p-2"
                       />
                     ) : (
                       <Link

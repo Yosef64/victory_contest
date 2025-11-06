@@ -184,7 +184,7 @@ const Home: React.FC = () => {
                       </div>
                     </div>
 
-                    {contest.type == "premium" && user?.is_premium! ? (
+                    {contest.type === "premium" && user?.is_premium! ? (
                       <PremiumUpgradeButton
                         onClick={() => navigate("payment")}
                         locked

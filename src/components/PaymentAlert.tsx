@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { PaymentRequest } from "../types";
 import { fetchUserPaymentRequests } from "../services/paymentServices";
 import { useTelegram } from "../hooks/useTelegram";
-import { Alert, AlertTitle } from "../components/ui/alert";
-import { PopcornIcon, X } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
+import { AlertTriangle, PopcornIcon, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function PaymentAlert({
@@ -47,25 +47,19 @@ export default function PaymentAlert({
       // and the second expires in 2 days, it would break and *never* set
       // isAboutToExpire to true.
       // This new logic correctly finds *any* payment about to expire.
-      if (timeDiff <= THREE_DAYS_IN_MS && timeDiff > 0) {
+      if (timeDiff <= THREE_DAYS_IN_MS) {
         // Check if it's expiring *and* not already expired
         isAboutToExpire = true;
         break; // Found one, no need to check others
       }
     }
   }
-  // --- End of logic ---
 
-  // 1. Calculate the *actual* visibility
   const isAlertVisible = isAboutToExpire && isVisible;
-
-  // 2. Use useEffect to report changes to the parent
   useEffect(() => {
-    // This effect runs whenever `isAlertVisible` changes (true -> false or false -> true)
     onVisibilityChange?.(isAlertVisible);
-  }, [isAlertVisible, onVisibilityChange]); // Add dependencies
+  }, [isAlertVisible, onVisibilityChange]);
 
-  // 3. Use the calculated state to decide what to render
   if (!isAlertVisible) {
     return null;
   }
@@ -73,10 +67,18 @@ export default function PaymentAlert({
   // The alert is visible, so return the JSX.
   // We no longer need the onVisibilityChange call here.
   return (
-    <Alert variant="warning">
-      <PopcornIcon />
-      <AlertTitle>
-        Your Payment is going to be expired. Please subscribe for more.{" "}
+    <Alert variant="warning" className="shadow-md">
+      {/* 1. Use a standard, recognizable warning icon */}
+      <AlertTriangle className="h-5 w-5" />
+
+      {/* 2. Use AlertTitle *only* for the main title */}
+      <AlertTitle className="font-semibold">
+        Subscription Expiring Soon
+      </AlertTitle>
+
+      {/* 3. Use AlertDescription for body text and actions */}
+      <AlertDescription>
+        Your payment is about to expire. Please renew to maintain access.
         <span
           onClick={() => navigate("/payment")}
           role="button"
@@ -84,17 +86,20 @@ export default function PaymentAlert({
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") navigate("/payment");
           }}
-          className="underline cursor-pointer"
+          // 4. Style the action to be clear but not overpowering
+          className="ml-2 font-medium text-amber-900 underline underline-offset-2 cursor-pointer hover:text-amber-800"
         >
-          Subscribe
+          Subscribe Now
         </span>
-      </AlertTitle>
+      </AlertDescription>
+
+      {/* 5. A slightly cleaner dismiss button */}
       <button
-        onClick={() => setIsVisible(false)} // This now just sets internal state
-        className="absolute top-2 right-2 rounded-full hover:bg-yellow-200/60"
+        onClick={() => setIsVisible(false)}
+        className="absolute top-2 right-2 p-1.5 rounded-full text-amber-900/70 hover:bg-amber-100/60 hover:text-amber-900"
         aria-label="Dismiss"
       >
-        <X className="h-5 w-5" />
+        <X className="h-4 w-4" />
       </button>
     </Alert>
   );

@@ -28,8 +28,6 @@ export default function PaymentAlert({
     fetchUserPayments();
   }, [tgUser]);
 
-  // --- Start of logic ---
-  // Default to false. Only show if payments are loaded AND about to expire.
   let isAboutToExpire = false;
 
   if (payments != null) {
@@ -41,16 +39,10 @@ export default function PaymentAlert({
         continue;
       }
       const timeDiff = new Date(payment.expirationDate!).getTime() - Date.now();
-
-      // Note: Your original logic here was slightly flawed.
-      // If the first payment expires in 4 days (isAboutToExpire = false)
-      // and the second expires in 2 days, it would break and *never* set
-      // isAboutToExpire to true.
-      // This new logic correctly finds *any* payment about to expire.
-      if (timeDiff <= THREE_DAYS_IN_MS) {
-        // Check if it's expiring *and* not already expired
+      if (timeDiff > THREE_DAYS_IN_MS) break;
+      if (timeDiff <= THREE_DAYS_IN_MS && timeDiff > 0) {
         isAboutToExpire = true;
-        break; // Found one, no need to check others
+        break;
       }
     }
   }
@@ -68,15 +60,7 @@ export default function PaymentAlert({
   // We no longer need the onVisibilityChange call here.
   return (
     <Alert variant="warning" className="shadow-md">
-      {/* 1. Use a standard, recognizable warning icon */}
       <AlertTriangle className="h-5 w-5" />
-
-      {/* 2. Use AlertTitle *only* for the main title */}
-      <AlertTitle className="font-semibold">
-        Subscription Expiring Soon
-      </AlertTitle>
-
-      {/* 3. Use AlertDescription for body text and actions */}
       <AlertDescription>
         Your payment is about to expire. Please renew to maintain access.
         <span
@@ -93,7 +77,6 @@ export default function PaymentAlert({
         </span>
       </AlertDescription>
 
-      {/* 5. A slightly cleaner dismiss button */}
       <button
         onClick={() => setIsVisible(false)}
         className="absolute top-2 right-2 p-1.5 rounded-full text-amber-900/70 hover:bg-amber-100/60 hover:text-amber-900"

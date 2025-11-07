@@ -109,7 +109,7 @@ const Layout: React.FC = () => {
 
         <main
           className={`flex-1 pb-20 overflow-y-auto transition-all duration-300 ${
-            hasAlert ? "pt-25" : "pt-16"
+            hasAlert ? "pt-30" : "pt-16"
           }`}
         >
           <Outlet />

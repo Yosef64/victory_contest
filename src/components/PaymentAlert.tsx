@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 export default function PaymentAlert({
   onVisibilityChange,
 }: {
-  onVisibilityChange?: (visible: boolean) => void;
+  onVisibilityChange?: (isVisible: boolean) => void;
 }) {
   const { user: tgUser } = useTelegram();
   const navigate = useNavigate();
@@ -20,12 +20,9 @@ export default function PaymentAlert({
     if (!tgUser?.id) return;
     const fetchUserPayments = async () => {
       try {
-        const payments = await fetchUserPaymentRequests(tgUser.id.toString());
+        const payments = await fetchUserPaymentRequests(tgUser?.id.toString());
         setpayments(payments);
-      } catch (err) {
-        console.error("Failed to fetch payments", err);
-        setpayments([]);
-      }
+      } catch (err) {}
     };
     fetchUserPayments();
   }, [tgUser]);
@@ -53,21 +50,15 @@ export default function PaymentAlert({
     }
   }
 
-  useEffect(() => {
-    onVisibilityChange?.(isAboutToExpire && isVisible);
-  }, [isAboutToExpire, isVisible]);
   if (!isAboutToExpire || !isVisible) {
     return null;
   }
+  onVisibilityChange?.(isVisible);
   return (
-    <Alert
-      variant="warning"
-      className="relative flex items-start gap-3 rounded-xl border border-yellow-300 bg-yellow-50 text-yellow-900 shadow-sm"
-    >
-      <PopcornIcon className="mt-1 shrink-0 text-yellow-600" />
-
-      <AlertTitle className="text-sm leading-relaxed">
-        Your payment is about to expire. Please
+    <Alert variant="warning">
+      <PopcornIcon />
+      <AlertTitle>
+        Your Payment is going to be expired. Please subscribe for more.{" "}
         <span
           onClick={() => navigate("/payment")}
           role="button"
@@ -75,19 +66,17 @@ export default function PaymentAlert({
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") navigate("/payment");
           }}
-          className="font-medium underline text-yellow-800 cursor-pointer hover:text-yellow-900"
+          className="underline cursor-pointer"
         >
-          subscribe
+          Subscribe
         </span>
-        for more.
       </AlertTitle>
-
       <button
         onClick={() => setIsVisible(false)}
-        className="absolute top-2 right-2 p-1 rounded-full hover:bg-yellow-100 transition-colors"
+        className="absolute top-2 right-2 rounded-full hover:bg-yellow-200/60"
         aria-label="Dismiss"
       >
-        <X className="h-4 w-4 text-yellow-700" />
+        <X className="h-5 w-5" />
       </button>
     </Alert>
   );

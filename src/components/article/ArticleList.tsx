@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { ArticleCard } from "./ArticleCard";
 import { ArticleFilters } from "./ArticleFilters";
 import { Article } from "../../types/article";
@@ -213,39 +213,35 @@ export function ArticleListForHome() {
   };
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const data = await getArticles("3");
-        const parsed = data.map((article: any) => ({
-          ...article,
-          publishedAt: article.publishedAt
-            ? new Date(article.publishedAt)
-            : undefined,
-          createdAt: article.createdAt
-            ? new Date(article.createdAt)
-            : undefined,
-          updatedAt: article.updatedAt
-            ? new Date(article.updatedAt)
-            : undefined,
-        }));
-        setArticles(parsed);
-        setError(null);
-      } catch (error) {
-        setError("Something went wront. Please try again!");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchArticles();
   }, [triggerLoading]);
+
+  const fetchArticles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getArticles("3");
+      const parsed = data.map((article: any) => ({
+        ...article,
+        publishedAt: article.publishedAt
+          ? new Date(article.publishedAt)
+          : undefined,
+        createdAt: article.createdAt ? new Date(article.createdAt) : undefined,
+        updatedAt: article.updatedAt ? new Date(article.updatedAt) : undefined,
+      }));
+      setArticles(parsed);
+      setError(null);
+    } catch (error) {
+      setError("Something went wront. Please try again!");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   if (loading) {
     return <ArticleSkeleton />;
   }
 
   if (err != null) {
-    return (
-      <ErrorMessage message={err} onRetry={() => setTriggerLoading(true)} />
-    );
+    return <ErrorMessage message={err} onRetry={fetchArticles} />;
   }
 
   return (

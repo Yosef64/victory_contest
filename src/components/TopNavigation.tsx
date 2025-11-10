@@ -53,6 +53,8 @@ const TopNavigation: React.FC = () => {
       return "Ai";
     } else if (pathname === "/feedback") {
       return "Feedback";
+    } else if (pathname === "/payment") {
+      return "Payment";
     } else if (pathname.startsWith("/article")) {
       return "Article";
     } else {

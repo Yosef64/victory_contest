@@ -37,6 +37,7 @@ import { getAiGeneratedQuestions } from "../services/aiService";
 import { toast } from "sonner";
 import { useTelegram } from "../hooks/useTelegram";
 import { Input } from "../components/ui/input";
+import ComingSoon from "../components/ComingSoon";
 // import { Skeleton } from "@/components/ui/skeleton";
 // NOTE: QuestionNavigationDropdown is a placeholder for your custom component
 // import QuestionNavigationDropdown from "../components/QuestionNavigationDropdown";
@@ -324,6 +325,7 @@ export function AIPracticePage() {
       </div>
     );
   }
+  return <ComingSoon />;
 
   // Initial Settings View
   return (

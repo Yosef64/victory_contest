@@ -164,7 +164,7 @@ const Payment: FC = () => {
           const payment: PaymentRequest = {
             userId: user?.id.toString() ?? "",
             id: "",
-            fullName: user?.first_name ?? "" + user?.last_name ?? "",
+            fullName: user?.first_name ?? "" + user?.last_name!,
             bankName: "Telegram Star",
             billScreenshotUrl: "",
             status: "Approved",

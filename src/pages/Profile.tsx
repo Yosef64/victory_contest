@@ -29,7 +29,6 @@ import {
 import { Badge } from "../components/ui/badge";
 import { getUserStat, updateUserInfo } from "../services/studentServices";
 import { toast } from "sonner";
-// import homeIcon from "../assets/contest.svg?react";
 import TargetIcon from "../assets/target-02-stroke-rounded.svg?react";
 import TimeIcon from "../assets/time-01-stroke-rounded.svg?react";
 import CheckMarkIcon from "../assets/checkmark-circle-03-stroke-rounded.svg?react";
@@ -188,6 +187,8 @@ const Profile = () => {
         age: user?.age || "5",
         is_premium: user?.is_premium || false,
         read_notifications: user?.read_notifications || {},
+        badge: user?.badge || [],
+        phoneNumber: user?.phoneNumber || "",
       });
     }
 
@@ -196,7 +197,6 @@ const Profile = () => {
     };
   }, [tgUser]);
 
-  // Determine if there are any changes compared to the current user profile
   const hasChanges = (() => {
     if (!user) return false;
     const fieldsToCompare: (keyof AuthStudent)[] = [
@@ -226,9 +226,7 @@ const Profile = () => {
       }
       setSaving(true);
       await updateUserInfo(editedProfile);
-      // Optimistically update auth context so UI reflects saved changes
       setUser((prev) => (prev ? { ...prev, ...editedProfile } : prev));
-      // Best-effort refresh from backend (non-blocking)
       try {
         refreshUser();
       } catch {}
